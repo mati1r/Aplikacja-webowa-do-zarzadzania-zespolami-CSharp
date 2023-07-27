@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
-    public class LoginModel : PageModel
+    public class RegisterModel : PageModel
     {
         public void OnGet()
         {
@@ -11,7 +11,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public void OnPost() 
         {
-            Response.Redirect("/UserTasks");
+            Response.Redirect("/");
         }
     }
 }
