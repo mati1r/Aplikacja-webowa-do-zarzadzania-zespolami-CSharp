@@ -4,23 +4,17 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark">
+
     <title>Aplikacja webowa do zarządzania zespołami</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <!-- <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" /> -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap-night.css"/>
     <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/DataTables/datatables.min.css" rel="stylesheet" />
+
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Aplikacja_webowa_do_zarządzania_zespołami.styles.css" asp-append-version="true" />
-    <!-- Zmiana klasy dla aktualnie wybranego elementu/strony -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('href').toLowerCase() === location.pathname.toLowerCase()) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-        })
-    </script>
 </head>
 
 
@@ -82,6 +76,40 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/DataTables/datatables.min.js"></script>
+    <!-- Zmiana klasy dla aktualnie wybranego elementu/strony -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href').toLowerCase() === location.pathname.toLowerCase()) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        })
+    </script>
+    <!-- DataTable -->
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $('#example').DataTable({
+                "oLanguage": {
+                    "oPaginate": {
+                        "sPrevious": "Poprzednie",
+                        "sNext": "Następne"
+                    },
+
+                    "sInfo": "Pozycje od _START_ do _END_ z _TOTAL_ ",
+                    "sLengthMenu": "Ilość pozycji _MENU_",
+                    "sSearch": "Szukaj:",
+                    "sInfoFiltered": "(wyszukane z _MAX_ pozycji)",
+                    "sZeroRecords": "Brak wyników",
+                    "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
+                    }
+            });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
