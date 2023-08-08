@@ -18,93 +18,29 @@
                     <div class="card bg-table">
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table id="example" class="dataTable table table-borderless">
+                                <table id="DataTable" class="dataTable table table-borderless">
                                     <thead>
                                         <tr>
                                             <th scope="col">Nazwa zadania</th>
-                                            <th scope="col">Priorytet</th>
                                             <th scope="col">Data zadania</th>
                                             <th scope="col">Data wykonania</th>
-                                            <th scope="col">ADDRESS</th>
-                                            <th scope="col"></th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Priorytet</th>
+                                            <th scope="col" data-orderable="false"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>Tiger Nixon</td>
-                                            <td>System Architect</td>
-                                            <td>tnixon12@example.com</td>
-                                            <td>61</td>
-                                            <td>Edinburgh</td>
-                                            <td>$320,800</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Sonya Frost</td>
-                                            <td>Software Engineer</td>
-                                            <td>sfrost34@example.com</td>
-                                            <td>23</td>
-                                            <td>Edinburgh</td>
-                                            <td>$103,600</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Jena Gaines</td>
-                                            <td>Office Manager</td>
-                                            <td>jgaines75@example.com</td>
-                                            <td>30</td>
-                                            <td>London</td>
-                                            <td>$90,560</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Quinn Flynn</td>
-                                            <td>Support Lead</td>
-                                            <td>qflyn09@example.com</td>
-                                            <td>22</td>
-                                            <td>Edinburgh</td>
-                                            <td>$342,000</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Charde Marshall</td>
-                                            <td>Regional Director</td>
-                                            <td>cmarshall28@example.com</td>
-                                            <td>36</td>
-                                            <td>San Francisco</td>
-                                            <td>$470,600</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Haley Kennedy</td>
-                                            <td>Senior Marketing Designer</td>
-                                            <td>hkennedy63@example.com</td>
-                                            <td>43</td>
-                                            <td>London</td>
-                                            <td>$313,500</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Tatyana Fitzpatrick</td>
-                                            <td>Regional Director</td>
-                                            <td>tfitzpatrick00@example.com</td>
-                                            <td>19</td>
-                                            <td>Warsaw</td>
-                                            <td>$385,750</td>
-                                        </tr>
-                                        @for(int i=0; i<20; i++)
+                                        @foreach(var item in Model.TasksList)
                                         {
-                                            <tr>
-                                                <td>Tatyana Fitzpatrick</td>
-                                                <td>Regional Director</td>
-                                                <td>tfitzpatrick00@example.com</td>
-                                                <td>19</td>
-                                                <td>Warsaw</td>
-                                                <td>$385,750</td>
-                                            </tr>
-                                        }
                                         <tr>
-                                            <td>TEST</td>
-                                            <td>Regional Director</td>
-                                            <td>tfitzpatrick00@example.com</td>
-                                            <td>19</td>
-                                            <td>Warsaw</td>
-                                            <td>$385,750</td>
+                                            <td>@item.Title</td>
+                                            <td>@item.StartDate</td>
+                                            <td>@item.EndDate</td>
+                                            <td>@item.Status</td>
+                                            <td>@item.Priority</td>
+                                            <td><button class="btn btn-sm btn-dark details" data-id="@item.Id" data-bs-toggle="modal" data-bs-target="#details-modal">Details</button></td>
                                         </tr>
+                                        }
                                     </tbody>
                                 </table>
                             </div>
@@ -113,6 +49,57 @@
                 </div>
             </div>
         </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="details-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Dane zadania</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <span class="d-inline-block">Title:</span><span id="title"></span>
+                </div>
+                <div>
+                    <span class="d-inline-block">Description:</span><span id="description"></span>
+                </div>
+                <div>
+                    <span class="d-inline-block">Status:</span><span id="status"></span>
+                </div>
+                <div>
+                    <span class="d-inline-block">Priority:</span><span id="priority"></span>
+                </div>
+                <div>
+                    <span class="d-inline-block">Start Date</span><span id="start-date"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                <button type="button" class="btn btn-primary" id="update" data-id="">Save changes</button>
+            </div>
+        </div>
     </div>
 </div>
+
+@section scripts{
+    <script>
+        $(function () {
+            $('button.details').on('click', function () {
+                $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
+                    $('#title').text(task.title);
+                    $('#description').text(task.description);
+                    $('#status').text(task.status);
+                    $('#priority').text(task.priority);
+                    $('#start-date').text(task.startDate);
+                    $('#update').attr('data-id', task.id.toString());
+                });
+            });
+        })
+    </script>
+}
+
+
+
 

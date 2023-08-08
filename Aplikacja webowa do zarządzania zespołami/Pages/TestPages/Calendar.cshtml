@@ -12,7 +12,7 @@
         var calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             events: function (info, successCallback, failureCallback) {
-                fetch('/Index?handler=Events', { method: 'GET' })
+                fetch('/Calendar?handler=Events', { method: 'GET' })
                     .then(response => response.json())
                     .then(data => {
                         successCallback(data);
