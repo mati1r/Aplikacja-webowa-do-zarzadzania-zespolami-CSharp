@@ -7,6 +7,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
 
         public DbSet<Calendar> Calendar { get; set; }
-        public DbSet<Task> Task { get; set; }
+        public DbSet<Tasks> Tasks { get; set; }
     }
 }

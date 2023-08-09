@@ -2,17 +2,19 @@
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
 {
-    public class Task
+    public class Tasks
     {
+        public int users_user_id { get; set; }
+        public int groups_group_id { get; set; }
         [Key]
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public DateTime? FinishDate { get; set; }     
-        public string Priority { get; set; }
-        public string Status { get; set; }
-        public string? Feedback { get; set; }
+        public int task_id { get; set; }
+        public string task_name { get; set; }
+        public string description { get; set; }
+        public DateTime start_date { get; set; }
+        public DateTime end_date { get; set; }
+        public DateTime? finish_date { get; set; }     
+        public string priority { get; set; }
+        public string status { get; set; }
+        public string? feedback { get; set; }
     }
 }

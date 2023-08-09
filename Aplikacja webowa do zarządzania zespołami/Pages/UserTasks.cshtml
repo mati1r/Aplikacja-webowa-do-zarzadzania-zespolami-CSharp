@@ -33,12 +33,12 @@
                                         @foreach(var item in Model.TasksList)
                                         {
                                         <tr>
-                                            <td>@item.Title</td>
-                                            <td>@item.StartDate</td>
-                                            <td>@item.EndDate</td>
-                                            <td>@item.Status</td>
-                                            <td class="priority-table">@item.Priority</td>
-                                            <td><button class="btn btn-sm btn-dark details" data-id="@item.Id" data-bs-toggle="modal" data-bs-target="#details-modal">Details</button></td>
+                                            <td>@item.task_name</td>
+                                            <td>@item.start_date</td>
+                                            <td>@item.end_date</td>
+                                            <td>@item.status</td>
+                                            <td class="priority-table">@item.priority</td>
+                                            <td><button class="btn btn-sm btn-dark details" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#details-modal">Details</button></td>
                                         </tr>
                                         }
                                     </tbody>
@@ -107,7 +107,10 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                <button type="button" class="btn btn-primary" id="update" data-id="">Odznacz jako wykonane</button>
+                <form method="post">
+                    <input type="hidden" asp-for="Action_Task_Id" id="update" />
+                    <input class="btn btn-primary" type="submit" value="Odznacz jako wykonane" asp-page-handler="Send" />
+                </form>
             </div>
         </div>
     </div>
@@ -139,13 +142,13 @@
         $(function () {
             $('button.details').on('click', function () {
                 $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
-                    $('#title').text(task.title);
+                    $('#title').text(task.task_name);
                     $('#description').text(task.description);
                     $('#status').text(task.status);
                     $('#priority').text(task.priority);
-                    $('#start-date').text(task.startDate);
-                    $('#end-date').text(task.endDate);
-                    $('#update').attr('data-id', task.id.toString());
+                    $('#start-date').text(task.start_date);
+                    $('#end-date').text(task.end_date);
+                    $('#update').val(task.task_id);
 
                     if(task.priority == "niski"){
                         $('#priority').css("color", "green");

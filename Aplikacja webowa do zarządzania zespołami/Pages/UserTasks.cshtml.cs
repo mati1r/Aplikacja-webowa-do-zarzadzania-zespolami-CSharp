@@ -12,25 +12,36 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public UserTasksModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
+            TasksList = new List<Models.Tasks>();
         }
 
 
-        public List<Models.Task> TasksList;
+        public List<Models.Tasks> TasksList;
 
         public void OnGet()
         {
-            TasksList = _dbContext.Task.ToList<Models.Task>();
+            TasksList = _dbContext.Tasks.ToList<Models.Tasks>();
         }
 
-        public async Task<Models.Task> GetTaskAsync(int id)
+        public async Task<Models.Tasks> GetTaskAsync(int id)
         {
-            return await _dbContext.Task.FirstOrDefaultAsync(p => p.Id == id);
+            return await _dbContext.Tasks.FirstOrDefaultAsync(p => p.task_id == id);
         }
 
 
         public async Task<JsonResult> OnGetTaskJsonAsync(int id)
         {
             return new JsonResult(await GetTaskAsync(id));
+        }
+
+        [BindProperty(SupportsGet = true)]
+        public int Action_Task_Id { get; set; }
+
+        public IActionResult OnPostSend()
+        {
+            Console.WriteLine("Id =" + Action_Task_Id);
+            // Wykonaj inne operacje lub przekierowanie
+            return RedirectToPage("UserTasks");
         }
     }
 }
