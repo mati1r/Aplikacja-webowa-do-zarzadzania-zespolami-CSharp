@@ -19,15 +19,10 @@
 
 
 <body>
-
     <div class="layout-format">
-        <nav class="navbar navbar-expand-md navbar-dark bg-layout p-3 border-bottom" aria-label="Navbar">
+        <nav class="navbar navbar-expand navbar-dark bg-layout p-3 border-bottom">
             <div class="container-fluid justify-content-end">
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#Navbar" aria-controls="Navbar" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="Navbar">
+                <div class="collapse navbar-collapse">
                     <h4>NAVBAR</h4>
                     <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                         <li class="nav-item">
@@ -96,36 +91,16 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/DataTables/datatables.min.js"></script>
+
     <!-- Zmiana klasy dla aktualnie wybranego elementu/strony -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('href').toLowerCase() === location.pathname.toLowerCase()) {
-                    link.classList.add('active');
-                } else {
-                    link.classList.remove('active');
-                }
-            });
-        })
-    </script>
-    <!-- DataTable -->
-    <script type="text/javascript">
         $(document).ready(function () {
-
-            $('#DataTable').DataTable({
-                "oLanguage": {
-                    "oPaginate": {
-                        "sPrevious": "Poprzednie",
-                        "sNext": "Następne"
-                    },
-
-                    "sInfo": "Pozycje od _START_ do _END_ z _TOTAL_ ",
-                    "sLengthMenu": "Ilość pozycji _MENU_",
-                    "sSearch": "Szukaj:",
-                    "sInfoFiltered": "(wyszukane z _MAX_ pozycji)",
-                    "sZeroRecords": "Brak wyników",
-                    "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
-                    }
+            $('.nav-link').each(function () {
+                if ($(this).attr('href').toLowerCase() === location.pathname.toLowerCase()) {
+                    $(this).addClass('active');
+                } else {
+                    $(this).removeClass('active');
+                }
             });
         });
     </script>

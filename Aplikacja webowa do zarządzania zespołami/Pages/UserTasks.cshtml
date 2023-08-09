@@ -25,7 +25,7 @@
                                             <th scope="col">Data zadania</th>
                                             <th scope="col">Data wykonania</th>
                                             <th scope="col">Status</th>
-                                            <th scope="col">Priorytet</th>
+                                            <th scope="col">Stopień ważności</th>
                                             <th scope="col" data-orderable="false"></th>
                                         </tr>
                                     </thead>
@@ -37,7 +37,7 @@
                                             <td>@item.StartDate</td>
                                             <td>@item.EndDate</td>
                                             <td>@item.Status</td>
-                                            <td>@item.Priority</td>
+                                            <td class="priority-table">@item.Priority</td>
                                             <td><button class="btn btn-sm btn-dark details" data-id="@item.Id" data-bs-toggle="modal" data-bs-target="#details-modal">Details</button></td>
                                         </tr>
                                         }
@@ -49,35 +49,65 @@
                 </div>
             </div>
         </div>
+    </div>
 </div>
 
 <div class="modal fade" tabindex="-1" role="dialog" id="details-modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Dane zadania</h5>
+                <h5 class="modal-title" id="title"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div>
-                    <span class="d-inline-block">Title:</span><span id="title"></span>
-                </div>
-                <div>
-                    <span class="d-inline-block">Description:</span><span id="description"></span>
-                </div>
-                <div>
-                    <span class="d-inline-block">Status:</span><span id="status"></span>
-                </div>
-                <div>
-                    <span class="d-inline-block">Priority:</span><span id="priority"></span>
-                </div>
-                <div>
-                    <span class="d-inline-block">Start Date</span><span id="start-date"></span>
+                <div class="mt-md-4 pb-5">
+                    <div class="contain">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label>Status</label>
+                                <hr />
+                                <p class="text-white-50" id="status"></p>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label>Stopień ważność</label>
+                                <hr />
+                                <p class="" id="priority"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contain">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label>Data zadania</label>
+                                <hr/>
+                                <p class="text-white-50" id="start-date"></p>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label>Data wykonania</label>
+                                <hr />
+                                <p class="text-white-50" id="end-date"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label>Opis zadania</label>
+                        <p class="text-white-50 mb-5 mt-2" id="description"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label>Wiadomość zwrotna (opcjonalna)</label>
+                        <hr/>
+                        <textarea class="form-control bg-dark" rows="4"></textarea>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                <button type="button" class="btn btn-primary" id="update" data-id="">Save changes</button>
+                <button type="button" class="btn btn-primary" id="update" data-id="">Odznacz jako wykonane</button>
             </div>
         </div>
     </div>
@@ -85,6 +115,27 @@
 
 @section scripts{
     <script>
+        //DataTable
+        $(document).ready(function () {
+
+            $('#DataTable').DataTable({
+                "oLanguage": {
+                    "oPaginate": {
+                        "sPrevious": "Poprzednie",
+                        "sNext": "Następne"
+                    },
+
+                    "sInfo": "Pozycje od _START_ do _END_ z _TOTAL_ ",
+                    "sLengthMenu": "Ilość pozycji _MENU_",
+                    "sSearch": "Szukaj:",
+                    "sInfoFiltered": "(wyszukane z _MAX_ pozycji)",
+                    "sZeroRecords": "Brak wyników",
+                    "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
+                }
+            });
+        });
+
+        //Modal text and coloring for priority
         $(function () {
             $('button.details').on('click', function () {
                 $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
@@ -93,11 +144,31 @@
                     $('#status').text(task.status);
                     $('#priority').text(task.priority);
                     $('#start-date').text(task.startDate);
+                    $('#end-date').text(task.endDate);
                     $('#update').attr('data-id', task.id.toString());
+
+                    if(task.priority == "niski"){
+                        $('#priority').css("color", "green");
+                    } else if (task.priority == "wysoki"){
+                        $('#priority').css("color", "red");
+                    }else{
+                        $('#priority').addClass("text-white-50");
+                    }
                 });
             });
         })
-    </script>
+
+        //DataTable coloring for priority
+        $(document).ready(function () {
+            $('.priority-table').each(function () {
+                if ($(this).html() == "niski") {
+                    $(this).css('color', 'green');
+                }else if ($(this).html() == "wysoki") {
+                    $(this).css("color", "red");
+                }
+            });
+        });
+</script>
 }
 
 
