@@ -1,0 +1,173 @@
+﻿@page "/AdminTasks"
+@model AdminTasksModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="w-100 h-100 d-inline-block overflow-auto bg-main">
+    <div class="p-4">
+        <h1 class="text-center display-6 fw-bold">Zadania ADMIN</h1>
+    </div>
+
+    <div class="p-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-table">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table id="DataTable" class="dataTable table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Nazwa zadania</th>
+                                            <th scope="col">Data zadania</th>
+                                            <th scope="col">Data wykonania</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Stopień ważności</th>
+                                            <th scope="col" data-orderable="false"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.TasksList)
+                                        {
+                                            <tr>
+                                                <td>@item.task_name</td>
+                                                <td>@item.start_date</td>
+                                                <td>@item.end_date</td>
+                                                <td>@item.status</td>
+                                                <td class="priority-table">@item.priority</td>
+                                                <td><button class="btn btn-sm btn-dark details" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#details-modal">Details</button></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="details-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="title"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-md-4 pb-5">
+                    <div class="contain">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label>Status</label>
+                                <hr />
+                                <p class="text-white-50" id="status"></p>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label>Stopień ważność</label>
+                                <hr />
+                                <p class="" id="priority"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contain">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label>Data zadania</label>
+                                <hr />
+                                <p class="text-white-50" id="start-date"></p>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label>Data wykonania</label>
+                                <hr />
+                                <p class="text-white-50" id="end-date"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label>Opis zadania</label>
+                        <p class="text-white-50 mb-5 mt-2" id="description"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label>Wiadomość zwrotna (opcjonalna)</label>
+                        <hr />
+                        <textarea class="form-control bg-dark" rows="4"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                <form method="post">
+                    <input type="hidden" asp-for="Action_Task_Id" id="update" />
+                    <input class="btn btn-primary" type="submit" value="Odznacz jako wykonane" asp-page-handler="Send" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        //DataTable
+        $(document).ready(function () {
+
+            $('#DataTable').DataTable({
+                "oLanguage": {
+                    "oPaginate": {
+                        "sPrevious": "Poprzednie",
+                        "sNext": "Następne"
+                    },
+
+                    "sInfo": "Pozycje od _START_ do _END_ z _TOTAL_ ",
+                    "sLengthMenu": "Ilość pozycji _MENU_",
+                    "sSearch": "Szukaj:",
+                    "sInfoFiltered": "(wyszukane z _MAX_ pozycji)",
+                    "sZeroRecords": "Brak wyników",
+                    "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
+                }
+            });
+        });
+
+        //Modal text and coloring for priority
+        $(function () {
+            $('button.details').on('click', function () {
+                $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
+                    $('#title').text(task.task_name);
+                    $('#description').text(task.description);
+                    $('#status').text(task.status);
+                    $('#priority').text(task.priority);
+                    $('#start-date').text(task.start_date);
+                    $('#end-date').text(task.end_date);
+                    $('#update').val(task.task_id);
+
+                    if (task.priority == "niski") {
+                        $('#priority').css("color", "green");
+                    } else if (task.priority == "wysoki") {
+                        $('#priority').css("color", "red");
+                    } else {
+                        $('#priority').addClass("text-white-50");
+                    }
+                });
+            });
+        })
+
+        //DataTable coloring for priority
+        $(document).ready(function () {
+            $('.priority-table').each(function () {
+                if ($(this).html() == "niski") {
+                    $(this).css('color', 'green');
+                } else if ($(this).html() == "wysoki") {
+                    $(this).css("color", "red");
+                }
+            });
+        });
+    </script>
+}

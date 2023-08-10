@@ -18,12 +18,12 @@
                             <p class="text-white-50 mb-5">Proszę podać swój adres e-mail oraz hasło</p>
 
                             <div class="form-outline form-white mb-4">
-                                <input type="email" class="form-control form-control-lg text-light input-background" />
+                                <input type="email" class="form-control form-control-lg text-light input-background" asp-for="user_credentials.e_mail"/>
                                 <label class="form-label" for="typeEmailX">E-mail</label>
                             </div>
 
                             <div class="form-outline form-white mb-4">
-                                <input type="password" id="typePasswordX" class="form-control form-control-lg text-light input-background" />
+                                <input type="password" id="typePasswordX" class="form-control form-control-lg text-light input-background" asp-for="user_credentials.password" />
                                 <label class="form-label" for="typePasswordX">Hasło</label>
                             </div>
 
