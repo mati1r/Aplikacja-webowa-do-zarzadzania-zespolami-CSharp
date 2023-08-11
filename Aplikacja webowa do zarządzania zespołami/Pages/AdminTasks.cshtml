@@ -3,6 +3,10 @@
 @{
     ViewData["Title"] = "Home page";
 }
+@if (Model.data != "Owner")
+{
+    Response.Redirect("/");
+}
 
 <div class="w-100 h-100 d-inline-block overflow-auto bg-main">
     <div class="p-4">

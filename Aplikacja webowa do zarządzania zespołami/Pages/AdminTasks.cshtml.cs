@@ -17,14 +17,18 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
 
         public List<Models.Tasks> TasksList;
+        public const string Key = "_userType";
+        public string data;
 
         public void OnGet()
         {
+            data = HttpContext.Session.GetString(Key);
             TasksList = _dbContext.Tasks.ToList<Models.Tasks>();
         }
 
         public async Task<Models.Tasks> GetTaskAsync(int id)
         {
+            //Jeżeli ktos usunie w trakcie gdy mamy zaladowane dane do tabeli i klikniemy details to tu wystąpi błąd !!! OBMYŚLEĆ ROZWIĄZANIE
             return await _dbContext.Tasks.FirstOrDefaultAsync(p => p.task_id == id);
         }
 

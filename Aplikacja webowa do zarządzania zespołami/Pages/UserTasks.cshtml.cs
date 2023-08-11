@@ -17,9 +17,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
 
         public List<Models.Tasks> TasksList;
+        public const string Key = "_userType";
+        public string data;
 
         public void OnGet()
         {
+            data = HttpContext.Session.GetString(Key);
             TasksList = _dbContext.Tasks.ToList<Models.Tasks>();
         }
 

@@ -44,10 +44,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 else
                 {
                     //There is no user that uses those data now check if data are in right format
-                    UserValidation validator = new UserValidation();
-                    if(validator.IsEmailValid(userData.e_mail) && validator.IsPasswordLenghtValid(userData.password) && validator.IsUserNameValid(userData.username))
+                    if(UserValidation.IsEmailValid(userData.e_mail) && UserValidation.IsPasswordLenghtValid(userData.password) && UserValidation.IsUserNameValid(userData.username))
                     {
                         //Add user to system
+                        userData.salt = Hash.GenerateSalt(16);
+                        userData.password = Hash.HashPassword(userData.password, userData.salt);
                         _dbContext.Users.Add(userData);
                         _dbContext.SaveChanges();
                         Response.Redirect("/");

@@ -1,8 +1,10 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
@@ -26,6 +28,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty]
         public UserDTO userCredentials { get; set; }
         public string error;
+        public string sessionData;
+        public const string Key = "_userType";
+        public const string Key2 = "_userId";
+        public const string Key3 = "_groupId";
 
         public void OnGet()
         {
@@ -47,19 +53,21 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 //Get id's of all admins
                 var ownerList = groupsList.Select(c=>c.owner_id).ToList();
                 //Check if credentials are correct for any avaiable user
-                if (usersList.Count(c => c.e_mail == userEmail && c.password == password) > 0)
+                if (usersList.Count(c => c.e_mail == userEmail && Hash.VerifyPassword(password,c.password, c.salt)) > 0)
                 {
                     //Get the Id of user that is trying to login
-                    Users user = usersList.Where(c => c.e_mail == userEmail && c.password == password).First();
+                    Users user = usersList.Where(c => c.e_mail == userEmail && Hash.VerifyPassword(password, c.password, c.salt)).First();
                     int userId = user.user_id;
                     //Check if user that is trying to login is a owner of a group if so then log him to his group
                     int ownerId = ownerList.Count(c => c == userId);
                     if (ownerId > 0) 
                     {
-                        var GroupId = groupsList.Where(c => c.owner_id == ownerId).Select(c => c.group_id).First();
-                        Console.WriteLine(GroupId.ToString());
-                        //HttpContext.Session.SetString(Key, "Owner");
-                        //HttpContext.Session.SetInt32(Key2, UserId);
+                        var groupId = groupsList.Where(c => c.owner_id == ownerId).Select(c => c.group_id).First();
+                        Console.WriteLine(groupId.ToString());
+                        //Set session propertise
+                        HttpContext.Session.SetString(Key, "Owner");
+                        HttpContext.Session.SetInt32(Key2, userId);
+                        HttpContext.Session.SetInt32(Key3, groupId);
                         Response.Redirect("/AdminTasks");
                     }
                     //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
@@ -69,15 +77,19 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         if (_dbContext.Users_Groups.Count(c => c.users_user_id == userId) > 0)
                         {
                             //Find a group fo a user
-                            var UserGroup = _dbContext.Users_Groups.Where(c => c.users_user_id == userId).Select(c => c.groups_group_id).First();
-                            Console.WriteLine("Grupa użytkownika = "+ UserGroup.ToString());
+                            var userGroupId = _dbContext.Users_Groups.Where(c => c.users_user_id == userId).Select(c => c.groups_group_id).First();
+                            Console.WriteLine("Grupa użytkownika = "+ userGroupId.ToString());
                             //Set session propertise
-                            //HttpContext.Session.SetString(Key, "User");
-                            //HttpContext.Session.SetInt32(Key2, UserId);
+                            HttpContext.Session.SetString(Key, "User");
+                            HttpContext.Session.SetInt32(Key2, userId);
+                            HttpContext.Session.SetInt32(Key3, userGroupId);
                         }
                         //If user is not part of any group set session group to 0
                         else
                         {
+                            HttpContext.Session.SetString(Key, "User");
+                            HttpContext.Session.SetInt32(Key2, userId);
+                            HttpContext.Session.SetInt32(Key3, 0);
                             Console.WriteLine("Grupa użytkownika = 0");
                         }
                         Response.Redirect("/UserTasks");

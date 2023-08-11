@@ -14,6 +14,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         [StringLength(30, MinimumLength = 4)]
         [Required(ErrorMessage = "Pole hasło jest wymagane (minimalna długość to 4 a maksymalna to 30 znaków)")]
         public string password { get; set; }
+        public string? salt { get; set; }
 
         [StringLength(50, MinimumLength = 5)]
         [Required(ErrorMessage = "Pole email jest wymagane (minimalna długość to 5 a maksymalna to 50 znaków)")]
