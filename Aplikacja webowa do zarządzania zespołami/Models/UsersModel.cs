@@ -12,7 +12,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         public string username { get; set; }
 
         [StringLength(30, MinimumLength = 4)]
-        [Required(ErrorMessage = "Pole hasło jest wymagane (minimalna długość to 5 a maksymalna to 30 znaków)")]
+        [Required(ErrorMessage = "Pole hasło jest wymagane (minimalna długość to 4 a maksymalna to 30 znaków)")]
         public string password { get; set; }
 
         [StringLength(50, MinimumLength = 5)]
