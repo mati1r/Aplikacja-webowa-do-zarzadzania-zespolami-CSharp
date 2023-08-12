@@ -12,18 +12,18 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public UserTasksModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            TasksList = new List<Models.Tasks>();
+            tasksList = new List<Models.Tasks>();
         }
 
 
-        public List<Models.Tasks> TasksList;
+        public List<Models.Tasks> tasksList;
         public const string Key = "_userType";
         public string data;
 
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
-            TasksList = _dbContext.Tasks.ToList<Models.Tasks>();
+            tasksList = _dbContext.Tasks.ToList<Models.Tasks>();
         }
 
         public async Task<Models.Tasks> GetTaskAsync(int id)
