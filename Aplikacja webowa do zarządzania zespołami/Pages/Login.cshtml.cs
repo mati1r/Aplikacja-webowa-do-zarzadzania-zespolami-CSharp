@@ -73,18 +73,18 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
                     else
                     {
-                        //Check if user is a part of any group
-                        if (_dbContext.Users_Groups.Count(c => c.users_user_id == userId) > 0)
+                        //Check if user is a part of any group and if he have an active member status
+                        if (_dbContext.Users_Groups.Count(c => c.users_user_id == userId && c.status == "aktywny") > 0)
                         {
                             //Find a group fo a user
-                            var userGroupId = _dbContext.Users_Groups.Where(c => c.users_user_id == userId).Select(c => c.groups_group_id).First();
+                            var userGroupId = _dbContext.Users_Groups.Where(c => c.users_user_id == userId && c.status == "aktywny").Select(c => c.groups_group_id).First();
                             Console.WriteLine("Grupa użytkownika = "+ userGroupId.ToString());
                             //Set session propertise
                             HttpContext.Session.SetString(Key, "User");
                             HttpContext.Session.SetInt32(Key2, userId);
                             HttpContext.Session.SetInt32(Key3, userGroupId);
                         }
-                        //If user is not part of any group set session group to 0
+                        //If user is not part of any group or he is not active in any set session group to 0
                         else
                         {
                             HttpContext.Session.SetString(Key, "User");

@@ -6,6 +6,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     public class PrivacyModel : PageModel
     {
         private readonly ILogger<PrivacyModel> _logger;
+        public const string Key = "_userType";
+        public string data;
 
         public PrivacyModel(ILogger<PrivacyModel> logger)
         {
@@ -14,6 +16,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public void OnGet()
         {
+            data = HttpContext.Session.GetString(Key);
         }
     }
 }
