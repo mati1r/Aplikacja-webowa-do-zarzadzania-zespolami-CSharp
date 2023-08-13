@@ -1,0 +1,93 @@
+﻿@page "/JoinGroup"
+@model Aplikacja_webowa_do_zarządzania_zespołami.Pages.JoinGroupModel
+@{
+    Layout = "_GroupLayout";
+}
+@if (Model.data == null)
+{
+    Response.Redirect("/");
+}
+
+<div class="align-content-center">
+    <h3>Chciałbyś poprowadzić swój własny zespół</h3>
+    <span class="p-1 me-1">Nie czekaj zrób to już teraz</span>
+    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#create-modal">Stwórz</button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="create-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Stwórz grupe</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="Create">
+                <div class="modal-body">
+                    <div class="mt-md-4 pb-5">
+                        <div class="mb-4">
+                            <label class="form-label" for="typeGroupNameX">Nazwa grupy</label></br>
+                            <input type="text" id="typeGroupNameX" class="form-control form-control-lg text-light bg-dark" asp-for="createGroup.name" />
+                            <span asp-validation-for="createGroup.name" class="text-danger"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label" for="typeGroupDescX">Opis grupy</label></br>
+                            <textarea id="typeGroupDescX" class=" form-control bg-dark" rows="4" asp-for="createGroup.description"></textarea>
+                            <span asp-validation-for="createGroup.description" class="text-danger"></span>
+                        </div>
+                        <div id="validationErrors" class="text-danger" style="display:none;"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                    <input class="btn btn-primary" type="submit" value="Stwórz" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("form").submit(function (event) {
+                event.preventDefault();
+
+                let form = $(this);
+                let actionUrl = form.attr("action");
+                let pageHandler = form.attr("asp-page-handler"); // Pobierz nazwę handlera
+
+                // Utwórz pełny adres URL z atrybutem asp-page-handler
+                if (pageHandler) {
+                    actionUrl += "?" + $.param({ "handler": pageHandler });
+                }
+
+                $.ajax({
+                    type: form.attr("method"),
+                    url: actionUrl,
+                    data: form.serialize(),
+                    dataType: "json", // Oczekujemy odpowiedzi JSON
+                    success: function (data) {
+                        if (Array.isArray(data) && data.length > 0) {
+                            let validationErrors = $("#validationErrors");
+                            validationErrors.empty();
+
+                            $.each(data, function (index, message) {
+                                validationErrors.append("<p>" + message + "</p>");
+                            });
+
+                            validationErrors.show();
+                        } else {
+                            $('#create-modal').modal('hide');
+                            // Tutaj możesz wykonać jakieś dodatkowe akcje
+                        }
+                    }
+                });
+            });
+        });
+
+        $('#create-modal').on('show.bs.modal', function () {
+            $('#validationErrors').empty();
+        });
+    </script>
+}

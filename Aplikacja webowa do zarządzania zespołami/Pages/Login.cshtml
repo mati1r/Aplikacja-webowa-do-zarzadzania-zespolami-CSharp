@@ -18,7 +18,7 @@
                             <p class="text-white-50 mb-5">Proszę podać swój adres e-mail oraz hasło</p>
 
                             <div class="form-outline form-white mb-4">
-                                <input type="email" class="form-control form-control-lg text-light input-background" asp-for="userCredentials.e_mail"/>
+                                    <input type="email" id="typeEmailX" class="form-control form-control-lg text-light input-background" asp-for="userCredentials.e_mail" />
                                 <label class="form-label" for="typeEmailX">E-mail</label></br>
                                 <span asp-validation-for="userCredentials.e_mail" class="text-danger"></span>
 
