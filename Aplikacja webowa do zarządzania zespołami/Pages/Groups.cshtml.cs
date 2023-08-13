@@ -40,7 +40,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostChangeActiveGroup()
         {
-            //I need to get values again
+            //I need to get values again this time for Post request
             userId = HttpContext.Session.GetInt32(Key2);
             groupList = _dbContext.Groups
                 .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId && ug.status == "aktywny"))

@@ -26,6 +26,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         public string? surname { get; set; }
 
         public ICollection<Users_Groups>? Users_Groups { get; set; }
+        public ICollection<Tasks>? Tasks { get; set; }
 
     }
 }

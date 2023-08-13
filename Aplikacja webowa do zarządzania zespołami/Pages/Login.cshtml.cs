@@ -59,10 +59,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     Users user = usersList.Where(c => c.e_mail == userEmail && Hash.VerifyPassword(password, c.password, c.salt)).First();
                     int userId = user.user_id;
                     //Check if user that is trying to login is a owner of a group if so then log him to his group
-                    int ownerId = ownerList.Count(c => c == userId);
-                    if (ownerId > 0) 
+                    if (ownerList.Count(c => c == userId) > 0) 
                     {
-                        var groupId = groupsList.Where(c => c.owner_id == ownerId).Select(c => c.group_id).First();
+                        var groupId = groupsList.Where(c => c.owner_id == userId).Select(c => c.group_id).First();
                         Console.WriteLine(groupId.ToString());
                         //Set session propertise
                         HttpContext.Session.SetString(Key, "Owner");

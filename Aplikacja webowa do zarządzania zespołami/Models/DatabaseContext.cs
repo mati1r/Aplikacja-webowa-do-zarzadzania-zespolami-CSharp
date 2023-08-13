@@ -27,6 +27,19 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
                 .HasOne(pk => pk.Groups)
                 .WithMany(k => k.Users_Groups)
                 .HasForeignKey(pk => pk.groups_group_id);
+
+            modelBuilder.Entity<Tasks>()
+                .HasKey(pk => new { pk.task_id });
+
+            modelBuilder.Entity<Tasks>()
+                .HasOne(pk => pk.Users)
+                .WithMany(p => p.Tasks)
+                .HasForeignKey(pk => pk.users_user_id);
+
+            modelBuilder.Entity<Tasks>()
+                .HasOne(pk => pk.Groups)
+                .WithMany(k => k.Tasks)
+                .HasForeignKey(pk => pk.groups_group_id);
         }
     }
 }
