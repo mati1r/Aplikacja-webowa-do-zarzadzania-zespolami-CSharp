@@ -66,7 +66,7 @@
                     type: form.attr("method"),
                     url: actionUrl,
                     data: form.serialize(),
-                    dataType: "json", // Oczekujemy odpowiedzi JSON
+                    dataType: "json",
                     success: function (data) {
                         if (Array.isArray(data) && data.length > 0) {
                             let validationErrors = $("#validationErrors");
@@ -79,13 +79,13 @@
                             validationErrors.show();
                         } else {
                             $('#create-modal').modal('hide');
-                            // Tutaj możesz wykonać jakieś dodatkowe akcje
                         }
                     }
                 });
             });
         });
 
+        //Cleaning
         $('#create-modal').on('show.bs.modal', function () {
             $('#validationErrors').empty();
         });
