@@ -63,59 +63,59 @@
                 <h5 class="modal-title" id="title"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="mt-md-4 pb-5">
-                    <div class="contain">
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label>Status</label>
-                                <hr />
-                                <p class="text-white-50" id="status"></p>
-                            </div>
+            <form method="post">
+                <div class="modal-body">
+                    <div class="mt-md-4 pb-5">
+                        <div class="contain">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label>Status</label>
+                                    <hr />
+                                    <p class="text-white-50" id="status"></p>
+                                </div>
 
-                            <div class="col-md-6 mb-4">
-                                <label>Stopień ważność</label>
-                                <hr />
-                                <p class="" id="priority"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="contain">
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label>Data zadania</label>
-                                <hr/>
-                                <p class="text-white-50" id="start-date"></p>
-                            </div>
-
-                            <div class="col-md-6 mb-4">
-                                <label>Data wykonania</label>
-                                <hr />
-                                <p class="text-white-50" id="end-date"></p>
+                                <div class="col-md-6 mb-4">
+                                    <label>Stopień ważność</label>
+                                    <hr />
+                                    <p class="" id="priority"></p>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mb-4">
-                        <label>Opis zadania</label>
-                        <p class="text-white-50 mb-5 mt-2" id="description"></p>
-                    </div>
+                        <div class="contain">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label>Data zadania</label>
+                                    <hr/>
+                                    <p class="text-white-50" id="start-date"></p>
+                                </div>
 
-                    <div class="mb-4">
-                        <label>Wiadomość zwrotna (opcjonalna)</label>
-                        <hr/>
-                        <textarea class="form-control bg-dark" rows="4"></textarea>
+                                <div class="col-md-6 mb-4">
+                                    <label>Data wykonania</label>
+                                    <hr />
+                                    <p class="text-white-50" id="end-date"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label>Opis zadania</label>
+                            <p class="text-white-50 mb-5 mt-2" id="description"></p>
+                        </div>
+                        <div class="mb-4">
+                            <label>Wiadomość zwrotna (opcjonalna)</label>
+                            <hr/>
+                            <textarea asp-for="feedbackMessage" class="form-control bg-dark" rows="4"></textarea>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                <form method="post">
-                    <input type="hidden" asp-for="actionTaskId" id="update"/>
-                    <input class="btn btn-primary" type="submit" value="Odznacz jako wykonane" asp-page-handler="Send" />
-                </form>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+
+                        <input type="hidden" asp-for="actionTaskId" id="update"/>
+                        <input class="btn btn-primary" type="submit" value="Odznacz jako wykonane" asp-page-handler="Send" />
+                </div>
+            </form>
         </div>
     </div>
 </div>

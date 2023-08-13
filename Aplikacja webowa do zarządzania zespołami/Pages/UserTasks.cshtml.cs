@@ -64,6 +64,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty(SupportsGet = true)]
         public int actionTaskId { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public string feedbackMessage { get; set; }
+
         public IActionResult OnPostSend()
         {
             userId = HttpContext.Session.GetInt32(Key2);
@@ -74,6 +77,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             {
                 var task = _dbContext.Tasks.Where(t => t.task_id == actionTaskId).First();
                 task.status = "ukończone";
+                task.feedback = feedbackMessage;
+                task.finish_date = DateTime.Now;
                 _dbContext.Tasks.Update(task);
                 _dbContext.SaveChanges();
             }
