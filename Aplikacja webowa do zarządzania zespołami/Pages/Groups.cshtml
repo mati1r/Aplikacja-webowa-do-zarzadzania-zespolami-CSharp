@@ -3,6 +3,10 @@
 @{
     Layout = "_GroupLayout";
 }
+@if (Model.data == null)
+{
+    Response.Redirect("/");
+}
 <div class="align-content-center">
     <h3>Aktywna grupa</h3>
     <span class="p-1 me-1">fsafas</span>
