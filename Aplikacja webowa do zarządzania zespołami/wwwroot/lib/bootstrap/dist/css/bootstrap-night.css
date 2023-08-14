@@ -8126,6 +8126,11 @@ textarea.form-control-lg {
     color: rgba(250,250,250,.5) !important
 }
 
+.text-danger {
+    --bs-text-opacity: 1;
+    color: rgba(var(--bs-danger-rgb), var(--bs-text-opacity)) !important;
+}
+
 .text-reset {
     --bs-text-opacity: 1;
     color: inherit !important

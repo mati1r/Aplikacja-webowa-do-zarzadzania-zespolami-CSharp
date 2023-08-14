@@ -28,7 +28,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty]
         public UserDTO userCredentials { get; set; }
         public string error;
-        public string sessionData;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
         public const string Key3 = "_groupId";

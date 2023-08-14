@@ -7,45 +7,48 @@
 {
     Response.Redirect("/");
 }
-<div class="align-content-center">
-    <h3>Aktywna grupa</h3>
-    <span class="p-1 me-1">fsafas</span>
-    <button class="btn btn-outline-primary">Zmień</button>
-</div>
 
-<div class="p-3">
-    <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <div class="card bg-table">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="dataTable table table-borderless">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="col-1">Id</th>
-                                        <th scope="col" class="col-2">Nazwa</th>
-                                        <th scope="col" class="col-8">Opis</th>
-                                        <th scope="col" class="col-1" data-orderable="false"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.groupList)
-                                    {
+<div class="w-100 h-100 d-inline-block overflow-auto bg-main">
+    <div class="align-content-center">
+        <h3>Aktywna grupa</h3>
+        <span class="p-1 me-1">fsafas</span>
+        <button class="btn btn-outline-primary">Zmień</button>
+    </div>
+
+    <div class="p-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-table">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="dataTable table table-borderless">
+                                    <thead>
                                         <tr>
-                                            <td>@item.group_id</td>
-                                            <td>@item.name</td>
-                                            <td>@item.description</td>
-                                            <td>
-                                                <form method="post">
-                                                        <input type="hidden" asp-for="changeGroupId" id="update" value="@item.group_id" />
-                                                        <input class="btn btn-sm btn-dark details" type="submit" value="Ustaw jako aktywa" asp-page-handler="ChangeActiveGroup" />
-                                                </form>
-                                            </td>
+                                            <th scope="col" class="col-1">Id</th>
+                                            <th scope="col" class="col-2">Nazwa</th>
+                                            <th scope="col" class="col-8">Opis</th>
+                                            <th scope="col" class="col-1" data-orderable="false"></th>
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.groupList)
+                                        {
+                                            <tr>
+                                                <td>@item.group_id</td>
+                                                <td>@item.name</td>
+                                                <td>@item.description</td>
+                                                <td>
+                                                    <form method="post">
+                                                            <input type="hidden" asp-for="changeGroupId" id="update" value="@item.group_id" />
+                                                            <input class="btn btn-sm btn-dark details" type="submit" value="Ustaw jako aktywa" asp-page-handler="ChangeActiveGroup" />
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

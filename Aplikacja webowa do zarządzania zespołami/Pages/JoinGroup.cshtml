@@ -29,13 +29,13 @@
                             <label class="form-label" for="typeGroupNameX">Nazwa grupy</label></br>
                             <input type="text" id="typeGroupNameX" class="form-control form-control-lg text-light bg-dark" asp-for="createGroup.name" />
                             <span asp-validation-for="createGroup.name" class="text-danger"></span>
+                            <div id="nameValidationError" class="text-danger" style="display:none;"></div>
                         </div>
                         <div class="mb-4">
                             <label class="form-label" for="typeGroupDescX">Opis grupy</label></br>
                             <textarea id="typeGroupDescX" class=" form-control bg-dark" rows="4" asp-for="createGroup.description"></textarea>
                             <span asp-validation-for="createGroup.description" class="text-danger"></span>
                         </div>
-                        <div id="validationErrors" class="text-danger" style="display:none;"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -49,15 +49,28 @@
 
 @section scripts{
     <script>
+
+        //Cleaning function inside of modal
+        $(document).ready(function () {
+            $('form').on('submit', function () {
+                $('span[data-valmsg-for]').text('');
+            });
+        });
+
+        //Cleaning functuon on modal call
+        $('#create-modal').on('show.bs.modal', function () {
+            $('span[data-valmsg-for]').text('');
+        });
+
         $(document).ready(function () {
             $("form").submit(function (event) {
                 event.preventDefault();
 
                 let form = $(this);
                 let actionUrl = form.attr("action");
-                let pageHandler = form.attr("asp-page-handler"); // Pobierz nazwę handlera
+                let pageHandler = form.attr("asp-page-handler");
 
-                // Utwórz pełny adres URL z atrybutem asp-page-handler
+                // Pełny adres URL z atrybutem asp-page-handler
                 if (pageHandler) {
                     actionUrl += "?" + $.param({ "handler": pageHandler });
                 }
@@ -68,26 +81,29 @@
                     data: form.serialize(),
                     dataType: "json",
                     success: function (data) {
-                        if (Array.isArray(data) && data.length > 0) {
-                            let validationErrors = $("#validationErrors");
-                            validationErrors.empty();
+                        //Object.keys(data).lenght sprawdza ile błędów znajduje się w data natomiast data != success ma za zadanie nie przechwicić udanego wykonania
+                        if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                            var keys = Object.keys(data);
 
-                            $.each(data, function (index, message) {
-                                validationErrors.append("<p>" + message + "</p>");
-                            });
+                            for (let i = 0; i < keys.length; i++) {
+                                let key = keys[i];
+                                let errors = data[key];
+                                let errorSpan = $(`span[data-valmsg-for="${key}"]`);
 
-                            validationErrors.show();
-                        } else {
+                                if (errorSpan.length > 0) {
+                                    errorSpan.addClass("text-danger");
+                                    errorSpan.text(errors[0]);
+                                }
+                            }
+                        } else if (Array.isArray(data) && data.length > 0) {
+                            let nameValidationError = $(`span[data-valmsg-for="createGroup.name"]`);
+                            nameValidationError.text(data[0]);
+                        }else {
                             $('#create-modal').modal('hide');
                         }
                     }
                 });
             });
-        });
-
-        //Cleaning
-        $('#create-modal').on('show.bs.modal', function () {
-            $('#validationErrors').empty();
         });
     </script>
 }

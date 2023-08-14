@@ -33,14 +33,22 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         
         public IActionResult OnPostCreate()
         {
-            Console.WriteLine("dziala");
             data = HttpContext.Session.GetString(Key);
             if (!ModelState.IsValid)
             {
+                /*
                 var validationErrors = ModelState.Values
                     .SelectMany(v => v.Errors)
                     .Select(e => e.ErrorMessage)
                     .ToList();
+
+                return new JsonResult(validationErrors);
+                */
+                var validationErrors = ModelState.ToDictionary(
+                   kvp => kvp.Key,
+                   kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                Console.WriteLine("O CHUJ"+validationErrors);
 
                 return new JsonResult(validationErrors);
             }
@@ -66,8 +74,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 else
                 {
                     //send error
-                    List<string> validationErrors = new List<string>();
-                    validationErrors.Add("Jest już grupa o tej nazwie");
+                    List<string> validationErrors = new List<string>
+                    {
+                        "Jest już grupa o tej nazwie"
+                    };
 
                     return new JsonResult(validationErrors);
                 }
