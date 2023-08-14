@@ -137,6 +137,22 @@
                     "sInfoFiltered": "(wyszukane z _MAX_ pozycji)",
                     "sZeroRecords": "Brak wyników",
                     "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
+                },
+                "initComplete": function () {
+                    var searchInput = $('.dataTables_filter input');
+
+                    // Dodaj klasę custom-search do pola wyszukiwania
+
+                    // Dodaj przycisk pod polem wyszukiwania
+                    var customButton = $('<button class="btn btn-primary ms-2">Dodaj zadanie</button>');
+                    searchInput.parent().append(customButton);
+
+
+                    // Nadanie akcji przyciskowi
+                    $('#customButton').on('click', function () {
+                        // Twoja akcja po kliknięciu przycisku
+                        alert('Kliknięto przycisk!');
+                    });
                 }
             });
         });
