@@ -55,6 +55,7 @@
     </div>
 </div>
 
+<!--Modal do edycji oraz usuwania-->
 <div class="modal fade" tabindex="-1" role="dialog" id="edit-modal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -125,8 +126,87 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                        <input type="hidden" asp-for="createOrEditTask.task_id" id="update" />
-                        <input class="btn btn-primary" type="submit" value="Edytuj zadanie"/>
+                    <button type="button" class="btn btn-danger" id="deleteButton">Usuń</button>
+                    <input type="hidden" asp-for="createOrEditTask.task_id" id="update" />
+                    <input class="btn btn-primary" id="submitButton" type="submit" value="Edytuj zadanie" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Modal do tworzenia-->
+<div class="modal fade" tabindex="-1" role="dialog" id="create-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="title">Stwórz zadanie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="Add">
+                <div class="modal-body">
+                    <div class="mt-md-4 pb-5">
+
+                        <div class="mb-4">
+                            <label class="form-label" for="task-name">Nazwa zadania</label>
+                            <br />
+                            <input type="text" class="status-input form-control bg-dark" id="task-name" asp-for="createOrEditTask.task_name"></input>
+                            <span asp-validation-for="createOrEditTask.task_name" class="text-danger"></span>
+                        </div>
+
+                        <div class="contain">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" for="status">Status</label>
+                                    <hr />
+                                    <select id="status" class="status-input form-control bg-dark" asp-for="createOrEditTask.status">
+                                        <option value="ukończone">Ukończone</option>
+                                        <option selected="selected" value="nieukończone">Nieukończone</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" for="priority">Stopień ważności</label>
+                                    <hr />
+                                    <select id="priority" class="status-input form-control bg-dark" asp-for="createOrEditTask.priority">
+                                        <option value="niski" style="color:green;">Niski</option>
+                                        <option selected="selected" value="normalny" style="color:white;">Normalny</option>
+                                        <option value="wysoki" style="color:red;">Wysoki</option>
+                                    </select>
+                                    <span asp-validation-for="createOrEditTask.priority" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="contain">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" for="start-date">Data zadania</label>
+                                    <hr />
+                                    <input type="datetime-local" id="start-date" class="status-input form-control text-light bg-dark" asp-for="createOrEditTask.start_date" />
+                                    <span asp-validation-for="createOrEditTask.start_date" class="text-danger"></span>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" for="end-date">Data planowanego wykonania</label>
+                                    <hr />
+                                    <input type="datetime-local" id="end-date" class="status-input form-control text-light bg-dark" asp-for="createOrEditTask.end_date" />
+                                    <span asp-validation-for="createOrEditTask.end_date" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="description">Opis zadania</label>
+                            <br />
+                            <textarea class="status-input form-control bg-dark" id="description" rows="4" asp-for="createOrEditTask.description"></textarea>
+                            <span asp-validation-for="createOrEditTask.description" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                    <input type="hidden" asp-for="createOrEditTask.task_id" id="update" />
+                    <input class="btn btn-primary" id="submitButton" type="submit" value="Stwórz zadanie" />
                 </div>
             </form>
         </div>
@@ -137,6 +217,20 @@
     <script>
         //Cleaning function inside of modal
         $(document).ready(function () {
+
+            $("#deleteButton").click(function () {
+                $("form").attr("action", "/AdminTasks?handler=Delete");
+                $("form").attr("asp-page-handler", "Delete");
+                    $("form").submit();
+            });
+
+
+            $("#addButton2").click(function () {
+                $("form").attr("action", "/AdminTasks?handler=Add");
+                $("form").attr("asp-page-handler", "Add");
+                $("form").submit();
+            });
+
             $('form').on('submit', function () {
                 $('span[data-valmsg-for]').text('');
             });
@@ -154,12 +248,6 @@
 
                 let form = $(this);
                 let actionUrl = form.attr("action");
-                let pageHandler = form.attr("asp-page-handler");
-
-                // Full URL with asp-page-handler attribute
-                if (pageHandler) {
-                    actionUrl += "?" + $.param({ "handler": pageHandler });
-                }
 
                 $.ajax({
                     type: form.attr("method"),
@@ -212,14 +300,8 @@
                     var searchInput = $('.dataTables_filter input');
 
                     // Add button next to seachbar
-                    var customButton = $('<button class="btn btn-primary ms-2" id="addButton">Dodaj zadanie</button>');
+                    var customButton = $('<button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#create-modal" id="addButton">Dodaj zadanie</button>');
                     searchInput.parent().append(customButton);
-
-
-                    // Action for the button
-                    $('#addButton').on('click', function () {
-                        alert('Kliknięto przycisk!');
-                    });
                 }
             });
 
@@ -258,6 +340,7 @@
                     $('#start-date').val(task.start_date);
                     $('#end-date').val(task.end_date);
                     $('#update').val(task.task_id);
+                    $('#delete').val(task.task_id);
 
                     //Coloring
                     if (task.priority == "niski") {

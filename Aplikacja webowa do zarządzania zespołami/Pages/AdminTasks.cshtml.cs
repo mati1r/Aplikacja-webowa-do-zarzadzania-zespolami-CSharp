@@ -29,14 +29,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty(SupportsGet = true)]
         public Tasks createOrEditTask { get; set; }
 
+        [BindProperty(SupportsGet = true)]
+        public int deleteTask { get; set; }
+
 
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
-            Console.WriteLine("ID USER = " + userId);
-            Console.WriteLine("ID GRUPY = " + groupId);
             tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId && t.users_user_id == userId).ToList();
         }
 
@@ -68,6 +69,32 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult(await GetTaskAsync(id));
         }
 
+        public IActionResult OnPostDelete()
+        {
+            Console.WriteLine("ID FOR DELETE = "+createOrEditTask.task_id);
+            //Someone is trying to send data after failed loaded data so do nothing
+            if (createOrEditTask.task_id != 0)
+            {
+                Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
+                _dbContext.Remove(originalTask);
+                _dbContext.SaveChanges();
+            }
+            return new JsonResult("success");
+        }
+        public IActionResult OnPostAdd()
+        {
+            if (!ModelState.IsValid)
+            {
+                var validationErrors = ModelState.ToDictionary(c => c.Key,
+                   c => c.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                return new JsonResult(validationErrors);
+            }
+            else
+            {
+                return new JsonResult("success");
+            }
+        }
         public IActionResult OnPostEdit()
         {
             if (!ModelState.IsValid)
@@ -75,7 +102,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 var validationErrors = ModelState.ToDictionary(c => c.Key,
                    c => c.Value.Errors.Select(e => e.ErrorMessage).ToList());
 
-                Console.WriteLine("Nieposzlo");
                 return new JsonResult(validationErrors);
             }
             else
@@ -123,9 +149,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
                     return new JsonResult(validationErrors);
                 }
-                Console.WriteLine("Id =" + createOrEditTask.task_id);
-                Console.WriteLine("Poszlo");
-                return new JsonResult("success"); // Sukces
+                //Success
+                return new JsonResult("success");
             }
         }
     }
