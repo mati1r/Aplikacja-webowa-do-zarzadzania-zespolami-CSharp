@@ -10,28 +10,24 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
         private static int maxEmail = 50;
         private static int minUserName = 3;
         private static int maxUserName = 20;
-        private static bool IsEmailLengthValid(string email)
+        private static bool IsLengthValid(string value, int min, int max)
         {
-            return (email.Length >= minEmail && email.Length <= maxEmail);
+            return (value.Length >= min && value.Length <= max);
         }
         public static bool IsEmailValid(string email)
         {
             string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
-            return IsEmailLengthValid(email) && Regex.IsMatch(email, pattern);
+            return IsLengthValid(email,minEmail,maxEmail) && Regex.IsMatch(email, pattern);
         }
 
         public static bool IsPasswordLenghtValid(string password)
         {
             return password.Length >= minPassword && password.Length <= maxPassword;
         }
-        private static bool IsUserNameLengthValid(string userName)
-        {
-            return (userName.Length >= minUserName && userName.Length <= maxUserName);
-        }
         public static bool IsUserNameValid(string userName)
         {
             string pattern = "^[a-zA-Z0-9]+$";
-            return IsUserNameLengthValid(userName) && Regex.IsMatch(userName, pattern);
+            return IsLengthValid(userName, minUserName, maxUserName) && Regex.IsMatch(userName, pattern);
         }
     }
 }

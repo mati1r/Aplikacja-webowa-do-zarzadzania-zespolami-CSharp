@@ -41,7 +41,7 @@
                                                 <td>@item.end_date</td>
                                                 <td>@item.status</td>
                                                 <td class="priority-table">@item.priority</td>
-                                                <td><button class="btn btn-sm btn-dark details" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#details-modal">Details</button></td>
+                                                <td><button class="btn btn-sm btn-dark edit" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#edit-modal">Details</button></td>
                                             </tr>
                                         }
                                     </tbody>
@@ -55,75 +55,145 @@
     </div>
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" id="details-modal">
-    <div class="modal-dialog">
+<div class="modal fade" tabindex="-1" role="dialog" id="edit-modal">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="title"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <div class="mt-md-4 pb-5">
-                    <div class="contain">
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label>Status</label>
-                                <hr />
-                                <p class="text-white-50" id="status"></p>
-                            </div>
+            <form method="post" asp-page-handler="Edit">
+                <div class="modal-body">
+                    <div class="mt-md-4 pb-5">
 
-                            <div class="col-md-6 mb-4">
-                                <label>Stopień ważność</label>
-                                <hr />
-                                <p class="" id="priority"></p>
+                        <div class="mb-4">
+                            <label class="form-label" for="task-name">Nazwa zadania</label>
+                            <br />
+                            <input type="text" class="status-input form-control bg-dark" id="task-name" asp-for="createOrEditTask.task_name"></input>
+                            <span asp-validation-for="createOrEditTask.task_name" class="text-danger"></span>
+                        </div>
+
+                        <div class="contain">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" for="status">Status</label>
+                                    <hr />
+                                    <select id="status" class="status-input form-control bg-dark" asp-for="createOrEditTask.status">
+                                        <option value="ukończone">Ukończone</option>
+                                        <option selected="selected" value="nieukończone">Nieukończone</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" for="priority">Stopień ważności</label>
+                                    <hr/>
+                                    <select id="priority" class="status-input form-control bg-dark" asp-for="createOrEditTask.priority">
+                                        <option value="niski" style="color:green;">Niski</option>
+                                        <option selected="selected" value="normalny" style="color:white;">Normalny</option>
+                                        <option value="wysoki" style="color:red;">Wysoki</option>
+                                    </select>
+                                    <span asp-validation-for="createOrEditTask.priority" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="contain">
-                        <div class="row">
-                            <div class="col-md-6 mb-4">
-                                <label>Data zadania</label>
-                                <hr />
-                                <p class="text-white-50" id="start-date"></p>
-                            </div>
+                        <div class="contain">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" for="start-date">Data zadania</label>
+                                    <hr/>
+                                    <input type="datetime-local" id="start-date" class="status-input form-control text-light bg-dark" asp-for="createOrEditTask.start_date" />
+                                    <span asp-validation-for="createOrEditTask.start_date" class="text-danger"></span>
+                                </div>
 
-                            <div class="col-md-6 mb-4">
-                                <label>Data wykonania</label>
-                                <hr />
-                                <p class="text-white-50" id="end-date"></p>
+                                <div class="col-md-6 mb-4">
+                                    <label class="form-label" for="end-date">Data planowanego wykonania</label>
+                                    <hr />
+                                    <input type="datetime-local" id="end-date" class="status-input form-control text-light bg-dark" asp-for="createOrEditTask.end_date" />
+                                    <span asp-validation-for="createOrEditTask.end_date" class="text-danger"></span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="mb-4">
-                        <label>Opis zadania</label>
-                        <p class="text-white-50 mb-5 mt-2" id="description"></p>
-                    </div>
-
-                    <div class="mb-4">
-                        <label>Wiadomość zwrotna (opcjonalna)</label>
-                        <hr />
-                        <textarea class="form-control bg-dark" rows="4"></textarea>
+                        <div class="mb-4">
+                            <label class="form-label" for="description">Opis zadania</label>
+                            <br />
+                            <textarea class="status-input form-control bg-dark" id="description" rows="4" asp-for="createOrEditTask.description"></textarea>
+                            <span asp-validation-for="createOrEditTask.description" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                <form method="post">
-                    <input type="hidden" asp-for="actionTaskId" id="update" />
-                    <input class="btn btn-primary" type="submit" value="Odznacz jako wykonane" asp-page-handler="Send" />
-                </form>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                        <input type="hidden" asp-for="createOrEditTask.task_id" id="update" />
+                        <input class="btn btn-primary" type="submit" value="Edytuj zadanie"/>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 @section scripts{
     <script>
-        //DataTable
+        //Cleaning function inside of modal
         $(document).ready(function () {
+            $('form').on('submit', function () {
+                $('span[data-valmsg-for]').text('');
+            });
+        });
 
+        //Cleaning function on modal call
+        $('#edit-modal').on('show.bs.modal', function () {
+            $('span[data-valmsg-for]').text('');
+        });
+
+        $(document).ready(function () {
+            //Return errors on validation for specific span
+            $("form").submit(function (event) {
+                event.preventDefault();
+
+                let form = $(this);
+                let actionUrl = form.attr("action");
+                let pageHandler = form.attr("asp-page-handler");
+
+                // Full URL with asp-page-handler attribute
+                if (pageHandler) {
+                    actionUrl += "?" + $.param({ "handler": pageHandler });
+                }
+
+                $.ajax({
+                    type: form.attr("method"),
+                    url: actionUrl,
+                    data: form.serialize(),
+                    dataType: "json",
+                    success: function (data) {
+                        //Object.keys(data).lenght sprawdza ile błędów znajduje się w data natomiast data != success ma za zadanie nie przechwicić udanego wykonania
+                        if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                            var keys = Object.keys(data);
+
+                            for (let i = 0; i < keys.length; i++) {
+                                let key = keys[i];
+                                let errors = data[key];
+                                let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+
+                                if (errorSpan.length > 0) {
+                                    errorSpan.text(errors[0]);
+                                }
+                            }
+                        } else if (Array.isArray(data) && data.length > 0) {
+                            let nameValidationError = $(`span[data-valmsg-for="createOrEditTask.description"]`);
+                            nameValidationError.text(data[0]);
+                        }
+                        else {
+                            $('#edit-modal').modal('hide');
+                            //Tymczasowe przeładowanie strony fajnie by było jakby szło przeładować tylko content do tabeli
+                            location.reload(true);
+                        }
+                    }
+                });
+            });
+
+        //DataTable
             $('#DataTable').DataTable({
                 "oLanguage": {
                     "oPaginate": {
@@ -141,47 +211,19 @@
                 "initComplete": function () {
                     var searchInput = $('.dataTables_filter input');
 
-                    // Dodaj klasę custom-search do pola wyszukiwania
-
-                    // Dodaj przycisk pod polem wyszukiwania
-                    var customButton = $('<button class="btn btn-primary ms-2">Dodaj zadanie</button>');
+                    // Add button next to seachbar
+                    var customButton = $('<button class="btn btn-primary ms-2" id="addButton">Dodaj zadanie</button>');
                     searchInput.parent().append(customButton);
 
 
-                    // Nadanie akcji przyciskowi
-                    $('#customButton').on('click', function () {
-                        // Twoja akcja po kliknięciu przycisku
+                    // Action for the button
+                    $('#addButton').on('click', function () {
                         alert('Kliknięto przycisk!');
                     });
                 }
             });
-        });
-
-        //Modal text and coloring for priority
-        $(function () {
-            $('button.details').on('click', function () {
-                $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
-                    $('#title').text(task.task_name);
-                    $('#description').text(task.description);
-                    $('#status').text(task.status);
-                    $('#priority').text(task.priority);
-                    $('#start-date').text(task.start_date);
-                    $('#end-date').text(task.end_date);
-                    $('#update').val(task.task_id);
-
-                    if (task.priority == "niski") {
-                        $('#priority').css("color", "green");
-                    } else if (task.priority == "wysoki") {
-                        $('#priority').css("color", "red");
-                    } else {
-                        $('#priority').addClass("text-white-50");
-                    }
-                });
-            });
-        })
 
         //DataTable coloring for priority
-        $(document).ready(function () {
             $('.priority-table').each(function () {
                 if ($(this).html() == "niski") {
                     $(this).css('color', 'green');
@@ -189,6 +231,52 @@
                     $(this).css("color", "red");
                 }
             });
+        //Change color inside a modal
+            $('#priority').on('change', function () {
+                var selectedPriority = $(this).val();
+
+                var priorityElement = $('#priority');
+                if (selectedPriority == "niski") {
+                    priorityElement.css("color", "green");
+                } else if (selectedPriority == "wysoki") {
+                    priorityElement.css("color", "red");
+                } else {
+                    priorityElement.css("color", "white");
+                }
+            });
         });
+
+        //Modal text and coloring for priority
+        $(function () {
+            $('button.edit').on('click', function () {
+                $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
+                    $('#title').text(task.task_name);
+                    $('#task-name').val(task.task_name);
+                    $('#description').text(task.description);
+                    $('#status').val(task.status);
+                    $('#priority').val(task.priority);
+                    $('#start-date').val(task.start_date);
+                    $('#end-date').val(task.end_date);
+                    $('#update').val(task.task_id);
+
+                    //Coloring
+                    if (task.priority == "niski") {
+                        $('#priority').css("color", "green");
+                    } else if (task.priority == "wysoki") {
+                        $('#priority').css("color", "red");
+                    } else {
+                        $('#priority').addClass("text-white-50");
+                    }
+
+                    //Status
+                    if (task.status == "ukończone") {
+                        $('.status-input').prop("disabled", true);
+                    } else {
+                        $('.status-input').prop("disabled", false);
+                    }
+                });
+            });
+        })
+
     </script>
 }

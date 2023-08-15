@@ -48,8 +48,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                    kvp => kvp.Key,
                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList());
 
-                Console.WriteLine("O CHUJ"+validationErrors);
-
                 return new JsonResult(validationErrors);
             }
             else
@@ -82,9 +80,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     return new JsonResult(validationErrors);
                 }
             }
-
-            // Tutaj umieść kod do zapisania nowej grupy
-
             return new JsonResult("success"); // Sukces
         }
     }

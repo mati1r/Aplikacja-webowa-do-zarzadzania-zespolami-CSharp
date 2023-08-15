@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? userId;
         public int? groupId;
 
+        [BindProperty(SupportsGet = true)]
+        public Tasks createOrEditTask { get; set; }
+
+
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
@@ -37,9 +42,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public async Task<Models.Tasks> GetTaskAsync(int id)
         {
-            userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
-            if (_dbContext.Tasks.Count(t => t.task_id == id && t.groups_group_id == groupId && t.users_user_id == userId) > 0)
+            //Check if requested task is in the same group as owner
+            if (_dbContext.Tasks.Count(t => t.task_id == id && t.groups_group_id == groupId) > 0)
             {
                 return await _dbContext.Tasks.FirstAsync(p => p.task_id == id);
             }
@@ -63,14 +68,65 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult(await GetTaskAsync(id));
         }
 
-        [BindProperty(SupportsGet = true)]
-        public int actionTaskId { get; set; }
-
-        public IActionResult OnPostSend()
+        public IActionResult OnPostEdit()
         {
-            Console.WriteLine("Id =" + actionTaskId);
-            // Wykonaj inne operacje lub przekierowanie
-            return RedirectToPage("UserTasks");
+            if (!ModelState.IsValid)
+            {
+                var validationErrors = ModelState.ToDictionary(c => c.Key,
+                   c => c.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                Console.WriteLine("Nieposzlo");
+                return new JsonResult(validationErrors);
+            }
+            else
+            {
+                //Someone is trying to send data after failed loaded data so do nothing
+                if(createOrEditTask.task_id != 0)
+                {
+                    //If we are here then task exists and is in that group
+                    if(TaskValidation.isPriorityValid(createOrEditTask.priority) && TaskValidation.isStatusValid(createOrEditTask.status)
+                        && TaskValidation.IsTaskNameValid(createOrEditTask.task_name) && TaskValidation.IsDescriptionValid(createOrEditTask.description))
+                    {
+                        //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
+                        //if status changed from nieukończone to ukończone then add finish_date
+                        Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
+                        if(originalTask.status == "nieukończone" && createOrEditTask.status == "ukończone")
+                        {
+                            //Setting a date on now and setting seconds to 0
+                            originalTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+                        }
+                        originalTask.task_name = createOrEditTask.task_name;
+                        originalTask.description = createOrEditTask.description;
+                        originalTask.start_date = createOrEditTask.start_date;
+                        originalTask.end_date = createOrEditTask.end_date;
+                        originalTask.status = createOrEditTask.status;
+                        originalTask.priority = createOrEditTask.priority;
+                        _dbContext.Update(originalTask);
+                        _dbContext.SaveChanges();
+                    }
+                    else
+                    {
+                        List<string> validationErrors = new List<string>
+                        {
+                            "Podane dane nie są w niepoprawnym formacie"
+                        };
+
+                        return new JsonResult(validationErrors);
+                    }
+                }
+                else
+                {
+                    List<string> validationErrors = new List<string>
+                        {
+                            "Nie można edytować zadania"
+                        };
+
+                    return new JsonResult(validationErrors);
+                }
+                Console.WriteLine("Id =" + createOrEditTask.task_id);
+                Console.WriteLine("Poszlo");
+                return new JsonResult("success"); // Sukces
+            }
         }
     }
 }

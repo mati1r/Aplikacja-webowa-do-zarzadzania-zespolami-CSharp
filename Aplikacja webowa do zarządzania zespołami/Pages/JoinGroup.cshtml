@@ -26,13 +26,13 @@
                 <div class="modal-body">
                     <div class="mt-md-4 pb-5">
                         <div class="mb-4">
-                            <label class="form-label" for="typeGroupNameX">Nazwa grupy</label></br>
+                            <label class="form-label" for="typeGroupNameX">Nazwa grupy</label><br/>
                             <input type="text" id="typeGroupNameX" class="form-control form-control-lg text-light bg-dark" asp-for="createGroup.name" />
                             <span asp-validation-for="createGroup.name" class="text-danger"></span>
                             <div id="nameValidationError" class="text-danger" style="display:none;"></div>
                         </div>
                         <div class="mb-4">
-                            <label class="form-label" for="typeGroupDescX">Opis grupy</label></br>
+                            <label class="form-label" for="typeGroupDescX">Opis grupy</label><br/>
                             <textarea id="typeGroupDescX" class=" form-control bg-dark" rows="4" asp-for="createGroup.description"></textarea>
                             <span asp-validation-for="createGroup.description" class="text-danger"></span>
                         </div>
@@ -57,7 +57,7 @@
             });
         });
 
-        //Cleaning functuon on modal call
+        //Cleaning function on modal call
         $('#create-modal').on('show.bs.modal', function () {
             $('span[data-valmsg-for]').text('');
         });
