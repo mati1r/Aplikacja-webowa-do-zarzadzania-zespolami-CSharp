@@ -15,10 +15,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             _dbContext = dbContext;
             tasksList = new List<Models.Tasks>();
+            userList = new List<Models.Users>();
         }
 
 
         public List<Models.Tasks> tasksList;
+        public List<Models.Users> userList;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
         public const string Key3 = "_groupId";
@@ -38,7 +40,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             data = HttpContext.Session.GetString(Key);
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
-            tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId && t.users_user_id == userId).ToList();
+            tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId).ToList();
+            //Find all users that are active and belong to that group beside owner that is loged in so we get it by his user_id
+            userList = _dbContext.Users
+            .Where(g => g.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+            .ToList();
         }
 
         public async Task<Models.Tasks> GetTaskAsync(int id)
@@ -54,7 +60,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 Tasks emptyTask = new Tasks();
                 emptyTask.start_date = DateTime.Now;
                 emptyTask.end_date = DateTime.Now;
-                emptyTask.task_id = 0;
+                emptyTask.task_id = id;
                 emptyTask.task_name = "Błąd";
                 emptyTask.description = "Nie znaleziono w bazie określonego zadania";
                 emptyTask.status = "Błąd";
@@ -81,8 +87,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             return new JsonResult("success");
         }
+        //TRZEBA JESZCZE DODAĆ ZARÓWNO DO DODAWANIA JAK I EDYCJI MOŻLIWOŚC WYBRANIA OSOBY KTÓRA MA WYKONAĆ ZADANIE
+        //DOKOŃCZYĆ DODAWANIE ZOSTAŁ TYLKO BACKEND
         public IActionResult OnPostAdd()
         {
+            groupId = HttpContext.Session.GetInt32(Key3);
             if (!ModelState.IsValid)
             {
                 var validationErrors = ModelState.ToDictionary(c => c.Key,
@@ -92,6 +101,29 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
+
+                if (TaskValidation.isPriorityValid(createOrEditTask.priority) && TaskValidation.isStatusValid(createOrEditTask.status)
+                        && TaskValidation.IsTaskNameValid(createOrEditTask.task_name) && TaskValidation.IsDescriptionValid(createOrEditTask.description))
+                {
+                    if (createOrEditTask.status == "ukończone")
+                    {
+                        //Setting a date on now and setting seconds to 0
+                        createOrEditTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+                    }
+                    createOrEditTask.groups_group_id = (int)groupId;
+                    _dbContext.Tasks.Add(createOrEditTask);
+                    _dbContext.SaveChanges();
+                }
+                else
+                {
+                    List<string> validationErrors = new List<string>
+                        {
+                            "Podane dane nie są w niepoprawnym formacie"
+                        };
+
+                    return new JsonResult(validationErrors);
+                }
+
                 return new JsonResult("success");
             }
         }
@@ -122,6 +154,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                             originalTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
                         }
                         originalTask.task_name = createOrEditTask.task_name;
+                        originalTask.users_user_id = createOrEditTask.users_user_id;
                         originalTask.description = createOrEditTask.description;
                         originalTask.start_date = createOrEditTask.start_date;
                         originalTask.end_date = createOrEditTask.end_date;

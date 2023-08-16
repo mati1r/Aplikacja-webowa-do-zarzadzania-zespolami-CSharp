@@ -8,7 +8,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         public int user_id { get; set; }
 
         [StringLength(20, MinimumLength = 3, ErrorMessage = "Minimalna długość dla tego pola to 3 a maksymalna to 30 znaków")]
-        [Required(ErrorMessage = "Pole login jest wymagane")]
+        [Required(ErrorMessage = "Pole nazwa użytkownika jest wymagane")]
         public string username { get; set; }
 
         [StringLength(30, MinimumLength = 4, ErrorMessage = "Minimalna długość dla tego pola to 4 a maksymalna to 30 znaków")]

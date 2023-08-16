@@ -28,7 +28,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             data = HttpContext.Session.GetString(Key);
             userId = HttpContext.Session.GetInt32(Key2);
 
-            //BRAKUJĄCA DANA TO WŁAŚCICIEL GRUPY !!! NALEŻY W PRZYSZŁOŚCI DODAĆ
+            //BRAKUJĄCA DANA DO WYŚWIETLENIA TO WŁAŚCICIEL GRUPY !!! NALEŻY W PRZYSZŁOŚCI DODAĆ
             groupList = _dbContext.Groups
                 .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId && ug.status == "aktywny"))
                 .ToList();
