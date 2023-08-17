@@ -77,14 +77,15 @@
                                 </div>
 
                                 <div class="col-md-6 mb-4">
-                                    <label class="form-label" for="task-user">Osoba</label>
+                                    <label class="form-label" for="task-user">Przypisz użytkownika</label>
                                     <br />
-                                    <select id="task-user" class="status-input form-control bg-dark" asp-for="createOrEditTask.users_user_id">
+                                    <select id="task-user">
                                         @foreach (var item in Model.userList)
                                         {
                                             <option value="@item.user_id">@item.username</option>
                                         }
                                     </select>
+                                    <input type="hidden" asp-for="createOrEditTask.users_user_id" id="task-user-hidden" />
                                 </div>
                             </div>
                         </div>
@@ -96,7 +97,7 @@
                                     <hr />
                                     <select id="status" class="status-input form-control bg-dark" asp-for="createOrEditTask.status">
                                         <option value="ukończone">Ukończone</option>
-                                        <option selected="selected" value="nieukończone">Nieukończone</option>
+                                        <option value="nieukończone">Nieukończone</option>
                                     </select>
                                 </div>
 
@@ -171,14 +172,16 @@
                                 </div>
 
                                 <div class="col-md-6 mb-4">
-                                    <label class="form-label" for="task-user">Osoba</label>
+                                    <label class="form-label" for="task-user">Przypisz użytkownika</label>
                                     <br />
-                                    <select id="task-user" class="form-control bg-dark" asp-for="createOrEditTask.users_user_id">
+                                    <select id="task-user2">
                                         @foreach (var item in Model.userList)
                                         {
                                             <option value="@item.user_id">@item.username</option>
                                         }
                                     </select>
+                                    <input type="hidden" asp-for="createOrEditTask.users_user_id" id="task-user-hidden2" />
+                                    <span asp-validation-for="createOrEditTask.users_user_id" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>
@@ -248,23 +251,31 @@
         //Cleaning function inside of modal
         $(document).ready(function () {
 
-            /*
+
             $('#task-user').selectize({
-                sortField: 'text'
+                sortField: 'text',
+
+                onChange: function (value) {
+                    //Set value for hidden input
+                    $('#task-user-hidden').val(value);
+                }
             });
-            */
+
+            $('#task-user2').selectize({
+                sortField: 'text',
+
+                onChange: function (value) {
+                    //Set value for hidden input
+                    $('#task-user-hidden2').val(value);
+                }
+            });
+
+            
 
             $("#deleteButton").click(function () {
                 $("form").attr("action", "/AdminTasks?handler=Delete");
                 $("form").attr("asp-page-handler", "Delete");
                     $("form").submit();
-            });
-
-
-            $("#addButton2").click(function () {
-                $("form").attr("action", "/AdminTasks?handler=Add");
-                $("form").attr("asp-page-handler", "Add");
-                $("form").submit();
             });
 
             $('form').on('submit', function () {
@@ -370,7 +381,6 @@
                 $.getJSON(`/AdminTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
                     $('#title').text(task.task_name);
                     $('#task-name').val(task.task_name);
-                    $('#task-user').val(task.users_user_id);
                     $('#description').text(task.description);
                     $('#status').val(task.status);
                     $('#priority').val(task.priority);
@@ -378,6 +388,13 @@
                     $('#end-date').val(task.end_date);
                     $('#update').val(task.task_id);
                     $('#delete').val(task.task_id);
+
+                    //Set default value for selectize
+                    let selectizeControl = $('#task-user').selectize()[0].selectize;
+                    selectizeControl.setValue(task.users_user_id);
+
+                    //Set value for hidden input
+                    $('#task-user-hidden').val(task.users_user_id);
 
                     //Coloring
                     if (task.priority == "niski") {

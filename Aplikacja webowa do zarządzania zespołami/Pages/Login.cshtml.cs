@@ -61,7 +61,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     if (ownerList.Count(c => c == userId) > 0) 
                     {
                         var groupId = groupsList.Where(c => c.owner_id == userId).Select(c => c.group_id).First();
-                        Console.WriteLine(groupId.ToString());
                         //Set session propertise
                         HttpContext.Session.SetString(Key, "Owner");
                         HttpContext.Session.SetInt32(Key2, userId);
@@ -76,7 +75,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         {
                             //Find a group fo a user
                             var userGroupId = _dbContext.Users_Groups.Where(c => c.users_user_id == userId && c.status == "aktywny").Select(c => c.groups_group_id).First();
-                            Console.WriteLine("Grupa użytkownika = "+ userGroupId.ToString());
                             //Set session propertise
                             HttpContext.Session.SetString(Key, "User");
                             HttpContext.Session.SetInt32(Key2, userId);

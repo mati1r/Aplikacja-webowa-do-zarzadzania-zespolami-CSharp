@@ -88,7 +88,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult("success");
         }
         //TRZEBA JESZCZE DODAĆ ZARÓWNO DO DODAWANIA JAK I EDYCJI MOŻLIWOŚC WYBRANIA OSOBY KTÓRA MA WYKONAĆ ZADANIE
-        //DOKOŃCZYĆ DODAWANIE ZOSTAŁ TYLKO BACKEND
         public IActionResult OnPostAdd()
         {
             groupId = HttpContext.Session.GetInt32(Key3);
@@ -101,26 +100,36 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
-
+                List<string> validationErrors = new List<string>();
                 if (TaskValidation.isPriorityValid(createOrEditTask.priority) && TaskValidation.isStatusValid(createOrEditTask.status)
                         && TaskValidation.IsTaskNameValid(createOrEditTask.task_name) && TaskValidation.IsDescriptionValid(createOrEditTask.description))
                 {
-                    if (createOrEditTask.status == "ukończone")
+                    userList = _dbContext.Users
+                        .Where(g => g.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                        .ToList();
+
+                    //If selected user is on the list of users in the group
+                    if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() > 0)
                     {
-                        //Setting a date on now and setting seconds to 0
-                        createOrEditTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+                        if (createOrEditTask.status == "ukończone")
+                        {
+                            //Setting a date on now and setting seconds to 0
+                            createOrEditTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+                        }
+                        createOrEditTask.groups_group_id = (int)groupId;
+                        _dbContext.Tasks.Add(createOrEditTask);
+                        _dbContext.SaveChanges();
                     }
-                    createOrEditTask.groups_group_id = (int)groupId;
-                    _dbContext.Tasks.Add(createOrEditTask);
-                    _dbContext.SaveChanges();
+                    //If there is no such a user in the group
+                    else
+                    {
+                        validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
+                        return new JsonResult(validationErrors);
+                    }
                 }
                 else
                 {
-                    List<string> validationErrors = new List<string>
-                        {
-                            "Podane dane nie są w niepoprawnym formacie"
-                        };
-
+                    validationErrors.Add("Podane dane nie są w niepoprawnym formacie");
                     return new JsonResult(validationErrors);
                 }
 
@@ -138,47 +147,54 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
+                List<string> validationErrors = new List<string>();
                 //Someone is trying to send data after failed loaded data so do nothing
-                if(createOrEditTask.task_id != 0)
+                if (createOrEditTask.task_id != 0 && createOrEditTask.status != "ukończone")
                 {
-                    //If we are here then task exists and is in that group
-                    if(TaskValidation.isPriorityValid(createOrEditTask.priority) && TaskValidation.isStatusValid(createOrEditTask.status)
-                        && TaskValidation.IsTaskNameValid(createOrEditTask.task_name) && TaskValidation.IsDescriptionValid(createOrEditTask.description))
+                    userList = _dbContext.Users
+                       .Where(g => g.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                       .ToList();
+
+                    //If selected user is on the list of users in the group
+                    if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() > 0)
                     {
-                        //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
-                        //if status changed from nieukończone to ukończone then add finish_date
-                        Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
-                        if(originalTask.status == "nieukończone" && createOrEditTask.status == "ukończone")
+                        //If we are here then task exists and is in that group
+                        if (TaskValidation.isPriorityValid(createOrEditTask.priority) && TaskValidation.isStatusValid(createOrEditTask.status)
+                        && TaskValidation.IsTaskNameValid(createOrEditTask.task_name) && TaskValidation.IsDescriptionValid(createOrEditTask.description))
                         {
-                            //Setting a date on now and setting seconds to 0
-                            originalTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+                            //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
+                            //if status changed from nieukończone to ukończone then add finish_date
+                            Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
+                            if (originalTask.status == "nieukończone" && createOrEditTask.status == "ukończone")
+                            {
+                                //Setting a date on now and setting seconds to 0
+                                originalTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+                            }
+                            originalTask.task_name = createOrEditTask.task_name;
+                            originalTask.users_user_id = createOrEditTask.users_user_id;
+                            originalTask.description = createOrEditTask.description;
+                            originalTask.start_date = createOrEditTask.start_date;
+                            originalTask.end_date = createOrEditTask.end_date;
+                            originalTask.status = createOrEditTask.status;
+                            originalTask.priority = createOrEditTask.priority;
+                            _dbContext.Update(originalTask);
+                            _dbContext.SaveChanges();
                         }
-                        originalTask.task_name = createOrEditTask.task_name;
-                        originalTask.users_user_id = createOrEditTask.users_user_id;
-                        originalTask.description = createOrEditTask.description;
-                        originalTask.start_date = createOrEditTask.start_date;
-                        originalTask.end_date = createOrEditTask.end_date;
-                        originalTask.status = createOrEditTask.status;
-                        originalTask.priority = createOrEditTask.priority;
-                        _dbContext.Update(originalTask);
-                        _dbContext.SaveChanges();
+                        else
+                        {
+                            validationErrors.Add("Podane dane nie są w niepoprawnym formacie");
+                            return new JsonResult(validationErrors);
+                        }
                     }
                     else
                     {
-                        List<string> validationErrors = new List<string>
-                        {
-                            "Podane dane nie są w niepoprawnym formacie"
-                        };
-
+                        validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
                         return new JsonResult(validationErrors);
                     }
                 }
                 else
                 {
-                    List<string> validationErrors = new List<string>
-                        {
-                            "Nie można edytować zadania"
-                        };
+                    validationErrors.Add("Nie można edytować zadania");
 
                     return new JsonResult(validationErrors);
                 }
