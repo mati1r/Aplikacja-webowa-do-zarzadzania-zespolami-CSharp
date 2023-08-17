@@ -61,41 +61,33 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
         public static string IsUserRegisterValid (string email, string username, string password, string name, string surname, bool isName, bool isSurname)
         {
             if (!IsUserNameValid(username))
-            {
                 return "Nazwa użytkownika nie spełnia założeń formatowych";
-            }else if(!IsPasswordValid(password))
-            {
+
+            if (!IsPasswordValid(password))
                 return "Hasło nie spełnia założeń formatowych";
-            }else if(!IsEmailValid(email))
-            {
+
+            if (!IsEmailValid(email))
                 return "Email nie spełnia założeń formatowych";
-            }else if (!IsNameValid(name) && isName)
-            {
-                return "Imie nie spełnia założeń formatowych";
-            }else if(!IsSurenameValid(surname) && isSurname)
-            {
+
+            if (!IsNameValid(name) && isName)
+                return "Imię nie spełnia założeń formatowych";
+
+            if (!IsSurenameValid(surname) && isSurname)
                 return "Nazwisko nie spełnia założeń formatowych";
-            }
-            else
-            {
-                return "";
-            }
+
+            return "";
         }
 
         public static string IsUserLoginValid(string email, string password)
         {
             if (!IsPasswordValid(password))
-            {
                 return "Hasło nie spełnia założeń formatowych";
-            }
-            else if (!IsEmailValid(email))
-            {
+
+            if (!IsEmailValid(email))
                 return "Email nie spełnia założeń formatowych";
-            }
-            else
-            {
-                return "";
-            }
+                   
+            return "";
+            
         }
     }
 }

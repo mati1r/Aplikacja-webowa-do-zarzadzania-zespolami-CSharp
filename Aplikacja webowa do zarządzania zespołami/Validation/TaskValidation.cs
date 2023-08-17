@@ -9,6 +9,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
         private static int minTaskName = 3;
         private static int maxTaskName = 100;
 
+
+        private static bool IsLengthValid(string value, int min, int max)
+        {
+            return (value.Length >= min && value.Length <= max);
+        }
         public static bool isStatusValid(string status)
         {
             if (status == "nieukończone" || status == "ukończone") {
@@ -32,11 +37,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
             }
         }
 
-
-        private static bool IsLengthValid(string value, int min, int max)
-        {
-            return (value.Length >= min && value.Length <= max);
-        }
         public static bool IsTaskNameValid(string taskName)
         {
             string pattern = "^[a-zA-Z0-9 ]+$";

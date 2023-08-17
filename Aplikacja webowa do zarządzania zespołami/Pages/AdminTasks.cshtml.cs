@@ -87,7 +87,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             return new JsonResult("success");
         }
-        //TRZEBA JESZCZE DODAĆ ZARÓWNO DO DODAWANIA JAK I EDYCJI MOŻLIWOŚC WYBRANIA OSOBY KTÓRA MA WYKONAĆ ZADANIE
         public IActionResult OnPostAdd()
         {
             groupId = HttpContext.Session.GetInt32(Key3);

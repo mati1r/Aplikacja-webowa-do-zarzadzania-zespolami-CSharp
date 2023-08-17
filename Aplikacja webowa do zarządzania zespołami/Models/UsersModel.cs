@@ -20,9 +20,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         [Required(ErrorMessage = "Pole email jest wymagane")]
         public string e_mail { get; set; }
 
-        [StringLength(30, MinimumLength = 5)]
+        [StringLength(30, MinimumLength = 5, ErrorMessage = "Minimalna długość dla tego pola to 5 a maksymalna to 30 znaków")]
         public string? name { get; set; }
-        [StringLength(50, MinimumLength = 5)]
+        [StringLength(50, MinimumLength = 5, ErrorMessage = "Minimalna długość dla tego pola to 5 a maksymalna to 50 znaków")]
         public string? surname { get; set; }
 
         public ICollection<Users_Groups>? Users_Groups { get; set; }
