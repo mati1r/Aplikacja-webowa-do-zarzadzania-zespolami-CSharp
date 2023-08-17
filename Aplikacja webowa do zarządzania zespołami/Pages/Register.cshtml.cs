@@ -25,6 +25,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public void OnPost() 
         {
+            //Reset the value of the error
+            error = "";
             if (!ModelState.IsValid)
             {
                 Page();
@@ -43,8 +45,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 }
                 else
                 {
+                    error = UserValidation.IsUserRegisterValid(userData.e_mail, userData.username, userData.password, userData.name, 
+                                                               userData.surname, userData.name != null, userData.surname != null);
                     //There is no user that uses those data now check if data are in right format
-                    if(UserValidation.IsEmailValid(userData.e_mail) && UserValidation.IsPasswordLenghtValid(userData.password) && UserValidation.IsUserNameValid(userData.username))
+                    if (error == "")
                     {
                         //Add user to system
                         userData.salt = Hash.GenerateSalt(16);
@@ -53,11 +57,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         _dbContext.SaveChanges();
                         Response.Redirect("/");
                     }
-                    else
-                    {
-                        error = "Podane dane nie są w niepoprawnym formacie";
-                    }
-
                 }              
             }
         }
