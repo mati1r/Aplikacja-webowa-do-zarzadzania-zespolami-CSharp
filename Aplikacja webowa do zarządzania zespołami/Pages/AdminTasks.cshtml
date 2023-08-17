@@ -270,6 +270,11 @@
                 }
             });
 
+            let selectizeValue = $('#task-user2').selectize()[0].selectize.getValue();
+
+            //Set value for hidden input
+            $('#task-user-hidden2').val(selectizeValue);
+
             
 
             $("#deleteButton").click(function () {

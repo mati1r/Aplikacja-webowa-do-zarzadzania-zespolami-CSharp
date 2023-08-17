@@ -18,12 +18,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userList = new List<Models.Users>();
         }
 
-
+        private string error;
+        private const string Key = "_userType";
+        private const string Key2 = "_userId";
+        private const string Key3 = "_groupId";
         public List<Models.Tasks> tasksList;
         public List<Models.Users> userList;
-        public const string Key = "_userType";
-        public const string Key2 = "_userId";
-        public const string Key3 = "_groupId";
         public string data;
         public int? userId;
         public int? groupId;
@@ -89,6 +89,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
         public IActionResult OnPostAdd()
         {
+            //Reset the value of the error
+            error = "";
             groupId = HttpContext.Session.GetInt32(Key3);
             if (!ModelState.IsValid)
             {
@@ -100,8 +102,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             else
             {
                 List<string> validationErrors = new List<string>();
-                if (TaskValidation.isPriorityValid(createOrEditTask.priority) && TaskValidation.isStatusValid(createOrEditTask.status)
-                        && TaskValidation.IsTaskNameValid(createOrEditTask.task_name) && TaskValidation.IsDescriptionValid(createOrEditTask.description))
+                error = TaskValidation.IsTaskValid(createOrEditTask.task_name, createOrEditTask.status, createOrEditTask.priority, createOrEditTask.description);
+                if (error == "")
                 {
                     userList = _dbContext.Users
                         .Where(g => g.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
@@ -128,7 +130,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 }
                 else
                 {
-                    validationErrors.Add("Podane dane nie są w niepoprawnym formacie");
+                    validationErrors.Add(error);
                     return new JsonResult(validationErrors);
                 }
 
@@ -137,6 +139,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
         public IActionResult OnPostEdit()
         {
+            //Reset the value of the error
+            error = "";
             if (!ModelState.IsValid)
             {
                 var validationErrors = ModelState.ToDictionary(c => c.Key,
@@ -158,8 +162,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() > 0)
                     {
                         //If we are here then task exists and is in that group
-                        if (TaskValidation.isPriorityValid(createOrEditTask.priority) && TaskValidation.isStatusValid(createOrEditTask.status)
-                        && TaskValidation.IsTaskNameValid(createOrEditTask.task_name) && TaskValidation.IsDescriptionValid(createOrEditTask.description))
+                        error = TaskValidation.IsTaskValid(createOrEditTask.task_name, createOrEditTask.status, createOrEditTask.priority, createOrEditTask.description);
+                        if (error == "")
                         {
                             //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
                             //if status changed from nieukończone to ukończone then add finish_date
@@ -181,7 +185,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         }
                         else
                         {
-                            validationErrors.Add("Podane dane nie są w niepoprawnym formacie");
+                            validationErrors.Add(error);
                             return new JsonResult(validationErrors);
                         }
                     }
