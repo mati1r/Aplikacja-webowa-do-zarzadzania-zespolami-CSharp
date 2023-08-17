@@ -67,7 +67,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 var ownerList = groupsList
                     .Select(c=>c.owner_id)
                     .ToList();
-                //Check if data are valid
+                //Check if data submited by user are valid
                 error = UserValidation.IsUserLoginValid(userCredentials.e_mail, userCredentials.password);
                 if (error == "")
                 {

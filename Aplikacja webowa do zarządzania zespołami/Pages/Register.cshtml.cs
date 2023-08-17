@@ -45,6 +45,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 }
                 else
                 {
+                    //Validate data that user submited, don't chceck name and surname if it was not provided
                     error = UserValidation.IsUserRegisterValid(userData.e_mail, userData.username, userData.password, userData.name, 
                                                                userData.surname, userData.name != null, userData.surname != null);
                     //There is no user that uses those data now check if data are in right format
