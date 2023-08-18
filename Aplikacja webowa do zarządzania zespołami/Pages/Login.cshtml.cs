@@ -72,33 +72,33 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 if (error == "")
                 {
                     //Check if credentials are correct for any avaiable user
-                    if (usersList.Count(c => c.e_mail == userEmail && Hash.VerifyPassword(password, c.password, c.salt)) > 0)
+                    if (usersList.Count(ul => ul.e_mail == userEmail && Hash.VerifyPassword(password, ul.password, ul.salt)) > 0)
                     {
                         //Get the Id of user that is trying to login
                         int userId = usersList
-                            .Where(c => c.e_mail == userEmail && Hash.VerifyPassword(password, c.password, c.salt))
+                            .Where(ul => ul.e_mail == userEmail && Hash.VerifyPassword(password, ul.password, ul.salt))
                             .Select(u => u.user_id)
                             .First();
 
                         //Check if user that is trying to login is a owner of a group if so then log him to his group
-                        if (ownerList.Count(c => c == userId) > 0)
+                        if (ownerList.Count(ol => ol == userId) > 0)
                         {
                             var ownerGroupId = groupsList
-                                .Where(c => c.owner_id == userId)
-                                .Select(c => c.group_id)
+                                .Where(gl => gl.owner_id == userId)
+                                .Select(g => g.group_id)
                                 .First();
                             //Set session propertise
                             SetSessionData("Owner", userId, ownerGroupId);
-                            Response.Redirect("/AdminTasks");
+                            Response.Redirect("/Zarzadzanie zadaniami");
                         }
                         //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
                         else
                         {
                             //Check if user is a part of any group and if he have an active member status
-                            if (usersGroupsList.Count(c => c.users_user_id == userId && c.status == "aktywny") > 0)
+                            if (usersGroupsList.Count(ugl => ugl.users_user_id == userId && ugl.status == "aktywny") > 0)
                             {
                                 //Find a group fo a user
-                                var userGroupId = usersGroupsList.Where(c => c.users_user_id == userId && c.status == "aktywny").Select(c => c.groups_group_id).First();
+                                var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userId && ugl.status == "aktywny").Select(ug => ug.groups_group_id).First();
                                 //Set session propertise
                                 SetSessionData("User", userId, userGroupId);
                             }
@@ -107,7 +107,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                             {
                                 SetSessionData("User", userId, 0);
                             }
-                            Response.Redirect("/UserTasks");
+                            Response.Redirect("/Zadania");
                         }
                     }
                     //If there is no such user in system

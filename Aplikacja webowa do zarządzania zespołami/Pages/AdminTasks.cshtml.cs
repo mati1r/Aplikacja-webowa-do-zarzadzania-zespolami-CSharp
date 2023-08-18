@@ -18,7 +18,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userList = new List<Models.Users>();
         }
 
-        private string error;
+        private string error ="";
         private const string Key = "_userType";
         private const string Key2 = "_userId";
         private const string Key3 = "_groupId";
@@ -41,19 +41,22 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
             tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId).ToList();
+
             //Find all users that are active and belong to that group beside owner that is loged in so we get it by his user_id
             userList = _dbContext.Users
-            .Where(g => g.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+            .Where(g => g.Users_Groups
+            .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
             .ToList();
         }
 
         public async Task<Models.Tasks> GetTaskAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(Key3);
+
             //Check if requested task is in the same group as owner
             if (_dbContext.Tasks.Count(t => t.task_id == id && t.groups_group_id == groupId) > 0)
             {
-                return await _dbContext.Tasks.FirstAsync(p => p.task_id == id);
+                return await _dbContext.Tasks.FirstAsync(t => t.task_id == id);
             }
             else
             {
@@ -77,7 +80,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostDelete()
         {
-            Console.WriteLine("ID FOR DELETE = "+createOrEditTask.task_id);
             //Someone is trying to send data after failed loaded data so do nothing
             if (createOrEditTask.task_id != 0)
             {
@@ -89,13 +91,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
         public IActionResult OnPostAdd()
         {
-            //Reset the value of the error
+            //Reset the value of the error and get session values
             error = "";
+            userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
             if (!ModelState.IsValid)
             {
-                var validationErrors = ModelState.ToDictionary(c => c.Key,
-                   c => c.Value.Errors.Select(e => e.ErrorMessage).ToList());
+                var validationErrors = ModelState.ToDictionary(ms => ms.Key,
+                   ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
 
                 return new JsonResult(validationErrors);
             }
@@ -106,7 +109,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 if (error == "")
                 {
                     userList = _dbContext.Users
-                        .Where(g => g.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                        .Where(g => g.Users_Groups
+                        .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
                         .ToList();
 
                     //If selected user is on the list of users in the group
@@ -139,12 +143,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
         public IActionResult OnPostEdit()
         {
-            //Reset the value of the error
+            //Reset the value of the error and get session values
             error = "";
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
             if (!ModelState.IsValid)
             {
-                var validationErrors = ModelState.ToDictionary(c => c.Key,
-                   c => c.Value.Errors.Select(e => e.ErrorMessage).ToList());
+                var validationErrors = ModelState.ToDictionary(ms => ms.Key,
+                   ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
 
                 return new JsonResult(validationErrors);
             }
@@ -154,9 +160,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 //Someone is trying to send data after failed loaded data so do nothing
                 if (createOrEditTask.task_id != 0 && createOrEditTask.status != "ukończone")
                 {
+                    Console.WriteLine("User id " + userId);
                     userList = _dbContext.Users
-                       .Where(g => g.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
-                       .ToList();
+                                .Where(g => g.Users_Groups
+                                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                                .ToList();
 
                     //If selected user is on the list of users in the group
                     if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() > 0)

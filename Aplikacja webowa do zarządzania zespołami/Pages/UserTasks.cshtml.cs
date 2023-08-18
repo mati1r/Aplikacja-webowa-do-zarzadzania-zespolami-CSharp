@@ -39,7 +39,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Check if user didn't changed id to an id out of his scope
             if ( _dbContext.Tasks.Count(t => t.task_id == id && t.groups_group_id == groupId && t.users_user_id == userId) > 0)
             {
-                return await _dbContext.Tasks.FirstAsync(p => p.task_id == id);
+                return await _dbContext.Tasks.FirstAsync(t => t.task_id == id);
             }
             else
             {

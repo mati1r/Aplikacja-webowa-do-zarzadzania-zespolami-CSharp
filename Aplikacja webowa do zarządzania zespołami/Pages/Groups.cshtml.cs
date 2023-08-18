@@ -47,10 +47,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 .ToList();
 
             //Check if someone doesn't replaced id with some other id that is not in groupList
-            if (groupList.Count(g => g.group_id == changeGroupId) > 0)
+            if (groupList.Count(gl => gl.group_id == changeGroupId) > 0)
             {
                 //Check if user is an owner
-                if(groupList.Count(g => g.owner_id == userId && g.group_id == changeGroupId) > 0)
+                if(groupList.Count(gl => gl.owner_id == userId && gl.group_id == changeGroupId) > 0)
                 {
                     HttpContext.Session.SetString(Key, "Owner");
                 }

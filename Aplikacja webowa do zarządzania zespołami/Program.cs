@@ -1,5 +1,6 @@
 using Aplikacja_webowa_do_zarz¹dzania_zespo³ami.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,14 @@ string connectionString = builder.Configuration.GetConnectionString("DefaultConn
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 builder.Services.AddSession();
 builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddMvc().AddRazorPagesOptions(option =>
+{
+    option.Conventions.AddPageRoute("/AdminTasks", "/Zarzadzanie zadaniami");
+    option.Conventions.AddPageRoute("/UserTasks", "/Zadania");
+
+    //W PRZYSZ£OŒCI UZUPE£NIÆ RESZTE PAMIÊTAÆ ZE REDIRECTY MUSZ¥ BYC NA NOWE NAZWY
+});
 
 var app = builder.Build();
 
@@ -28,7 +37,13 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
 app.UseSession();
+
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapRazorPages();
+});
 
 app.MapRazorPages();
 

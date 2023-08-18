@@ -4673,7 +4673,7 @@ textarea.form-control-lg {
 }
 
     .navbar-dark .navbar-nav .nav-link:focus, .navbar-dark .navbar-nav .nav-link:hover {
-        color: rgba(250,250,250,.75)
+        color: rgba(250,250,250,1); 
     }
 
     .navbar-dark .navbar-nav .nav-link.disabled {
@@ -4681,7 +4681,9 @@ textarea.form-control-lg {
     }
 
     .navbar-dark .navbar-nav .nav-link.active, .navbar-dark .navbar-nav .show > .nav-link {
-        color: #fafafa
+        color: #fefefe;
+        border-bottom: 2px solid #fefefe;
+        padding-bottom: 5px;
     }
 
 .navbar-dark .navbar-toggler {

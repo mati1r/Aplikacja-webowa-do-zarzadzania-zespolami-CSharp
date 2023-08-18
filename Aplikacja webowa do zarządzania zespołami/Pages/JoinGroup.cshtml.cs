@@ -36,17 +36,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             data = HttpContext.Session.GetString(Key);
             if (!ModelState.IsValid)
             {
-                /*
-                var validationErrors = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return new JsonResult(validationErrors);
-                */
                 var validationErrors = ModelState.ToDictionary(
-                   kvp => kvp.Key,
-                   kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList());
+                   ms => ms.Key,
+                   ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
 
                 return new JsonResult(validationErrors);
             }
