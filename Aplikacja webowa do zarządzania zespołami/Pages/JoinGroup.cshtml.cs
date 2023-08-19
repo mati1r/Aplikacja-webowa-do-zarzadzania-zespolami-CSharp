@@ -47,8 +47,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 //if there is no such group
                 if(_dbContext.Groups.Count(g => g.name == createGroup.name) == 0)
                 {
-                    createGroup.owner_id = (int)HttpContext.Session.GetInt32(Key2);
-
                     _dbContext.Groups.Add(createGroup);
                     _dbContext.SaveChanges();
 
@@ -58,6 +56,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     var groupId = _dbContext.Groups.Where(g => g.name == createGroup.name).Select(g => g.group_id).First();
                     userGroup.groups_group_id = groupId;
                     userGroup.status = "aktywny";
+                    userGroup.role = "owner";
                     _dbContext.Users_Groups.Add(userGroup);
                     _dbContext.SaveChanges();
                 }

@@ -7,9 +7,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
     {
         [Key]
         public int group_id { get; set; }
-        public int owner_id { get; set; }
 
-        [StringLength(50, MinimumLength = 5, ErrorMessage = "Minimalna długość dla tego pola to 5 a maksymalna to 50 znaków")]
+        [StringLength(50, MinimumLength = 5, ErrorMessage = "Minimalna długość dla tego pola to 2 a maksymalna to 50 znaków")]
         [Required(ErrorMessage = "Pole nazwa jest wymagane")]
         public string name { get; set; }
 

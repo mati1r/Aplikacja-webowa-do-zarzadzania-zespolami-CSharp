@@ -58,15 +58,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             else
             {
                 var usersList = _dbContext.Users.ToList<Users>();
-                var groupsList = _dbContext.Groups.ToList<Groups>();
                 var usersGroupsList = _dbContext.Users_Groups.ToList<Users_Groups>();
                 string userEmail = userCredentials.e_mail;
                 string password = userCredentials.password;
 
-                //Get id's of all admins
-                var ownerList = groupsList
-                    .Select(c=>c.owner_id)
-                    .ToList();
                 //Check if data submited by user are valid
                 error = UserValidation.IsUserLoginValid(userCredentials.e_mail, userCredentials.password);
                 if (error == "")
@@ -80,13 +75,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                             .Select(u => u.user_id)
                             .First();
 
-                        //Check if user that is trying to login is a owner of a group if so then log him to his group
+                        var ownerList = usersGroupsList.Where(ugl => ugl.role == "owner").Select(ugl => ugl.users_user_id).ToList();
+
+                        //Check if user that is trying to login is a owner of any group if so then log him to one of his groups
                         if (ownerList.Count(ol => ol == userId) > 0)
                         {
-                            var ownerGroupId = groupsList
-                                .Where(gl => gl.owner_id == userId)
-                                .Select(g => g.group_id)
-                                .First();
+                            var ownerGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userId && ugl.role == "owner")
+                                                               .Select(ugl => ugl.users_user_id).First();
                             //Set session propertise
                             SetSessionData("Owner", userId, ownerGroupId);
                             Response.Redirect("/Zarzadzanie zadaniami");
@@ -98,7 +93,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                             if (usersGroupsList.Count(ugl => ugl.users_user_id == userId && ugl.status == "aktywny") > 0)
                             {
                                 //Find a group fo a user
-                                var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userId && ugl.status == "aktywny").Select(ug => ug.groups_group_id).First();
+                                var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userId && ugl.status == "aktywny" && ugl.role == "user")
+                                                                  .Select(ug => ug.groups_group_id).First();
                                 //Set session propertise
                                 SetSessionData("User", userId, userGroupId);
                             }

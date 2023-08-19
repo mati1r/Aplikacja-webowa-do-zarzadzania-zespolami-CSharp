@@ -42,15 +42,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             //I need to get values again this time for Post request
             userId = HttpContext.Session.GetInt32(Key2);
-            groupList = _dbContext.Groups
-                .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId && ug.status == "aktywny"))
-                .ToList();
 
             //Check if someone doesn't replaced id with some other id that is not in groupList
-            if (groupList.Count(gl => gl.group_id == changeGroupId) > 0)
+            if (_dbContext.Users_Groups.Where(ugl => ugl.users_user_id == userId && ugl.status == "aktywny").Count(ugl => ugl.groups_group_id == changeGroupId) > 0)
             {
                 //Check if user is an owner
-                if(groupList.Count(gl => gl.owner_id == userId && gl.group_id == changeGroupId) > 0)
+                if(_dbContext.Users_Groups.Count(ugl => ugl.users_user_id == userId && ugl.groups_group_id == changeGroupId && ugl.role == "owner") > 0)
                 {
                     HttpContext.Session.SetString(Key, "Owner");
                 }

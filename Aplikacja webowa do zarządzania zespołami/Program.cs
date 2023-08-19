@@ -17,6 +17,10 @@ builder.Services.AddMvc().AddRazorPagesOptions(option =>
 {
     option.Conventions.AddPageRoute("/AdminTasks", "/Zarzadzanie zadaniami");
     option.Conventions.AddPageRoute("/UserTasks", "/Zadania");
+    option.Conventions.AddPageRoute("/Groups", "/Aktywna grupa");
+    option.Conventions.AddPageRoute("/JoinGroup", "/Grupy");
+    option.Conventions.AddPageRoute("/Login", "/Logowanie");
+    option.Conventions.AddPageRoute("/Register", "/Rejestracja");
 
     //W PRZYSZ£OŒCI UZUPE£NIÆ RESZTE PAMIÊTAÆ ZE REDIRECTY MUSZ¥ BYC NA NOWE NAZWY
 });

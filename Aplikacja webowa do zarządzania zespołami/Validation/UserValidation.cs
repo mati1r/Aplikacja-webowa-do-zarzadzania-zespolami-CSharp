@@ -12,7 +12,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
         private static int maxEmail = 50;
         private static int minUserName = 3;
         private static int maxUserName = 20;
-        private static int minName = 5;
+        private static int minName = 2;
         private static int maxName = 30;
         private static int minSurname = 5;
         private static int maxSurname = 50;

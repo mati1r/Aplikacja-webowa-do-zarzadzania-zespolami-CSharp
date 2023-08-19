@@ -42,10 +42,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(Key3);
             tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId).ToList();
 
-            //Find all users that are active and belong to that group beside owner that is loged in so we get it by his user_id
+            //Find all users that are active and belong to that group beside owners
             userList = _dbContext.Users
             .Where(g => g.Users_Groups
-            .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+            .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "aktywny"))
             .ToList();
         }
 
@@ -53,7 +53,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             groupId = HttpContext.Session.GetInt32(Key3);
 
-            //Check if requested task is in the same group as owner
+            //Check if requested task is in the same group as owner that is loged in
             if (_dbContext.Tasks.Count(t => t.task_id == id && t.groups_group_id == groupId) > 0)
             {
                 return await _dbContext.Tasks.FirstAsync(t => t.task_id == id);
@@ -109,9 +109,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 if (error == "")
                 {
                     userList = _dbContext.Users
-                        .Where(g => g.Users_Groups
-                        .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
-                        .ToList();
+                                .Where(g => g.Users_Groups
+                                .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "aktywny"))
+                                .ToList();
 
                     //If selected user is on the list of users in the group
                     if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() > 0)
