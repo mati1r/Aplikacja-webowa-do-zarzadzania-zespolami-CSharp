@@ -9,10 +9,8 @@
 }
 
 <div class="w-100 h-100 d-inline-block overflow-auto bg-main">
-    <div class="align-content-center">
-        <h3>Aktywna grupa</h3>
-        <span class="p-1 me-1">fsafas</span>
-        <button class="btn btn-outline-primary">Zmień</button>
+    <div class="p-4">
+        <h1 class="text-center display-6 fw-bold">Aktywna grupa @Model.groupId</h1>
     </div>
 
     <div class="p-3">
@@ -26,9 +24,14 @@
                                     <thead>
                                         <tr>
                                             <th scope="col" class="col-1">Id</th>
-                                            <th scope="col" class="col-2">Nazwa</th>
-                                            <th scope="col" class="col-8">Opis</th>
-                                            <th scope="col" class="col-1" data-orderable="false"></th>
+                                            <th scope="col" class="col-3">Nazwa</th>
+                                            <th scope="col" class="col-7">Opis</th>
+                                            <th scope="col" class="col-1" data-orderable="false">
+                                                <form method="post">
+                                                    <input class="btn btn-primary details" type="submit" value="Ustaw jako aktywa" asp-page-handler="ChangeActiveGroup" />
+                                                    <input type="hidden" asp-for="changeGroupId" id="change" value="@Model.groupId" />
+                                                </form>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -39,10 +42,7 @@
                                                 <td>@item.name</td>
                                                 <td>@item.description</td>
                                                 <td>
-                                                    <form method="post">
-                                                            <input type="hidden" asp-for="changeGroupId" id="update" value="@item.group_id" />
-                                                            <input class="btn btn-sm btn-dark details" type="submit" value="Ustaw jako aktywa" asp-page-handler="ChangeActiveGroup" />
-                                                    </form>
+                                                    <input type="hidden" asp-for="changeGroupId" class="update" value="@item.group_id" />
                                                 </td>
                                             </tr>
                                         }
@@ -56,3 +56,33 @@
         </div>
     </div>
 </div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+
+            let loadedGroupId = $("#change").val();
+
+            $(".dataTable tbody tr").each(function () {
+
+                let rowValue = $(this).find(".update").val()
+                if(rowValue == loadedGroupId ){
+                    let $row = $(this).find("td");
+                    $row.addClass("selected-td");
+                }
+
+            });
+
+            //Update value of hidden input in form and change style of selected item
+            $(".dataTable tbody tr").click(function () {
+                let groupId = $(this).find(".update").val();
+                $("#change").val(groupId);
+                let $row = $(this).find("td");
+
+                $row.addClass("selected-td");
+
+                $(".dataTable tbody tr").not(this).find("td").removeClass("selected-td");
+            });
+        });
+    </script>
+}

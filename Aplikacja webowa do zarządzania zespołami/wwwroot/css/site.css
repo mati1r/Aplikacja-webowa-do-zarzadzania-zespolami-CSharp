@@ -81,9 +81,14 @@ tbody td {
     color: rgba(255,255,255,.75);
 }
 
-tbody tr:hover td{
+tbody tr:hover td {
     font-weight: 500;
-    color: rgb(255,255,255);
+    color: rgba(255,255,255, 1);
+}
+
+.selected-td {
+    font-weight: 500;
+    color: rgba(85,115,146, 1);
 }
 
 .card {

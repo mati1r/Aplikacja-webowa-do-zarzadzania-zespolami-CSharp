@@ -21,14 +21,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public const string Key3 = "_groupId";
         public string data;
         public int? userId;
+        public int? groupId;
 
         public void OnGet()
         {
             //Read session data
             data = HttpContext.Session.GetString(Key);
             userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
 
-            //BRAKUJĄCA DANA DO WYŚWIETLENIA TO WŁAŚCICIEL GRUPY !!! NALEŻY W PRZYSZŁOŚCI DODAĆ
             groupList = _dbContext.Groups
                 .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId && ug.status == "aktywny"))
                 .ToList();
