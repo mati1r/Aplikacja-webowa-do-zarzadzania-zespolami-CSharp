@@ -150,8 +150,8 @@
                     $('#description').text(task.description);
                     $('#status').text(task.status);
                     $('#priority').text(task.priority);
-                    $('#start-date').text(task.start_date);
-                    $('#end-date').text(task.end_date);
+                    $('#start-date').text(task.start_date.replace("T", " "));
+                    $('#end-date').text(task.end_date.replace("T", " "));
                     $('#update').val(task.task_id);
 
                     if(task.priority == "niski"){

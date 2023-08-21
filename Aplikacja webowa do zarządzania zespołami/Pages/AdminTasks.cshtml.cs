@@ -89,6 +89,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             return new JsonResult("success");
         }
+
+        private string IsEndDateHigherThanStartDate(DateTime startDate, DateTime endDate)
+        {
+            if (endDate < startDate)
+                return "Data początku musi być mniejsza od daty końca";
+
+            return "";
+        }
         public IActionResult OnPostAdd()
         {
             //Reset the value of the error and get session values
@@ -116,6 +124,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     //If selected user is on the list of users in the group
                     if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() > 0)
                     {
+                        //Check if start date is lower than end date
+                        string isDateCorrect = IsEndDateHigherThanStartDate(createOrEditTask.start_date, createOrEditTask.end_date);
+                        if (isDateCorrect != "")
+                        {
+                            validationErrors.Add(isDateCorrect);
+                            return new JsonResult(validationErrors);
+                        }
+
+                        //Check if task is set to complete if so set finish_date
                         if (createOrEditTask.status == "ukończone")
                         {
                             //Setting a date on now and setting seconds to 0
