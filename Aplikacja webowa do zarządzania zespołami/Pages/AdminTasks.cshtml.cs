@@ -80,13 +80,18 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostDelete()
         {
-            //Someone is trying to send data after failed loaded data so do nothing
-            if (createOrEditTask.task_id != 0)
+            groupId = HttpContext.Session.GetInt32(Key3);
+            List<string> validationErrors = new List<string>();
+            //Check if task exists in group
+            if (_dbContext.Tasks.Count(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId) == 0)
             {
-                Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
-                _dbContext.Remove(originalTask);
-                _dbContext.SaveChanges();
+                validationErrors.Add("Podane zadanie nie isnieje w tej grupie");
+                return new JsonResult(validationErrors);
             }
+
+            Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
+            _dbContext.Remove(originalTask);
+            _dbContext.SaveChanges();
             return new JsonResult("success");
         }
 
@@ -103,132 +108,133 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             error = "";
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
+            List<string> validationErrors = new List<string>();
+
             if (!ModelState.IsValid)
             {
-                var validationErrors = ModelState.ToDictionary(ms => ms.Key,
+                var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
                    ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
 
+                return new JsonResult(modelStateValidationErrors);
+            }
+
+            error = TaskValidation.IsTaskValid(createOrEditTask.task_name, createOrEditTask.status, createOrEditTask.priority, createOrEditTask.description);
+            if (error != "")
+            {
+                validationErrors.Add(error);
                 return new JsonResult(validationErrors);
             }
-            else
+            userList = _dbContext.Users
+                        .Where(g => g.Users_Groups
+                        .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "aktywny"))
+                        .ToList();
+
+            //If selected user is on the list of users in the group
+            if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() == 0)
             {
-                List<string> validationErrors = new List<string>();
-                error = TaskValidation.IsTaskValid(createOrEditTask.task_name, createOrEditTask.status, createOrEditTask.priority, createOrEditTask.description);
-                if (error == "")
-                {
-                    userList = _dbContext.Users
-                                .Where(g => g.Users_Groups
-                                .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "aktywny"))
-                                .ToList();
-
-                    //If selected user is on the list of users in the group
-                    if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() > 0)
-                    {
-                        //Check if start date is lower than end date
-                        string isDateCorrect = IsEndDateHigherThanStartDate(createOrEditTask.start_date, createOrEditTask.end_date);
-                        if (isDateCorrect != "")
-                        {
-                            validationErrors.Add(isDateCorrect);
-                            return new JsonResult(validationErrors);
-                        }
-
-                        //Check if task is set to complete if so set finish_date
-                        if (createOrEditTask.status == "ukończone")
-                        {
-                            //Setting a date on now and setting seconds to 0
-                            createOrEditTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
-                        }
-                        createOrEditTask.groups_group_id = (int)groupId;
-                        _dbContext.Tasks.Add(createOrEditTask);
-                        _dbContext.SaveChanges();
-                    }
-                    //If there is no such a user in the group
-                    else
-                    {
-                        validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
-                        return new JsonResult(validationErrors);
-                    }
-                }
-                else
-                {
-                    validationErrors.Add(error);
-                    return new JsonResult(validationErrors);
-                }
-
-                return new JsonResult("success");
+                //If there is no such a user in the group
+                validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
+                return new JsonResult(validationErrors);
             }
+            //Check if start date is lower than end date
+            string isDateCorrect = IsEndDateHigherThanStartDate(createOrEditTask.start_date, createOrEditTask.end_date);
+            if (isDateCorrect != "")
+            {
+                validationErrors.Add(isDateCorrect);
+                return new JsonResult(validationErrors);
+            }
+
+            //If nothing got returned to this point that means that it validated correctly
+            //Check if task is set to complete if so set finish_date
+            if (createOrEditTask.status == "ukończone")
+            {
+                //Setting a date on now and setting seconds to 0
+                createOrEditTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            }
+            createOrEditTask.groups_group_id = (int)groupId;
+            _dbContext.Tasks.Add(createOrEditTask);
+            _dbContext.SaveChanges();
+            return new JsonResult("success");     
         }
+
         public IActionResult OnPostEdit()
         {
             //Reset the value of the error and get session values
             error = "";
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
-            if (!ModelState.IsValid)
-            {
-                var validationErrors = ModelState.ToDictionary(ms => ms.Key,
-                   ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
+            List<string> validationErrors = new List<string>();
+            //Get list of actve users in the group
+            userList = _dbContext.Users
+                        .Where(g => g.Users_Groups
+                        .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                        .ToList();
 
+            //Check if task exists in group
+            if (_dbContext.Tasks.Count(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId) == 0)
+            {
+                validationErrors.Add("Podane zadanie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
             }
-            else
+
+            //Check if task is completed
+            if(_dbContext.Tasks.Count(t=> t.task_id == createOrEditTask.task_id && t.status == "ukończone") > 0)
             {
-                List<string> validationErrors = new List<string>();
-                //Someone is trying to send data after failed loaded data so do nothing
-                if (createOrEditTask.task_id != 0 && createOrEditTask.status != "ukończone")
-                {
-                    Console.WriteLine("User id " + userId);
-                    userList = _dbContext.Users
-                                .Where(g => g.Users_Groups
-                                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
-                                .ToList();
-
-                    //If selected user is on the list of users in the group
-                    if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() > 0)
-                    {
-                        //If we are here then task exists and is in that group
-                        error = TaskValidation.IsTaskValid(createOrEditTask.task_name, createOrEditTask.status, createOrEditTask.priority, createOrEditTask.description);
-                        if (error == "")
-                        {
-                            //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
-                            //if status changed from nieukończone to ukończone then add finish_date
-                            Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
-                            if (originalTask.status == "nieukończone" && createOrEditTask.status == "ukończone")
-                            {
-                                //Setting a date on now and setting seconds to 0
-                                originalTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
-                            }
-                            originalTask.task_name = createOrEditTask.task_name;
-                            originalTask.users_user_id = createOrEditTask.users_user_id;
-                            originalTask.description = createOrEditTask.description;
-                            originalTask.start_date = createOrEditTask.start_date;
-                            originalTask.end_date = createOrEditTask.end_date;
-                            originalTask.status = createOrEditTask.status;
-                            originalTask.priority = createOrEditTask.priority;
-                            _dbContext.Update(originalTask);
-                            _dbContext.SaveChanges();
-                        }
-                        else
-                        {
-                            validationErrors.Add(error);
-                            return new JsonResult(validationErrors);
-                        }
-                    }
-                    else
-                    {
-                        validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
-                        return new JsonResult(validationErrors);
-                    }
-                }
-                else
-                {
-                    validationErrors.Add("Nie można edytować zadania");
-
-                    return new JsonResult(validationErrors);
-                }
-                //Success
-                return new JsonResult("success");
+                validationErrors.Add("Podane zadanie jest już ukończone i nie podlega modyfikacji");
+                return new JsonResult(validationErrors);
             }
+
+            //Check if ModelState of send data is valid
+            if (!ModelState.IsValid)
+            {
+                var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
+                   ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                return new JsonResult(modelStateValidationErrors);
+            }
+
+            //If selected user is not on the list of users in the group
+            if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() == 0)
+            {
+                validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
+                return new JsonResult(validationErrors);
+            }
+
+            //If we are here then task exists and is in that group so now we check formating
+            error = TaskValidation.IsTaskValid(createOrEditTask.task_name, createOrEditTask.status, createOrEditTask.priority, createOrEditTask.description);
+            if (error != "")
+            {
+                validationErrors.Add(error);
+                return new JsonResult(validationErrors);
+            }
+
+            //Check if start date is lower than end date
+            string isDateCorrect = IsEndDateHigherThanStartDate(createOrEditTask.start_date, createOrEditTask.end_date);
+            if (isDateCorrect != "")
+            {
+                validationErrors.Add(isDateCorrect);
+                return new JsonResult(validationErrors);
+            }
+
+            //If nothing got returned to this point that means that it validated correctly
+            //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
+            //if status changed from nieukończone to ukończone then add finish_date
+            Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
+            if (originalTask.status == "nieukończone" && createOrEditTask.status == "ukończone")
+            {
+                //Setting a date on now and setting seconds to 0
+                originalTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            }
+            originalTask.task_name = createOrEditTask.task_name;
+            originalTask.users_user_id = createOrEditTask.users_user_id;
+            originalTask.description = createOrEditTask.description;
+            originalTask.start_date = createOrEditTask.start_date;
+            originalTask.end_date = createOrEditTask.end_date;
+            originalTask.status = createOrEditTask.status;
+            originalTask.priority = createOrEditTask.priority;
+            _dbContext.Update(originalTask);
+            _dbContext.SaveChanges();
+            return new JsonResult("success");
         }
     }
 }
