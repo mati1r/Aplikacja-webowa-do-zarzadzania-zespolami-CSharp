@@ -42,9 +42,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             HttpContext.Session.SetString(Key, userType);
             HttpContext.Session.SetInt32(Key2, userId);
             HttpContext.Session.SetInt32(Key3, groupId);
-            Console.WriteLine("Typu uzytkownika = " + userType);
-            Console.WriteLine("Id uzytkownika = " + userId);
-            Console.WriteLine("Id grupy = " + groupId);
         }
 
         public void OnPost() 

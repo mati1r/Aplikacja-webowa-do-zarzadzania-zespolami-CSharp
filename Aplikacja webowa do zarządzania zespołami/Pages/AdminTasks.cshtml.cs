@@ -102,6 +102,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             return "";
         }
+
         public IActionResult OnPostAdd()
         {
             //Reset the value of the error and get session values
@@ -124,6 +125,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 validationErrors.Add(error);
                 return new JsonResult(validationErrors);
             }
+
+            //Get list of actve users in the group
             userList = _dbContext.Users
                         .Where(g => g.Users_Groups
                         .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "aktywny"))
@@ -164,11 +167,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
             List<string> validationErrors = new List<string>();
-            //Get list of actve users in the group
-            userList = _dbContext.Users
-                        .Where(g => g.Users_Groups
-                        .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
-                        .ToList();
 
             //Check if task exists in group
             if (_dbContext.Tasks.Count(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId) == 0)
@@ -192,6 +190,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
                 return new JsonResult(modelStateValidationErrors);
             }
+
+            //Get list of actve users in the group
+            userList = _dbContext.Users
+                        .Where(g => g.Users_Groups
+                        .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                        .ToList();
 
             //If selected user is not on the list of users in the group
             if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() == 0)
