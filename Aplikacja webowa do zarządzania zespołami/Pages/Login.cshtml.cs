@@ -54,8 +54,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
-                var usersList = _dbContext.Users.ToList<Users>();
-                var usersGroupsList = _dbContext.Users_Groups.ToList<Users_Groups>();
+                var usersList = _dbContext.Users.ToList<User>();
+                var usersGroupsList = _dbContext.Users_Groups.ToList<User_Group>();
                 string userEmail = userCredentials.e_mail;
                 string password = userCredentials.password;
 

@@ -14,16 +14,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public JoinGroupModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            groupList = new List<Models.Groups>();
+            groupList = new List<Models.Group>();
         }
 
-        public List<Models.Groups> groupList;
+        public List<Models.Group> groupList;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
         public string data;
 
         [BindProperty]
-        public Groups createGroup { get; set; }
+        public Group createGroup { get; set; }
         public string error;
 
         public void OnGet()
@@ -50,7 +50,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     _dbContext.Groups.Add(createGroup);
                     _dbContext.SaveChanges();
 
-                    Users_Groups userGroup = new Users_Groups();
+                    User_Group userGroup = new User_Group();
 
                     userGroup.users_user_id = (int)HttpContext.Session.GetInt32(Key2);
                     var groupId = _dbContext.Groups.Where(g => g.name == createGroup.name).Select(g => g.group_id).First();

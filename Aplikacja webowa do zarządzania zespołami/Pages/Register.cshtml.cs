@@ -17,7 +17,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         [BindProperty]
-        public Users userData { get; set; }
+        public User userData { get; set; }
         public string error;
         public void OnGet()
         {
@@ -33,7 +33,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
-                var usersList = _dbContext.Users.ToList<Users>();
+                var usersList = _dbContext.Users.ToList<User>();
                 //Check if there is already a user using this e-mail or this username
                 if (usersList.Count(ul => ul.e_mail == userData.e_mail) > 0)
                 {

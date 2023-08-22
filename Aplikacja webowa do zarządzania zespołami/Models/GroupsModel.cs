@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
 {
-    public class Groups
+    public class Group
     {
         [Key]
         public int group_id { get; set; }
@@ -16,7 +16,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         [Required(ErrorMessage = "Pole opis jest wymagane")]
         public string description { get; set; }
 
-        public ICollection<Users_Groups>? Users_Groups { get; set; }
-        public ICollection<Tasks>? Tasks { get; set; }
+        public ICollection<User_Group>? Users_Groups { get; set; }
+        public ICollection<Models.Task>? Tasks { get; set; }
     }
 }

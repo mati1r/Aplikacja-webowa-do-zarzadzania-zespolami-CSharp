@@ -14,22 +14,22 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public AdminTasksModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            tasksList = new List<Models.Tasks>();
-            userList = new List<Models.Users>();
+            tasksList = new List<Models.Task>();
+            userList = new List<Models.User>();
         }
 
         private string error ="";
         private const string Key = "_userType";
         private const string Key2 = "_userId";
         private const string Key3 = "_groupId";
-        public List<Models.Tasks> tasksList;
-        public List<Models.Users> userList;
+        public List<Models.Task> tasksList;
+        public List<Models.User> userList;
         public string data;
         public int? userId;
         public int? groupId;
 
         [BindProperty(SupportsGet = true)]
-        public Tasks createOrEditTask { get; set; }
+        public Models.Task createOrEditTask { get; set; }
 
         [BindProperty(SupportsGet = true)]
         public int deleteTask { get; set; }
@@ -49,7 +49,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             .ToList();
         }
 
-        public async Task<Models.Tasks> GetTaskAsync(int id)
+        public async Task<Models.Task> GetTaskAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(Key3);
 
@@ -60,7 +60,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
-                Tasks emptyTask = new Tasks();
+                Models.Task emptyTask = new Models.Task();
                 emptyTask.start_date = DateTime.Now;
                 emptyTask.end_date = DateTime.Now;
                 emptyTask.task_id = id;
@@ -89,7 +89,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
             }
 
-            Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
+            Models.Task originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
             _dbContext.Remove(originalTask);
             _dbContext.SaveChanges();
             return new JsonResult("success");
@@ -223,7 +223,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //If nothing got returned to this point that means that it validated correctly
             //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
             //if status changed from nieukończone to ukończone then add finish_date
-            Tasks originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
+            Models.Task originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
             if (originalTask.status == "nieukończone" && createOrEditTask.status == "ukończone")
             {
                 //Setting a date on now and setting seconds to 0

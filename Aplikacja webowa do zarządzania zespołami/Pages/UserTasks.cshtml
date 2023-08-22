@@ -30,19 +30,17 @@
                                             <th scope="col">Data wykonania</th>
                                             <th scope="col">Status</th>
                                             <th scope="col">Stopień ważności</th>
-                                            <th scope="col" data-orderable="false"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach(var item in Model.tasksList)
                                         {
-                                        <tr>
+                                        <tr data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#details-modal">
                                             <td>@item.task_name</td>
                                             <td>@item.start_date</td>
                                             <td>@item.end_date</td>
                                             <td>@item.status</td>
                                             <td class="priority-table">@item.priority</td>
-                                            <td><button class="btn btn-sm btn-dark details" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#details-modal">Details</button></td>
                                         </tr>
                                         }
                                     </tbody>
@@ -105,15 +103,14 @@
                         <div class="mb-4">
                             <label>Wiadomość zwrotna (opcjonalna)</label>
                             <hr/>
-                            <textarea asp-for="feedbackMessage" class="form-control bg-dark" rows="4"></textarea>
+                            <textarea id="feedback" asp-for="feedbackMessage" class="form-control bg-dark" rows="4"></textarea>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-
-                        <input type="hidden" asp-for="actionTaskId" id="update"/>
-                        <input class="btn btn-primary" type="submit" value="Odznacz jako wykonane" asp-page-handler="Send" />
+                    <input type="hidden" asp-for="actionTaskId" id="update"/>
+                    <input class="btn btn-primary" id="action-btn" type="submit" value="Odznacz jako wykonane" asp-page-handler="Complete" />
                 </div>
             </form>
         </div>
@@ -122,9 +119,10 @@
 
 @section scripts{
     <script>
-        //DataTable
+
         $(document).ready(function () {
 
+            //DataTable
             $('#DataTable').DataTable({
                 "oLanguage": {
                     "oPaginate": {
@@ -140,11 +138,9 @@
                     "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
                 }
             });
-        });
 
-        //Modal text and coloring for priority
-        $(function () {
-            $('button.details').on('click', function () {
+            //Modal text and coloring for priority
+            $(".dataTable tbody tr").click(function () {
                 $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
                     $('#title').text(task.task_name);
                     $('#description').text(task.description);
@@ -153,20 +149,27 @@
                     $('#start-date').text(task.start_date.replace("T", " "));
                     $('#end-date').text(task.end_date.replace("T", " "));
                     $('#update').val(task.task_id);
+                    $('#feedback').text(task.feedback);
 
-                    if(task.priority == "niski"){
+                    if (task.priority == "niski") {
                         $('#priority').css("color", "green");
-                    } else if (task.priority == "wysoki"){
+                    } else if (task.priority == "wysoki") {
                         $('#priority').css("color", "red");
-                    }else{
+                    } else {
                         $('#priority').addClass("text-white-50");
+                    }
+
+                    if (task.status === "ukończone") {
+                        $("#action-btn").hide(); // Ukryj przycisk, jeśli status jest "ukonczone"
+                        $("#feedback").prop("disabled", true);
+                    } else {
+                        $("#action-btn").show(); // Pokaż przycisk w przeciwnym przypadku
+                        $("#feedback").prop("disabled", false);
                     }
                 });
             });
-        })
 
-        //DataTable coloring for priority
-        $(document).ready(function () {
+            //DataTable coloring for priority
             $('.priority-table').each(function () {
                 if ($(this).html() == "niski") {
                     $(this).css('color', 'green');

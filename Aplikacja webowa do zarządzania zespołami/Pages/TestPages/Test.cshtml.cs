@@ -12,12 +12,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages.TestPages
         public TestModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            tasksList = new List<Models.Tasks>();
-            task = new Tasks();
+            tasksList = new List<Models.Task>();
+            task = new Models.Task();
         }
 
-        public List<Models.Tasks> tasksList;
-        public Tasks task;
+        public List<Models.Task> tasksList;
+        public Models.Task task;
         private const string Key = "_userType";
         public string data;
         public void OnGet()

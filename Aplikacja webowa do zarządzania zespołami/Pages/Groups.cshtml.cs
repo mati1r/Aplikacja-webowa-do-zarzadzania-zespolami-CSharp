@@ -12,10 +12,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public GroupsModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            groupList = new List<Models.Groups>();
+            groupList = new List<Models.Group>();
         }
 
-        public List<Models.Groups> groupList;
+        public List<Models.Group> groupList;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
         public const string Key3 = "_groupId";
