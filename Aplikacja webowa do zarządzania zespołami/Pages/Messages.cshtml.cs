@@ -72,9 +72,25 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialMessagesView", messagesList);
         }
 
+
+        //Get message and validate if user didn't changed id to some out of his scope or active group
+        private Message GetMessageContent(int messageId, int userId, int groupId)
+        {
+            if(_dbContext.Messages.Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId) && m.groups_group_id == groupId && m.message_id == messageId).Count() > 0)
+            {
+                return _dbContext.Messages.Where(m => m.message_id == messageId).First();
+            }
+            Message falseMessage = new Message();
+            falseMessage.content = "Błąd, widomość o tym id nie istnieje";
+            return falseMessage;
+        }
+
         public PartialViewResult OnGetMessage(int id)
         {
-            message = _dbContext.Messages.Where(m => m.message_id == id).First();
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+
+            message = GetMessageContent(id, (int)userId, (int)groupId);
             return Partial("Partials/_PartialMessage", message);
         }
     }
