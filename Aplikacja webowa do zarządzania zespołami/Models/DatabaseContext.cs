@@ -11,6 +11,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<User_Group> Users_Groups { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<Message_User> Messages_Users { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -40,6 +42,19 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
                 .HasOne(pk => pk.Groups)
                 .WithMany(k => k.Tasks)
                 .HasForeignKey(pk => pk.groups_group_id);
+
+            modelBuilder.Entity<Message_User>()
+            .HasKey(pk => new { pk.users_user_id, pk.messages_message_id });
+
+            modelBuilder.Entity<Message_User>()
+                .HasOne(pk => pk.Users)
+                .WithMany(p => p.Messages_Users)
+                .HasForeignKey(pk => pk.users_user_id);
+
+            modelBuilder.Entity<Message_User>()
+                .HasOne(pk => pk.Messages)
+                .WithMany(k => k.Messages_Users)
+                .HasForeignKey(pk => pk.messages_message_id);
         }
     }
 }
