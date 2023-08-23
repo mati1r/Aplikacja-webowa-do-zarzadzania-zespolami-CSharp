@@ -19,6 +19,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         public string content { get; set; }
 
         public int sender_id { get; set; }
+        public User? Users { get; set; }
 
         public DateTime send_date { get; set; }
 

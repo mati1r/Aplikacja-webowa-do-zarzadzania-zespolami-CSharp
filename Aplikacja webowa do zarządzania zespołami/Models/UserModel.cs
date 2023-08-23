@@ -25,6 +25,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         [StringLength(50, MinimumLength = 5, ErrorMessage = "Minimalna długość dla tego pola to 5 a maksymalna to 50 znaków")]
         public string? surname { get; set; }
 
+        public ICollection<Message>? Messages { get; set; }
         public ICollection<Message_User>? Messages_Users { get; set; }
         public ICollection<User_Group>? Users_Groups { get; set; }
         public ICollection<Models.Task>? Tasks { get; set; }

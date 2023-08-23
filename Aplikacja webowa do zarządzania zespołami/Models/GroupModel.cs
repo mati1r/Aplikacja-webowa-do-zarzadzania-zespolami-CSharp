@@ -18,5 +18,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
 
         public ICollection<User_Group>? Users_Groups { get; set; }
         public ICollection<Models.Task>? Tasks { get; set; }
+
+        public ICollection<Message>? Messages { get; set; }
     }
 }

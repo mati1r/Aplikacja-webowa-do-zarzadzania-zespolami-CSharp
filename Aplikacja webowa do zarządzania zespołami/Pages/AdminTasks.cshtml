@@ -275,8 +275,7 @@
             //Set value for hidden input
             $('#task-user-hidden2').val(selectizeValue);
 
-            
-
+            //Change action for submit
             $("#deleteButton").click(function () {
                 $("form").attr("action", "/AdminTasks?handler=Delete");
                 $("form").attr("asp-page-handler", "Delete");
@@ -286,22 +285,18 @@
             $('form').on('submit', function () {
                 $('span[data-valmsg-for]').text('');
             });
-        });
 
-        //Cleaning function on modal call
-        $('#edit-modal').on('show.bs.modal', function () {
-            $('span[data-valmsg-for]').text('');
-        });
+            //Cleaning function on modal call
+            $('#edit-modal').on('show.bs.modal', function () {
+                $('span[data-valmsg-for]').text('');
+            });
 
-        $(document).ready(function () {
             //Return errors on validation for specific span
             $("form").submit(function (event) {
                 event.preventDefault();
 
                 let form = $(this);
                 let actionUrl = form.attr("action");
-
-                console.log(actionUrl);
 
                 $.ajax({
                     type: form.attr("method"),
@@ -380,10 +375,8 @@
                     priorityElement.css("color", "white");
                 }
             });
-        });
 
         //Modal text and coloring for priority
-        $(function () {
             $('button.edit').on('click', function () {
                 $.getJSON(`/AdminTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
                     $('#title').text(task.task_name);

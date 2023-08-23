@@ -1,0 +1,76 @@
+﻿@page
+@model Aplikacja_webowa_do_zarządzania_zespołami.Pages.MessagesModel
+@{
+    Layout = "_ComunicationLayout";
+}
+@if (Model.data == null)
+{
+    Response.Redirect("/");
+}
+
+<div class="w-100 h-100 d-inline-block overflow-auto bg-main">
+    <div class="p-4">
+        <h1 class="text-center display-6 fw-bold">Wiadomości</h1>
+    </div>
+
+    <div class="p-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-table">
+                        <div id="messageContainer">
+                            <partial name ="Partials/_PartialMessagesView" model="Model.messagesList"/>
+                        </div>
+                       <button class="btn btn-dark" id="loadMore">Pokaż więcej</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var howMany = 20;
+
+            $("#loadMore").click(function () {
+
+                //Clear space for new data
+                if ($("#messageContainer").children().length > 0) {
+                    $("#messageContainer").empty();
+                }
+
+                $.ajax({
+                    type: 'get',
+                    url: '@Url.Page("Messages", "MessagesView")', //Set url to handle its basicly the same as Messages?handler=MessagesView
+                    data: { howMany: howMany }, //Set data to send in that case update value of howMany messages have to be loaded
+                    success: function (partialResult) {
+                        $("#messageContainer").append(partialResult);
+                        howMany += 10;
+                    }
+                });
+            });
+
+            $("#messageContainer").on("click", ".item", function () {
+                var newDiv = $('<div></div>', {
+                    class: 'message',
+                });
+
+                if ($(this).hasClass("active")) {
+                    $(this).removeClass("active");
+                    let nextNewDiv = $(this).find(".message");
+                    nextNewDiv.remove();
+                } else {
+                    $(this).append(newDiv);
+                    $(this).addClass("active");
+                    let idValue = $(this).attr("id");
+                    let partial = $(this).find(".message");
+
+                    partial.load('/Messages?handler=Message&id=' + idValue);
+                }
+            });
+        });
+
+    </script>
+}
