@@ -18,10 +18,14 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card bg-table">
-                        <div id="messageContainer">
-                            <partial name ="Partials/_PartialMessagesView" model="Model.messagesList"/>
+                        <div class="col-5 p-3">
+                            <button class="btn btn-dark px-3 me-2" id="recive">Odebrane</button>
+                            <button class="btn btn-dark px-3 me-2" id="send">Wysłane</button>
+                            <button class="btn btn-primary px-3" id="create">Nowa wiadomość</button>
                         </div>
-                       <button class="btn btn-dark" id="loadMore">Pokaż więcej</button>
+                        <div id="messageContainer">
+                            <partial name ="Partials/_PartialReciveMessagesView" model="Model.reciveMessagesList"/>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -32,9 +36,51 @@
 @section scripts{
     <script>
         $(document).ready(function () {
-            var howMany = 20;
 
-            $("#loadMore").click(function () {
+            //Set how many records need to loaded after clicking on button
+            let howMany = 20;
+
+            //Button handlers
+            $("#recive").click(function () {
+
+                //Since we are changin content of the page we need to restart value of howMany
+                howMany = 20;
+
+                if ($("#messageContainer").children().length > 0) {
+                    $("#messageContainer").empty();
+                }
+
+                $.ajax({
+                    type: 'get',
+                    url: '@Url.Page("Messages", "ReciveMessagesView")',
+                    data: { howMany: 10 }, //Get 10 records as in the begining
+                    success: function (partialResult) {
+                        $("#messageContainer").append(partialResult);
+                    }
+                });
+            });
+
+            $("#send").click(function () {
+
+                //Since we are changin content of the page we need to restart value of howMany
+                howMany = 20;
+
+                if ($("#messageContainer").children().length > 0) {
+                    $("#messageContainer").empty();
+                }
+
+                $.ajax({
+                    type: 'get',
+                    url: '@Url.Page("Messages", "SendedMessagesView")',
+                    data: { howMany: 10 }, //Get 10 records as in the begining
+                    success: function (partialResult) {
+                        $("#messageContainer").append(partialResult);
+                    }
+                });
+            });
+
+            //loadMore handlers
+            $("#messageContainer").on("click", "#loadMoreRecived", function () {
 
                 //Clear space for new data
                 if ($("#messageContainer").children().length > 0) {
@@ -43,7 +89,7 @@
 
                 $.ajax({
                     type: 'get',
-                    url: '@Url.Page("Messages", "MessagesView")', //Set url to handle its basicly the same as Messages?handler=MessagesView
+                    url: '@Url.Page("Messages", "ReciveMessagesView")', //Set url to handle its basicly the same as Messages?handler=MessagesView
                     data: { howMany: howMany }, //Set data to send in that case update value of howMany messages have to be loaded
                     success: function (partialResult) {
                         $("#messageContainer").append(partialResult);
@@ -52,7 +98,27 @@
                 });
             });
 
-            $("#messageContainer").on("click", ".item", function () {
+            $("#messageContainer").on("click", "#loadMoreSended", function () {
+
+                //Clear space for new data
+                if ($("#messageContainer").children().length > 0) {
+                    $("#messageContainer").empty();
+                }
+
+                $.ajax({
+                    type: 'get',
+                    url: '@Url.Page("Messages", "SendedMessagesView")', //Set url to handle its basicly the same as Messages?handler=MessagesView
+                    data: { howMany: howMany }, //Set data to send in that case update value of howMany messages have to be loaded
+                    success: function (partialResult) {
+                        $("#messageContainer").append(partialResult);
+                        howMany += 10;
+                    }
+                });
+            });
+
+
+            //On item click handlers
+            $("#messageContainer").on("click", ".recive-item", function () {
                 var newDiv = $('<div></div>', {
                     class: 'message',
                 });
@@ -67,7 +133,26 @@
                     let idValue = $(this).attr("id");
                     let partial = $(this).find(".message");
 
-                    partial.load('/Messages?handler=Message&id=' + idValue);
+                    partial.load('/Messages?handler=ReciveMessage&id=' + idValue);
+                }
+            });
+
+            $("#messageContainer").on("click", ".sended-item", function () {
+                var newDiv = $('<div></div>', {
+                    class: 'message',
+                });
+
+                if ($(this).hasClass("active")) {
+                    $(this).removeClass("active");
+                    let nextNewDiv = $(this).find(".message");
+                    nextNewDiv.remove();
+                } else {
+                    $(this).append(newDiv);
+                    $(this).addClass("active");
+                    let idValue = $(this).attr("id");
+                    let partial = $(this).find(".message");
+
+                    partial.load('/Messages?handler=SendedMessage&id=' + idValue);
                 }
             });
         });

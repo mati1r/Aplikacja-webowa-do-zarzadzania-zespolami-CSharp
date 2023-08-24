@@ -1,11 +1,12 @@
-﻿@model List<MessagesModel.MessageView>
-<hr/>
-@foreach(var item in Model){
-    <div class="item card-body" id="@item.message_id">
+﻿@model List<MessagesModel.SendedMessageView>
+<hr />
+@foreach (var item in Model)
+{
+    <div class="sended-item card-body" id="@item.message_id">
         <div class="contain">
             <div class="row">
                 <div class="col-md-2">
-                    Od: @item.sender_name
+                    Do: @item.reciver_name
                 </div>
                 <div class="col-md-7">
                     Temat: @item.topic
@@ -18,3 +19,4 @@
     </div>
     <hr />
 }
+<button class="btn btn-dark w-100" id="loadMoreSended">Pokaż więcej</button>

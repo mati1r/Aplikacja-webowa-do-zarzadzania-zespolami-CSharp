@@ -1,0 +1,11 @@
+﻿@model List<MessagesModel.SendedMessageView>
+
+<div class="form-control mt-5">
+    <p class="pb-5 pt-3" style="color:rgba(255,255,255,.75)"> Wszyscy odbiorcy: 
+        @string.Join(", ", Model.Select(item => item.reciver_name))
+    </p>
+    <p class="text-white-50">Wiadomość</p>
+    <hr />
+    <div class="pb-5" style="color:rgba(255,255,255,.75)">@Model[0].content</div>
+</div>
+
