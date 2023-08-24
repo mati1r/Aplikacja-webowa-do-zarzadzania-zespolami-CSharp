@@ -33,6 +33,18 @@
     </div>
 </div>
 
+<!--Modal-->
+<div class="modal fade" id="succesModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body mt-2">
+                Wiadmość została wysłana
+            </div>
+            <button type="button" class="btn btn-secondary ms-auto m-3" data-bs-dismiss="modal">Zamknij</button>
+        </div>
+    </div>
+</div>
+
 @section scripts{
     <script>
         $(document).ready(function () {
@@ -75,6 +87,70 @@
                     data: { howMany: 10 }, //Get 10 records as in the begining
                     success: function (partialResult) {
                         $("#messageContainer").append(partialResult);
+                    }
+                });
+            });
+
+            $("#create").click(function () {
+
+                if ($("#messageContainer").children().length > 0) {
+                    $("#messageContainer").empty();
+                }
+
+                $.ajax({
+                    type: 'get',
+                    url: '@Url.Page("Messages", "CreateMessage")',
+                    success: function (partialResult) {
+                        //After success we operate inside this block to handle all actions that are asociated with this partial
+                        $("#messageContainer").append(partialResult);
+
+                        //Selectize initialization
+                        $('#message').selectize({
+                            sortField: 'text',
+                            multiple: true,
+
+                            onChange: function (value) {
+                                $('#message-user-hidden').val(value);
+                            }
+                        });
+
+                        //Form validation and sending data
+                        $("form").submit(function (event) {
+                            event.preventDefault();
+
+                            let form = $(this);
+                            let actionUrl = form.attr("action");
+
+
+                            $.ajax({
+                                type: form.attr("method"),
+                                url: actionUrl,
+                                data: form.serialize(),
+                                dataType: "json",
+                                success: function (data) {
+                                    //Object.keys(data).lenght sprawdza ile błędów znajduje się w data natomiast data != success ma za zadanie nie przechwicić udanego wykonania
+                                    if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                                        let keys = Object.keys(data);
+
+                                        for (let i = 0; i < keys.length; i++) {
+                                            let key = keys[i];
+                                            let errors = data[key];
+                                            let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+
+                                            if (errorSpan.length > 0) {
+                                                errorSpan.text(errors[0]);
+                                            }
+                                        }
+                                    } else if (Array.isArray(data) && data.length > 0) {
+                                        let nameValidationError = $(`span[data-valmsg-for="message.content"]`);
+                                        nameValidationError.text(data[0]);
+                                    }
+                                    else {
+                                        $('#succesModal').modal('show');
+                                    }
+                                }
+                            });
+                        });
                     }
                 });
             });

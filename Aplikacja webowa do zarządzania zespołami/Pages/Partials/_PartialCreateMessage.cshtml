@@ -1,0 +1,36 @@
+﻿@model MessagesModel.CreateMessageView
+<form method="post" asp-page-handler="Create">
+    <div class="mt-md-4 pb-5">
+
+        <div class="contain">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <label class="form-label" for="task-name">Temat</label>
+                    <br />
+                    <input type="text" class="status-input form-control bg-dark" id="task-name" asp-for="message.topic">
+                    <span asp-validation-for="message.topic" class="text-danger"></span>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <label class="form-label" for="task-user">Odbiorca</label>
+                    <br />
+                    <select id="message" multiple="multiple">
+                        @foreach (var item in Model.usersList)
+                        {
+                            <option value="@item.user_id">@item.username</option>
+                        }
+                    </select>
+                    <input type="hidden" asp-for="messageUsers" id="message-user-hidden" />
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label" for="description">Treść wiadomości</label>
+            <br />
+            <textarea class="status-input form-control bg-dark" id="description" rows="4" asp-for="message.content"></textarea>
+            <span asp-validation-for="message.content" class="text-danger"></span>
+        </div>
+    </div>
+    <input class="btn btn-primary" id="submitButton" type="submit" value="Wyślij wiadomość" />
+</form>
