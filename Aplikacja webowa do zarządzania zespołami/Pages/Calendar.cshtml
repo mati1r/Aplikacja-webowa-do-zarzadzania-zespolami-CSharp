@@ -1,0 +1,46 @@
+﻿@page
+@model Aplikacja_webowa_do_zarządzania_zespołami.Pages.CalendarModel
+@{
+    Layout = "_TaskLayout";
+}
+<div class="w-100 h-100 d-inline-block overflow-auto bg-main">
+    <div class="p-5" id="calendar"></div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            var calendarEl = $('#calendar')[0];
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: '',
+                    center: 'title',
+                    right: 'today prev,next'
+                },
+                buttonText: {
+                    today: 'Dziś',
+                    month: 'Miesiąć',
+                    week: 'Tydzień',
+                    day: 'Dzień',
+                    list: 'Lista'
+                },
+                locale: 'pl',
+                events: function (info, successCallback, failureCallback) {
+                    $.ajax({
+                        url: '/Calendar?handler=Events',
+                        method: 'GET',
+                        dataType: 'json',
+                        success: function (data) {
+                            successCallback(data);
+                        },
+                        error: function (error) {
+                            failureCallback(error);
+                        }
+                    });
+                }
+            });
+            calendar.render();
+        });
+    </script>
+}
