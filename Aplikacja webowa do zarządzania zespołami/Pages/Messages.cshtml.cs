@@ -219,6 +219,25 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialCreateMessage", createMessagesView);
         }
 
+        private void CreateMessage(Message message, List<int> reciversList)
+        {
+            message.groups_group_id = (int)groupId;
+            message.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            message.sender_id = (int)userId;
+            _dbContext.Add(message);
+            _dbContext.SaveChanges();
+
+            Message_User messageUser = new Message_User();
+
+            foreach (int receiverId in reciversList)
+            {
+                messageUser.users_user_id = receiverId;
+                messageUser.messages_message_id = createMessagesView.message.message_id;
+                _dbContext.Add(messageUser);
+                _dbContext.SaveChanges();
+            }
+        }
+
         public IActionResult OnPostCreate()
         {
             data = HttpContext.Session.GetString(Key);
@@ -290,29 +309,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 validationErrors.Add(error);
                 return new JsonResult(validationErrors);
             }
-            //Since we will need messageId later we should get max value of messageId and increment it by 1
 
             //At this point everything is correct so we can create a message
-            createMessagesView.message.groups_group_id = (int)groupId;
-            createMessagesView.message.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
-            createMessagesView.message.sender_id = (int)userId;
-            _dbContext.Add(createMessagesView.message);
-            _dbContext.SaveChanges();
-
-            Console.WriteLine("ID wiadomosci");
-            Console.WriteLine(createMessagesView.message.message_id);
-
-            //We also need to create a asociation to MessagesUsers table
-            Message_User messageUser = new Message_User();
-
-            foreach (int receiverId in reciversList)
-            {
-                messageUser.users_user_id = receiverId;
-                messageUser.messages_message_id = createMessagesView.message.message_id;
-                _dbContext.Add(messageUser);
-                _dbContext.SaveChanges();
-            }
-
+            CreateMessage(createMessagesView.message, reciversList);
             return new JsonResult("success");
         }
     }
