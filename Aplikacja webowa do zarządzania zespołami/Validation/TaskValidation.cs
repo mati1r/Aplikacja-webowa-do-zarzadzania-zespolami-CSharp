@@ -39,12 +39,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
 
         public static bool IsTaskNameValid(string taskName)
         {
-            string pattern = "^[a-zA-Z0-9 ]+$";
+            string pattern = "^[\\p{L}\\d.,!? ]+$";
             return IsLengthValid(taskName, minTaskName, maxTaskName) && Regex.IsMatch(taskName, pattern);
         }
         public static bool IsDescriptionValid(string description)
         {
-            string pattern = "^[a-zA-Z0-9 ]+$";
+            string pattern = "^[\\p{L}\\d.,!? ]+$";
             return IsLengthValid(description, minDescription, maxDescription) && Regex.IsMatch(description, pattern);
         }
 

@@ -10,7 +10,7 @@
 
 <div class="w-100 h-100 d-inline-block overflow-auto bg-main">
     <div class="p-4">
-        <h1 class="text-center display-6 fw-bold">Wiadomości</h1>
+        <h1 class="text-center display-6 fw-bold">Skrzynka odbiorcza</h1>
     </div>
 
     <div class="p-3">
@@ -101,56 +101,7 @@
                     type: 'get',
                     url: '@Url.Page("Messages", "CreateMessage")',
                     success: function (partialResult) {
-                        //After success we operate inside this block to handle all actions that are asociated with this partial
-                        $("#messageContainer").append(partialResult);
-
-                        //Selectize initialization
-                        $('#message').selectize({
-                            sortField: 'text',
-                            multiple: true,
-
-                            onChange: function (value) {
-                                $('#message-user-hidden').val(value);
-                            }
-                        });
-
-                        //Form validation and sending data
-                        $("form").submit(function (event) {
-                            event.preventDefault();
-
-                            let form = $(this);
-                            let actionUrl = form.attr("action");
-
-
-                            $.ajax({
-                                type: form.attr("method"),
-                                url: actionUrl,
-                                data: form.serialize(),
-                                dataType: "json",
-                                success: function (data) {
-                                    //Object.keys(data).lenght sprawdza ile błędów znajduje się w data natomiast data != success ma za zadanie nie przechwicić udanego wykonania
-                                    if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
-                                        let keys = Object.keys(data);
-
-                                        for (let i = 0; i < keys.length; i++) {
-                                            let key = keys[i];
-                                            let errors = data[key];
-                                            let errorSpan = $(`span[data-valmsg-for="${key}"]`);
-
-                                            if (errorSpan.length > 0) {
-                                                errorSpan.text(errors[0]);
-                                            }
-                                        }
-                                    } else if (Array.isArray(data) && data.length > 0) {
-                                        let nameValidationError = $(`span[data-valmsg-for="message.content"]`);
-                                        nameValidationError.text(data[0]);
-                                    }
-                                    else {
-                                        $('#succesModal').modal('show');
-                                    }
-                                }
-                            });
-                        });
+                        $("#messageContainer").append(partialResult);                  
                     }
                 });
             });
@@ -165,8 +116,8 @@
 
                 $.ajax({
                     type: 'get',
-                    url: '@Url.Page("Messages", "ReciveMessagesView")', //Set url to handle its basicly the same as Messages?handler=MessagesView
-                    data: { howMany: howMany }, //Set data to send in that case update value of howMany messages have to be loaded
+                    url: '@Url.Page("Messages", "ReciveMessagesView")',
+                    data: { howMany: howMany },
                     success: function (partialResult) {
                         $("#messageContainer").append(partialResult);
                         howMany += 10;
@@ -183,8 +134,8 @@
 
                 $.ajax({
                     type: 'get',
-                    url: '@Url.Page("Messages", "SendedMessagesView")', //Set url to handle its basicly the same as Messages?handler=MessagesView
-                    data: { howMany: howMany }, //Set data to send in that case update value of howMany messages have to be loaded
+                    url: '@Url.Page("Messages", "SendedMessagesView")',
+                    data: { howMany: howMany },
                     success: function (partialResult) {
                         $("#messageContainer").append(partialResult);
                         howMany += 10;
@@ -231,6 +182,65 @@
                     partial.load('/Messages?handler=SendedMessage&id=' + idValue);
                 }
             });
+        });
+
+        $(document).ajaxSuccess(function (event, xhr, settings) {
+            if (settings.url === '@Url.Page("Messages", "CreateMessage")') {
+
+                //Selectize initialization
+                $('#message').selectize({
+                    sortField: 'text',
+                    multiple: true,
+
+                    onChange: function (value) {
+                        $('#message-user-hidden').val(value);
+                    }
+                });
+
+                //Form validation and sending data
+                $("form").submit(function (event) {
+                    event.preventDefault();
+
+                    let form = $(this);
+                    let actionUrl = form.attr("action");
+
+
+                    $.ajax({
+                        type: form.attr("method"),
+                        url: actionUrl,
+                        data: form.serialize(),
+                        dataType: "json",
+                        success: function (data) {
+                            //Object.keys(data).lenght sprawdza ile błędów znajduje się w data natomiast data != success ma za zadanie nie przechwicić udanego wykonania
+                            if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                                let keys = Object.keys(data);
+
+                                for (let i = 0; i < keys.length; i++) {
+                                    let key = keys[i];
+                                    let errors = data[key];
+                                    let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+
+                                    if (errorSpan.length > 0) {
+                                        errorSpan.text(errors[0]);
+                                    }
+                                }
+                            } else if (Array.isArray(data) && data.length > 0) {
+                                let nameValidationError = $(`span[data-valmsg-for="message.content"]`);
+                                nameValidationError.text(data[0]);
+                            }
+                            else {
+                                $('#succesModal').modal('show');
+                                //After succesful creation of message clear errors and data
+                                $(`span[data-valmsg-for="message.topic"]`).text("");
+                                $(`span[data-valmsg-for="message.content"]`).text("");
+                                $("#message-topic").val("");
+                                $("#message-content").val("");
+                                $('#message')[0].selectize.clear();
+                            }
+                        }
+                    });
+                });
+            }
         });
 
     </script>

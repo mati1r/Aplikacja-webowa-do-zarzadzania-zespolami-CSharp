@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -82,7 +83,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
 
-            reciveMessagesList = GetMessages(10, (int)userId, (int)groupId);
+            //Check if user didn't deleted session (it causes function to throw exeptions (even tho it should be able to accept null as userId and groupId))
+            try
+            {
+                reciveMessagesList = GetMessages(10, (int)userId, (int)groupId);
+            }
+            catch
+            {
+                Page();
+            }
         }
 
         public PartialViewResult OnGetReciveMessagesView(int howMany)
@@ -90,37 +99,17 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
 
-            reciveMessagesList = GetMessages(howMany, (int)userId, (int)groupId);
+            try
+            {
+                reciveMessagesList = GetMessages(howMany, (int)userId, (int)groupId);
+            }
+            catch
+            {
+                Page();
+            }
 
             return Partial("Partials/_PartialReciveMessagesView", reciveMessagesList);
         }
-
-        public PartialViewResult OnGetSendedMessagesView(int howMany)
-        {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
-
-            //Get list of messages and nickname of one person that recived it (Group by and select statment)
-            sendedMessagesList = _dbContext.Messages
-                .Where(m => m.sender_id == userId && m.groups_group_id == groupId)
-                .OrderByDescending(m => m.send_date)
-                .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessageView
-                {
-                    message_id = m.message_id,
-                    topic = m.topic,
-                    content = m.content,
-                    send_date = m.send_date,
-                    reciver_name = mu.Users.username
-                })
-                .GroupBy(m => m.message_id)
-                .Select(m => m.First())
-                .Take(howMany)
-                .ToList();
-
-
-            return Partial("Partials/_PartialSendedMessagesView", sendedMessagesList);
-        }
-
 
         //Get message and validate if user didn't changed id to some out of his scope or active group
         private Message GetReciveMessageContent(int messageId, int userId, int groupId)
@@ -139,8 +128,42 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
 
-            message = GetReciveMessageContent(id, (int)userId, (int)groupId);
+            try
+            {
+                message = GetReciveMessageContent(id, (int)userId, (int)groupId);
+            }
+            catch
+            {
+                Page();
+            }
             return Partial("Partials/_PartialReciveMessage", message);
+        }
+
+        public PartialViewResult OnGetSendedMessagesView(int howMany)
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+
+            //Get list of messages and nickname of one person that recived it (Group by and select statment)
+            sendedMessagesList = _dbContext.Messages
+                .Where(m => m.sender_id == userId && m.groups_group_id == groupId)
+                .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessageView
+                {
+                    message_id = m.message_id,
+                    topic = m.topic,
+                    content = m.content,
+                    send_date = m.send_date,
+                    reciver_name = mu.Users.username
+                })
+                .GroupBy(g => g.message_id)
+                .Select(g => g.OrderByDescending(m => m.send_date).First())
+                .AsEnumerable() //Changing execution mode to the application level
+                .OrderByDescending(m => m.send_date)
+                .Take(howMany)
+                .ToList();
+
+
+            return Partial("Partials/_PartialSendedMessagesView", sendedMessagesList);
         }
 
         private List<SendedMessageView> GetSendedMessageContent(int messageId, int userId, int groupId)
@@ -172,7 +195,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
-            sendedMessagesList = GetSendedMessageContent(id, (int)userId, (int)groupId);
+            try
+            {
+                sendedMessagesList = GetSendedMessageContent(id, (int)userId, (int)groupId);
+            }
+            catch
+            {
+                Page();
+            }
 
             return Partial("Partials/_PartialSendedMessage", sendedMessagesList);
         }
@@ -192,6 +222,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public IActionResult OnPostCreate()
         {
             data = HttpContext.Session.GetString(Key);
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+
             List<string> validationErrors = new List<string>();
             if (!ModelState.IsValid)
             {
@@ -210,11 +243,76 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(modelStateValidationErrors);
             }
 
-            //WALIDACJA DZIAŁA DLA TEMATU I WIADOMOŚCI, NIE DZIALA DLA ODBIORCY BO ODRAZU Z JAKIEGOŚ POWODU WYŚWIETLAŁ SIĘ BŁAD 
-            //DLA TEMATU I WIADOMOSCI SPRAWDZIC FORMATOWANIE A DLA ODBIORCY SPRAWDZIC CZY COS PRZYCHODZI, NASTEPNIE PRZEKONWERTOWAC TO NA LISTE INTÓW
-            //PRZYCHODZIĆ BĘDĄ np. "1,4,5" TAK WIĘC WARTOŚCI SĄ PO PROSTU ODZIELONE PRZECINKIEM, NALEŻY TO PRZEROBIĆ NA LISTE I SPARSOWAĆ NA INTY
-            //NASTĘPNIE SPRAWDZIĆ CZY TE WARTOŚCI SĄ NA LISCIE OSOB W GRUPIE, JEZELI TAK TO JEST GIT
-            Console.WriteLine(createMessagesView.message.content);
+            if(createMessagesView.messageUsers == "" || createMessagesView.messageUsers == null)
+            {
+                validationErrors.Add("Nie podano poprawnego odbiorcy");
+                return new JsonResult(validationErrors);
+            }
+
+            //Parse value from hidden input (selectize)
+            string[] reciversArray = createMessagesView.messageUsers.Split(',');
+            List<int> reciversList = new List<int>();
+
+            foreach (string reciver in reciversArray)
+            {
+                if (int.TryParse(reciver, out int parsedReciver))
+                {
+                    reciversList.Add(parsedReciver);
+                }
+                else
+                {
+                    validationErrors.Add("Nie znaleziono odbiorcy");
+                    return new JsonResult(validationErrors);
+                }
+            }
+
+            //Get values of users that are in the group
+            List<int> usersIdList = _dbContext.Users
+                .Where(g => g.Users_Groups
+                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                .Select(g => g.user_id).ToList();
+
+
+            //Check if values on the list are valid users from that group
+            foreach (int receiverId in reciversList)
+            {
+                if (!usersIdList.Contains(receiverId))
+                {
+                    validationErrors.Add("Nie znaleziono odbiorcy");
+                    return new JsonResult(validationErrors);
+                }
+            }
+
+            //If we are here that means that passed recivers are correct and are in the group
+            string error = MessageValidation.IsMessageValid(createMessagesView.message.topic);
+            if (error != "")
+            {
+                validationErrors.Add(error);
+                return new JsonResult(validationErrors);
+            }
+            //Since we will need messageId later we should get max value of messageId and increment it by 1
+
+            //At this point everything is correct so we can create a message
+            createMessagesView.message.groups_group_id = (int)groupId;
+            createMessagesView.message.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            createMessagesView.message.sender_id = (int)userId;
+            _dbContext.Add(createMessagesView.message);
+            _dbContext.SaveChanges();
+
+            Console.WriteLine("ID wiadomosci");
+            Console.WriteLine(createMessagesView.message.message_id);
+
+            //We also need to create a asociation to MessagesUsers table
+            Message_User messageUser = new Message_User();
+
+            foreach (int receiverId in reciversList)
+            {
+                messageUser.users_user_id = receiverId;
+                messageUser.messages_message_id = createMessagesView.message.message_id;
+                _dbContext.Add(messageUser);
+                _dbContext.SaveChanges();
+            }
+
             return new JsonResult("success");
         }
     }
