@@ -30,11 +30,26 @@
 
 <!--Modal-->
 <div class="modal fade" id="noticeModal">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header" id="topic"></div>
-            <div class="modal-body mt-2 wrap-text" id="content"></div>
-            <button type="button" class="btn btn-secondary ms-auto m-3" data-bs-dismiss="modal">Zamknij</button>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="card-modal-content">
+            <div class="card-modal-header">
+                <h3 id="topic"></h3>
+            </div>
+            <div class="card-modal-body mt-2">
+                    <div class="contain">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="text-white" id="sender"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-white" id="sendDate"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-white-50 mt-5">Wiadomość</p>
+                    <hr/>
+                    <div class="wrap-text mb-5" id="content"></div>
+                </div>
         </div>
     </div>
 </div>
@@ -49,6 +64,8 @@
                 $.getJSON(`/Notices?handler=NoticeJson&id=${idValue}`).done(function (notice) {
                     $('#topic').text(notice.topic);
                     $('#content').text(notice.content);
+                    $('#sender').text("Od: " + notice.sender_name);
+                    $('#sendDate').text("Zamieszczono: " + notice.send_date.replace("T", " "));
                 });
 
                 $('#noticeModal').modal('show');

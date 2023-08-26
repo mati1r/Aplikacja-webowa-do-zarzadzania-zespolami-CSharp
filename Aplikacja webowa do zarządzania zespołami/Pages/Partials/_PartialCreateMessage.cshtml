@@ -2,16 +2,16 @@
 <form method="post" asp-page-handler="Create">
     <div class="mt-md-4 pb-5 pt-2 px-3">
 
-        <div class="contain">
+        <div class="contain mb-4">
             <div class="row">
-                <div class="col-md-6 mb-4">
+                <div class="col-md-5">
                     <label class="form-label" for="message-topic">Temat</label>
                     <br />
                     <input type="text" class="status-input form-control bg-dark" id="message-topic" asp-for="message.topic">
                     <span asp-validation-for="message.topic" class="text-danger"></span>
                 </div>
-
-                <div class="col-md-6 mb-4">
+                <div class="col-md-2"></div>
+                <div class="col-md-5">
                     <label class="form-label" for="message">Odbiorca</label>
                     <br />
                     <select id="message" multiple="multiple">
@@ -43,7 +43,7 @@
         <div class="mb-4">
             <label class="form-label" for="message-content">Treść wiadomości</label>
             <br />
-            <textarea class="status-input form-control bg-dark" id="message-content" rows="4" asp-for="message.content"></textarea>
+            <textarea class="status-input form-control bg-dark" id="message-content" rows="8" asp-for="message.content"></textarea>
             <span asp-validation-for="message.content" class="text-danger"></span>
         </div>
         <input class="btn btn-primary" id="submitButton" type="submit" value="Wyślij wiadomość" />

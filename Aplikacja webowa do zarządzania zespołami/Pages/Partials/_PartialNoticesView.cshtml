@@ -13,14 +13,13 @@
                         <p>Zamieszczono: @item.send_date</p>
                     </div>
                     <div class="card-body wrap-text">
-                            @if (item.content.Length > 150)
+                            @if (item.content.Length > 200)
                             {
-                                @item.content.Substring(0, 150)
-                                <span>...</span>
+                                <div>@item.content.Substring(0, 200)<span>...</span></div>
                             }
                             else
                             {
-                                @item.content
+                                <div>@item.content</div>
                             }
                     </div>
                 </div>
