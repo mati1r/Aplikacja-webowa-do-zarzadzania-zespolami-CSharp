@@ -1,0 +1,41 @@
+﻿@page
+@model Aplikacja_webowa_do_zarządzania_zespołami.Pages.NoticesModel
+@{
+    Layout = "_ComunicationLayout";
+}
+@if (Model.data == null)
+{
+    Response.Redirect("/");
+}
+
+<div class="w-100 h-100 d-inline-block overflow-auto bg-main">
+    <div class="p-4">
+        <h1 class="text-center display-6 fw-bold">Tablica ogłoszeń</h1>
+    </div>
+
+    <div class="p-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-table">
+                        <div id="noticeContainer">
+                            <partial name="Partials/_PartialNoticesView" model="Model.noticesList" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal-->
+<div class="modal fade" id="succesModal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body mt-2">
+                Wiadmość została wysłana
+            </div>
+            <button type="button" class="btn btn-secondary ms-auto m-3" data-bs-dismiss="modal">Zamknij</button>
+        </div>
+    </div>
+</div>

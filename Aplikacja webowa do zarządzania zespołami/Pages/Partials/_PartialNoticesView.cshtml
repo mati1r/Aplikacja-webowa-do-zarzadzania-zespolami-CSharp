@@ -1,0 +1,21 @@
+﻿@model List<NoticesModel.NoticeView>
+
+<div class="recive-item card-body">
+    <div class="container mt-5">
+        <div class="row">
+            @foreach (var item in Model)
+            {
+            <div class="col-md-4 mb-5">
+                <div class="card h-100 mb-4">
+                    <div class="card-header">
+                        <h2>@item.topic</h2>
+                        <p>Od: @item.sender_name</p>
+                        <p>Zamieszczono: @item.send_date</p>
+                    </div>
+                    <div class="card-body wrap-text">@item.content</div>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>

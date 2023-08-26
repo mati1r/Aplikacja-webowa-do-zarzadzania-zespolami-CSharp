@@ -63,7 +63,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             return _dbContext.Messages
                 .Include(m => m.Users) //Include Users table by FK
-                .Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId) && m.groups_group_id == groupId) //Get elements that met the requaierments
+                .Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId) && m.groups_group_id == groupId && m.notice == false) //Get elements that met the requaierments
                 .OrderByDescending(m => m.send_date)
                 .Take(howManyRecords)
                 .Select(m => new ReciveMessageView
@@ -114,7 +114,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Get message and validate if user didn't changed id to some out of his scope or active group
         private Message GetReciveMessageContent(int messageId, int userId, int groupId)
         {
-            if(_dbContext.Messages.Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId) && m.groups_group_id == groupId && m.message_id == messageId).Count() > 0)
+            if(_dbContext.Messages.Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId) 
+                                        && m.groups_group_id == groupId && m.notice == false && m.message_id == messageId).Count() > 0)
             {
                 return _dbContext.Messages.Where(m => m.message_id == messageId).First();
             }
@@ -146,7 +147,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             //Get list of messages and nickname of one person that recived it (Group by and select statment)
             sendedMessagesList = _dbContext.Messages
-                .Where(m => m.sender_id == userId && m.groups_group_id == groupId)
+                .Where(m => m.sender_id == userId && m.groups_group_id == groupId && m.notice == false)
                 .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessageView
                 {
                     message_id = m.message_id,
@@ -169,7 +170,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         private List<SendedMessageView> GetSendedMessageContent(int messageId, int userId, int groupId)
         {
             List<SendedMessageView> messagesList = new List<SendedMessageView>();
-            if (_dbContext.Messages.Where(m => m.sender_id == userId && m.groups_group_id == groupId && m.message_id == messageId).Count() > 0)
+            if (_dbContext.Messages.Where(m => m.sender_id == userId && m.groups_group_id == groupId 
+                                         && m.notice == false && m.message_id == messageId).Count() > 0)
             {
                 messagesList = _dbContext.Messages
                     .Where(m => m.message_id == messageId)
@@ -224,6 +226,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             message.groups_group_id = (int)groupId;
             message.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
             message.sender_id = (int)userId;
+            message.notice = false;
             _dbContext.Add(message);
             _dbContext.SaveChanges();
 

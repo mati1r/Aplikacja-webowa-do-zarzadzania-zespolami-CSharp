@@ -91,7 +91,9 @@ tbody tr:hover td {
     color: rgba(85,115,146, 1);
 }
 
-.card {
-    border-radius: .5rem;
+.wrap-text {
+    white-space: pre-wrap;
+    overflow: auto;
 }
+
 

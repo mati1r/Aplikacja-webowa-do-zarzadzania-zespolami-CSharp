@@ -1,0 +1,5 @@
+﻿
+/*For making a first letter of month a capital letter*/
+.fc-toolbar {
+    text-transform: capitalize;
+}
