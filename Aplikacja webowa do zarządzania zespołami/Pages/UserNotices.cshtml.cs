@@ -2,14 +2,13 @@ using Aplikacja_webowa_do_zarządzania_zespołami.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using static Aplikacja_webowa_do_zarządzania_zespołami.Pages.MessagesModel;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
-    public class NoticesModel : PageModel
+    public class UserNoticesModel : PageModel
     {
         private readonly DatabaseContext _dbContext;
-        public NoticesModel(DatabaseContext dbContext)
+        public UserNoticesModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
             noticesList = new List<NoticeView>();

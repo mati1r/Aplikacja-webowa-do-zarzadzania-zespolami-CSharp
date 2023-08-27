@@ -10,9 +10,17 @@
                     <li class="nav-item">
                         <a class="nav-link text-white me-3" asp-area="" asp-page="/Messages">Wiadomości</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white me-3" asp-area="" asp-page="/Notices">Ogłoszenia</a>
-                    </li>
+                    @if (Model.data == "User")
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-white me-3" asp-area="" asp-page="/UserNotices">Ogłoszenia</a>
+                        </li>
+                    }else if(Model.data == "Owner")
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-white me-3" asp-area="" asp-page="/OwnerNotices">Ogłoszenia</a>
+                        </li>
+                    }
                 </ul>
             </div>
         </div>

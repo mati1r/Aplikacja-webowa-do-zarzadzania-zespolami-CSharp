@@ -1,5 +1,5 @@
 ﻿@page
-@model Aplikacja_webowa_do_zarządzania_zespołami.Pages.NoticesModel
+@model Aplikacja_webowa_do_zarządzania_zespołami.Pages.OwnerNoticesModel
 @{
     Layout = "_ComunicationLayout";
 }
@@ -36,20 +36,20 @@
                 <h3 id="topic"></h3>
             </div>
             <div class="card-modal-body mt-2">
-                    <div class="contain">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="text-white" id="sender"></p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="text-white" id="sendDate"></p>
-                            </div>
+                <div class="contain">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="text-white" id="sender"></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="text-white" id="sendDate"></p>
                         </div>
                     </div>
-                    <p class="text-white-50 mt-5">Wiadomość</p>
-                    <hr/>
-                    <div class="wrap-text mb-5" id="content"></div>
                 </div>
+                <p class="text-white-50 mt-5">Wiadomość</p>
+                <hr />
+                <div class="wrap-text mb-5" id="content"></div>
+            </div>
         </div>
     </div>
 </div>
@@ -61,7 +61,7 @@
                 //Wyświetl modal
                 let idValue = $(this).attr("id");
 
-                $.getJSON(`/Notices?handler=NoticeJson&id=${idValue}`).done(function (notice) {
+                $.getJSON(`/UserNotices?handler=NoticeJson&id=${idValue}`).done(function (notice) {
                     $('#topic').text(notice.topic);
                     $('#content').text(notice.content);
                     $('#sender').text("Od: " + notice.sender_name);
@@ -73,3 +73,4 @@
         });
     </script>
 }
+

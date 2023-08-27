@@ -1,0 +1,75 @@
+﻿@page
+@model Aplikacja_webowa_do_zarządzania_zespołami.Pages.UserNoticesModel
+@{
+    Layout = "_ComunicationLayout";
+}
+@if (Model.data == null)
+{
+    Response.Redirect("/");
+}
+
+<div class="w-100 h-100 d-inline-block overflow-auto bg-main">
+    <div class="p-4">
+        <h1 class="text-center display-6 fw-bold">Tablica ogłoszeń</h1>
+    </div>
+
+    <div class="p-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-table">
+                        <div id="noticeContainer">
+                            <partial name="Partials/_PartialNoticesView" model="Model.noticesList" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Modal-->
+<div class="modal fade" id="noticeModal">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="card-modal-content">
+            <div class="card-modal-header">
+                <h3 id="topic"></h3>
+            </div>
+            <div class="card-modal-body mt-2">
+                    <div class="contain">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="text-white" id="sender"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-white" id="sendDate"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-white-50 mt-5">Wiadomość</p>
+                    <hr/>
+                    <div class="wrap-text mb-5" id="content"></div>
+                </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $("#noticeContainer").on("click", ".item", function () {
+                //Wyświetl modal
+                let idValue = $(this).attr("id");
+
+                $.getJSON(`/UserNotices?handler=NoticeJson&id=${idValue}`).done(function (notice) {
+                    $('#topic').text(notice.topic);
+                    $('#content').text(notice.content);
+                    $('#sender').text("Od: " + notice.sender_name);
+                    $('#sendDate').text("Zamieszczono: " + notice.send_date.replace("T", " "));
+                });
+
+                $('#noticeModal').modal('show');
+            });
+        });
+    </script>
+}

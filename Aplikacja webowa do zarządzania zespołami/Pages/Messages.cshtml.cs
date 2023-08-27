@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,40 +15,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public MessagesModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            reciveMessagesList = new List<ReciveMessageView>();
-            sendedMessagesList = new List<SendedMessageView>();
-            createMessagesView = new CreateMessageView();
+            reciveMessagesList = new List<ReciveMessagePartial>();
+            sendedMessagesList = new List<SendedMessagePartial>();
+            createMessagesPartial = new CreateMessagePartial();
             message = new Models.Message();
         }
 
-        //Subclass of messages that takes sender_name insted of sender_id so it can be shown to a user
-        public class ReciveMessageView
-        {
-            public int message_id {  get; set; }
-            public string topic { get; set; }
-            public string content { get; set; }
-            public DateTime send_date { get; set; }
-            public string sender_name { get; set; }
-        }
 
-        public class SendedMessageView
-        {
-            public int message_id { get; set; }
-            public string topic { get; set; }
-            public string content { get; set; }
-            public DateTime send_date { get; set; }
-            public string reciver_name { get; set; }
-        }
-
-        public class CreateMessageView
-        {
-            public Models.Message message { get; set; }
-            public List<Models.User>? usersList { get; set; }
-            public string? messageUsers { get; set; }
-        }
-
-        public List<ReciveMessageView> reciveMessagesList;
-        public List<SendedMessageView> sendedMessagesList;
+        public List<ReciveMessagePartial> reciveMessagesList;
+        public List<SendedMessagePartial> sendedMessagesList;
         public Message message;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
@@ -57,16 +33,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? groupId;
 
         [BindProperty(SupportsGet = true)]
-        public CreateMessageView createMessagesView { get; set; }
+        public CreateMessagePartial createMessagesPartial { get; set; }
 
-        private List<ReciveMessageView> GetMessages(int howManyRecords, int userId, int groupId)
+        private List<ReciveMessagePartial> GetMessages(int howManyRecords, int userId, int groupId)
         {
             return _dbContext.Messages
                 .Include(m => m.Users) //Include Users table by FK
                 .Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId) && m.groups_group_id == groupId && m.notice == false) //Get elements that met the requaierments
                 .OrderByDescending(m => m.send_date)
                 .Take(howManyRecords)
-                .Select(m => new ReciveMessageView
+                .Select(m => new ReciveMessagePartial
                 {
                     message_id = m.message_id,
                     topic = m.topic,
@@ -94,7 +70,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
         }
 
-        public PartialViewResult OnGetReciveMessagesView(int howMany)
+        public PartialViewResult OnGetReciveMessagesPartial(int howMany)
         {
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
@@ -140,7 +116,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialReciveMessage", message);
         }
 
-        public PartialViewResult OnGetSendedMessagesView(int howMany)
+        public PartialViewResult OnGetSendedMessagesPartial(int howMany)
         {
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
@@ -148,7 +124,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get list of messages and nickname of one person that recived it (Group by and select statment)
             sendedMessagesList = _dbContext.Messages
                 .Where(m => m.sender_id == userId && m.groups_group_id == groupId && m.notice == false)
-                .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessageView
+                .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessagePartial
                 {
                     message_id = m.message_id,
                     topic = m.topic,
@@ -167,15 +143,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialSendedMessagesView", sendedMessagesList);
         }
 
-        private List<SendedMessageView> GetSendedMessageContent(int messageId, int userId, int groupId)
+        private List<SendedMessagePartial> GetSendedMessageContent(int messageId, int userId, int groupId)
         {
-            List<SendedMessageView> messagesList = new List<SendedMessageView>();
+            List<SendedMessagePartial> messagesList = new List<SendedMessagePartial>();
             if (_dbContext.Messages.Where(m => m.sender_id == userId && m.groups_group_id == groupId 
                                          && m.notice == false && m.message_id == messageId).Count() > 0)
             {
                 messagesList = _dbContext.Messages
                     .Where(m => m.message_id == messageId)
-                    .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessageView
+                    .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessagePartial
                     {
                         message_id = m.message_id,
                         topic = m.topic,
@@ -187,7 +163,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
-                messagesList.Add(new SendedMessageView { message_id = messageId, topic = "", content = "Błąd, widomość o tym id nie istnieje", send_date = DateTime.Now, reciver_name = "" });
+                messagesList.Add(new SendedMessagePartial { message_id = messageId, topic = "", content = "Błąd, widomość o tym id nie istnieje",
+                                                            send_date = DateTime.Now, reciver_name = "" });
             }
 
             return messagesList;
@@ -213,12 +190,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
 
-            createMessagesView.usersList = _dbContext.Users
+            createMessagesPartial.usersList = _dbContext.Users
                 .Where(g => g.Users_Groups
                 .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
                 .ToList();
 
-            return Partial("Partials/_PartialCreateMessage", createMessagesView);
+            return Partial("Partials/_PartialCreateMessage", createMessagesPartial);
         }
 
         private void CreateMessage(Message message, List<int> reciversList)
@@ -235,7 +212,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             foreach (int receiverId in reciversList)
             {
                 messageUser.users_user_id = receiverId;
-                messageUser.messages_message_id = createMessagesView.message.message_id;
+                messageUser.messages_message_id = createMessagesPartial.message.message_id;
                 _dbContext.Add(messageUser);
                 _dbContext.SaveChanges();
             }
@@ -265,14 +242,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(modelStateValidationErrors);
             }
 
-            if(createMessagesView.messageUsers == "" || createMessagesView.messageUsers == null)
+            if(createMessagesPartial.messageUsers == "" || createMessagesPartial.messageUsers == null)
             {
                 validationErrors.Add("Nie podano poprawnego odbiorcy");
                 return new JsonResult(validationErrors);
             }
 
             //Parse value from hidden input (selectize)
-            string[] reciversArray = createMessagesView.messageUsers.Split(',');
+            string[] reciversArray = createMessagesPartial.messageUsers.Split(',');
             List<int> reciversList = new List<int>();
 
             foreach (string reciver in reciversArray)
@@ -306,7 +283,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //If we are here that means that passed recivers are correct and are in the group
-            string error = MessageValidation.IsMessageValid(createMessagesView.message.topic);
+            string error = MessageValidation.IsMessageValid(createMessagesPartial.message.topic);
             if (error != "")
             {
                 validationErrors.Add(error);
@@ -314,7 +291,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //At this point everything is correct so we can create a message
-            CreateMessage(createMessagesView.message, reciversList);
+            CreateMessage(createMessagesPartial.message, reciversList);
             return new JsonResult("success");
         }
     }

@@ -64,7 +64,7 @@
 
                 $.ajax({
                     type: 'get',
-                    url: '@Url.Page("Messages", "ReciveMessagesView")',
+                    url: '@Url.Page("Messages", "ReciveMessagesPartial")',
                     data: { howMany: 10 }, //Get 10 records as in the begining
                     success: function (partialResult) {
                         $("#messageContainer").append(partialResult);
@@ -83,7 +83,7 @@
 
                 $.ajax({
                     type: 'get',
-                    url: '@Url.Page("Messages", "SendedMessagesView")',
+                    url: '@Url.Page("Messages", "SendedMessagesPartial")',
                     data: { howMany: 10 }, //Get 10 records as in the begining
                     success: function (partialResult) {
                         $("#messageContainer").append(partialResult);
@@ -116,7 +116,7 @@
 
                 $.ajax({
                     type: 'get',
-                    url: '@Url.Page("Messages", "ReciveMessagesView")',
+                    url: '@Url.Page("Messages", "ReciveMessagesPartial")',
                     data: { howMany: howMany },
                     success: function (partialResult) {
                         $("#messageContainer").append(partialResult);
@@ -134,7 +134,7 @@
 
                 $.ajax({
                     type: 'get',
-                    url: '@Url.Page("Messages", "SendedMessagesView")',
+                    url: '@Url.Page("Messages", "SendedMessagesPartial")',
                     data: { howMany: howMany },
                     success: function (partialResult) {
                         $("#messageContainer").append(partialResult);
