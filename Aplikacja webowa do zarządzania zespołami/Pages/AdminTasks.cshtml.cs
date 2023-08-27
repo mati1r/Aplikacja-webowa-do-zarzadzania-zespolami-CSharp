@@ -95,8 +95,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
             }
 
-            Models.Task originalTask = _dbContext.Tasks.Where(t => t.task_id == createOrEditTask.task_id).First();
-            _dbContext.Remove(originalTask);
+            _dbContext.Remove(createOrEditTask);
             _dbContext.SaveChanges();
             return new JsonResult("success");
         }

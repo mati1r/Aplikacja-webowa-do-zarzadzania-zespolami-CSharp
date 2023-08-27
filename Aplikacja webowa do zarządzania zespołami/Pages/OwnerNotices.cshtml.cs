@@ -1,5 +1,6 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
+using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? userId;
         public int? groupId;
 
-        private List<NoticePartial> GetNotice(int? userId, int? groupId)
+        [BindProperty(SupportsGet = true)]
+        public Message notice { get; set; }
+        private List<NoticePartial> GetNotice(int? groupId)
         {
             return _dbContext.Messages
                 .Include(m => m.Users) //Include Users table by FK
@@ -46,7 +49,114 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
 
-            noticesList = GetNotice(userId, groupId);
+            noticesList = GetNotice(groupId);
+        }
+
+        public PartialViewResult OnGetLoadNotices()
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+
+            try
+            {
+                noticesList = GetNotice(groupId);
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialNoticesView", noticesList);
+        }
+
+        public IActionResult OnPostDelete()
+        {
+            groupId = HttpContext.Session.GetInt32(Key3);
+            List<string> validationErrors = new List<string>();
+
+            //Check if message exists, if its in the group and is a notice
+            if (_dbContext.Messages.Count(m => m.message_id == notice.message_id && m.groups_group_id == groupId && m.notice == true) == 0)
+            {
+                validationErrors.Add("Podane ogłoszenie nie isnieje w tej grupie");
+                return new JsonResult(validationErrors);
+            }
+
+            _dbContext.Remove(notice);
+            _dbContext.SaveChanges();
+            return new JsonResult("success");
+        }
+
+        public IActionResult OnPostAdd()
+        {
+            string error = "";
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+            List<string> validationErrors = new List<string>();
+
+            if (!ModelState.IsValid)
+            {
+                var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
+                   ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                return new JsonResult(modelStateValidationErrors);
+            }
+
+            //Check notice topic formating
+            error = MessageValidation.IsMessageValid(notice.topic);
+            if (error != "")
+            {
+                validationErrors.Add(error);
+                return new JsonResult(validationErrors);
+            }
+
+            notice.notice = true;
+            notice.sender_id = (int)userId;
+            notice.groups_group_id = (int)groupId;
+            notice.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            _dbContext.Add(notice);
+            _dbContext.SaveChanges();
+
+            return new JsonResult("success");
+        }
+
+        public IActionResult OnPostEdit()
+        {
+            string error = "";
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+            List<string> validationErrors = new List<string>();
+
+            //Check if message exists, if its in the group and is a notice
+            if (_dbContext.Messages.Count(m => m.message_id == notice.message_id && m.groups_group_id == groupId && m.notice == true) == 0)
+            {
+                validationErrors.Add("Podane ogłoszenie nie isnieje w tej grupie");
+                return new JsonResult(validationErrors);
+            }
+
+            if (!ModelState.IsValid)
+            {
+                var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
+                   ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                return new JsonResult(modelStateValidationErrors);
+            }
+
+            //Check notice topic formating
+            error = MessageValidation.IsMessageValid(notice.topic);
+            if (error != "")
+            {
+                validationErrors.Add(error);
+                return new JsonResult(validationErrors);
+            }
+
+            notice.groups_group_id = (int)groupId;
+            notice.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            notice.sender_id = (int)userId;
+            notice.notice = true;
+            _dbContext.Update(notice);
+            _dbContext.SaveChanges();
+
+            return new JsonResult("success");
         }
 
         public async Task<NoticePartial> GetNoticeAsync(int id)

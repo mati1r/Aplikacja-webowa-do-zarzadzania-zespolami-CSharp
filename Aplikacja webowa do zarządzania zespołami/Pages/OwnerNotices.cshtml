@@ -3,7 +3,7 @@
 @{
     Layout = "_ComunicationLayout";
 }
-@if (Model.data == null)
+@if (Model.data != "Owner")
 {
     Response.Redirect("/");
 }
@@ -18,8 +18,15 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card bg-table">
-                        <div id="noticeContainer">
-                            <partial name="Partials/_PartialNoticesView" model="Model.noticesList" />
+                        <div class="card-body">
+                            <button class="btn float-end" data-bs-toggle="modal" data-bs-target="#add-notice-modal">
+                                <i class="bi bi-plus-square"></i>
+                                </button>
+                            <div class="container mt-5">
+                                <div class="row" id="noticeContainer">
+                                    <partial name="Partials/_PartialNoticesView" model="Model.noticesList" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -28,28 +35,86 @@
     </div>
 </div>
 
-<!--Modal-->
-<div class="modal fade" id="noticeModal">
+<!--Modal do edycji i usuwania-->
+<div class="modal fade" id="notice-modal">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="card-modal-content">
-            <div class="card-modal-header">
-                <h3 id="topic"></h3>
-            </div>
-            <div class="card-modal-body mt-2">
-                <div class="contain">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <p class="text-white" id="sender"></p>
-                        </div>
-                        <div class="col-md-6">
-                            <p class="text-white" id="sendDate"></p>
+        <div class="modal-content">
+            <form method="post" id="deleteEditForm">
+                <div class="modal-header">
+                    <h3 id="topicText"></h3>
+                </div>
+                <div class="modal-body mt-2">
+                    <div class="contain">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="text-white" id="sender"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="text-white" id="sendDate"></p>
+                            </div>
                         </div>
                     </div>
+
+                    <div class="contain mt-2 mb-5">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label text-white-50" for="topic">Temat</label>
+                                <hr />
+                                <input type="text" id="topic" class="form-control text-light bg-dark" asp-for="notice.topic" />
+                                <span asp-validation-for="notice.topic" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-white-50">Wiadomość</p>
+                    <hr />
+                    <div class="mb-5">
+                        <textarea class="wrap-text form-control" id="content" rows="8" asp-for="notice.content"></textarea>
+                        <span asp-validation-for="notice.content" class="text-danger"></span>
+                    </div>
                 </div>
-                <p class="text-white-50 mt-5">Wiadomość</p>
-                <hr />
-                <div class="wrap-text mb-5" id="content"></div>
-            </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                    <button class="btn btn-danger" id="deleteButton">Usuń</button>
+                    <input type="hidden" asp-for="notice.message_id" id="update" />
+                    <button class="btn btn-primary" id="editButton">Edytuj</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Modal do dodawania -->
+<div class="modal fade" id="add-notice-modal">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Add" id="addForm">
+                <div class="modal-header">
+                    <h3>Dodaj ogłoszenie</h3>
+                </div>
+                <div class="modal-body mt-2">
+                    <div class="contain mt-2 mb-5">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label text-white-50" for="topic">Temat</label>
+                                <hr />
+                                <input type="text" class="form-control text-light bg-dark" asp-for="notice.topic" />
+                                <span asp-validation-for="notice.topic" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-white-50">Wiadomość</p>
+                    <hr />
+                    <div class="mb-5">
+                        <textarea class="wrap-text form-control" rows="8" asp-for="notice.content"></textarea>
+                        <span asp-validation-for="notice.content" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                    <button class="btn btn-primary" id="addButton">Dodaj</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -57,18 +122,97 @@
 @section scripts{
     <script>
         $(document).ready(function () {
+
+            //Changing form action to edit
+            $("#editButton").click(function () {
+                $("#deleteEditForm").attr("action", "/OwnerNotices?handler=Edit");
+                $("#deleteEditForm").attr("asp-page-handler", "Edit");
+            });
+
+            //Changing form action to delete
+            $("#deleteButton").click(function () {
+                $("#deleteEditForm").attr("action", "/OwnerNotices?handler=Delete");
+                $("#deleteEditForm").attr("asp-page-handler", "Delete");
+            });
+
+            //Cleaning function on modal call and submit
+            $('form').on('submit', function () {
+                $('span[data-valmsg-for]').text('');
+            });
+
+            $('#notice-modal').on('show.bs.modal', function () {
+                $('span[data-valmsg-for]').text('');
+            });
+
+            $('#add-notice-modal').on('show.bs.modal', function () {
+                $('span[data-valmsg-for]').text('');
+            });
+
+            //Get values to modal on click
             $("#noticeContainer").on("click", ".item", function () {
                 //Wyświetl modal
                 let idValue = $(this).attr("id");
 
-                $.getJSON(`/UserNotices?handler=NoticeJson&id=${idValue}`).done(function (notice) {
-                    $('#topic').text(notice.topic);
+                $.getJSON(`/OwnerNotices?handler=NoticeJson&id=${idValue}`).done(function (notice) {
+                    $('#topicText').text(notice.topic);
+                    $('#topic').val(notice.topic);
                     $('#content').text(notice.content);
+                    $('#update').val(notice.message_id);
                     $('#sender').text("Od: " + notice.sender_name);
                     $('#sendDate').text("Zamieszczono: " + notice.send_date.replace("T", " "));
                 });
 
-                $('#noticeModal').modal('show');
+                $('#notice-modal').modal('show');
+            });
+
+            //Form handling method
+            $("form").submit(function (event) {
+                event.preventDefault();
+
+                let form = $(this);
+                let actionUrl = form.attr("action");
+
+                $.ajax({
+                    type: form.attr("method"),
+                    url: actionUrl,
+                    data: form.serialize(),
+                    dataType: "json",
+                    success: function (data) {
+                        if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                            let keys = Object.keys(data);
+
+                            for (let i = 0; i < keys.length; i++) {
+                                let key = keys[i];
+                                let errors = data[key];
+                                let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+
+                                if (errorSpan.length > 0) {
+                                    errorSpan.text(errors[0]);
+                                }
+                            }
+                        } else if (Array.isArray(data) && data.length > 0) {
+                            let nameValidationError = $(`span[data-valmsg-for="notice.content"]`);
+                            nameValidationError.text(data[0]);
+                        }
+                        else {
+                            //Close modals
+                            $('#notice-modal').modal('hide');
+                            $('#add-notice-modal').modal('hide');
+
+                            if ($("#noticeContainer").children().length > 0) {
+                                $("#noticeContainer").empty();
+                            }
+
+                            $.ajax({
+                                type: 'get',
+                                url: '@Url.Page("OwnerNotices", "LoadNotices")',
+                                success: function (partialResult) {
+                                    $("#noticeContainer").append(partialResult);
+                                }
+                            });
+                        }
+                    }
+                });
             });
         });
     </script>

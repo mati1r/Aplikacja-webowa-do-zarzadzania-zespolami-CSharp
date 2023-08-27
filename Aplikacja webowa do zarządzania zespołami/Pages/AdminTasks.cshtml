@@ -303,7 +303,6 @@
                     data: form.serialize(),
                     dataType: "json",
                     success: function (data) {
-                        //Object.keys(data).lenght sprawdza ile błędów znajduje się w data natomiast data != success ma za zadanie nie przechwicić udanego wykonania
                         if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
                             let keys = Object.keys(data);
 

@@ -3,7 +3,7 @@
 @{
     Layout = "_ComunicationLayout";
 }
-@if (Model.data == null)
+@if (Model.data != "User")
 {
     Response.Redirect("/");
 }
@@ -18,8 +18,12 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card bg-table">
-                        <div id="noticeContainer">
-                            <partial name="Partials/_PartialNoticesView" model="Model.noticesList" />
+                        <div class="card-body">
+                            <div class="container mt-5">
+                                <div class="row" id="noticeContainer">
+                                    <partial name="Partials/_PartialNoticesView" model="Model.noticesList" />
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -29,7 +33,7 @@
 </div>
 
 <!--Modal-->
-<div class="modal fade" id="noticeModal">
+<div class="modal fade" id="notice-modal">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="card-modal-content">
             <div class="card-modal-header">
@@ -68,7 +72,7 @@
                     $('#sendDate').text("Zamieszczono: " + notice.send_date.replace("T", " "));
                 });
 
-                $('#noticeModal').modal('show');
+                $('#notice-modal').modal('show');
             });
         });
     </script>
