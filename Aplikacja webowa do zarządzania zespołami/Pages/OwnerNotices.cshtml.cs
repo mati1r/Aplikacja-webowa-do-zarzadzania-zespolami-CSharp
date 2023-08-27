@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -11,19 +12,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public OwnerNoticesModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            noticesList = new List<NoticeView>();
+            noticesList = new List<NoticePartial>();
         }
 
-        public class NoticeView
-        {
-            public int message_id { get; set; }
-            public string topic { get; set; }
-            public string content { get; set; }
-            public DateTime send_date { get; set; }
-            public string sender_name { get; set; }
-        }
-
-        public List<NoticeView> noticesList;
+        public List<NoticePartial> noticesList;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
         public const string Key3 = "_groupId";
@@ -31,13 +23,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? userId;
         public int? groupId;
 
-        private List<NoticeView> GetNotice(int? userId, int? groupId)
+        private List<NoticePartial> GetNotice(int? userId, int? groupId)
         {
             return _dbContext.Messages
                 .Include(m => m.Users) //Include Users table by FK
                 .Where(m => m.groups_group_id == groupId && m.notice == true) //Get elements that meet the requaierments
                 .OrderByDescending(m => m.send_date)
-                .Select(m => new NoticeView
+                .Select(m => new NoticePartial
                 {
                     message_id = m.message_id,
                     topic = m.topic,
@@ -57,7 +49,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             noticesList = GetNotice(userId, groupId);
         }
 
-        public async Task<NoticeView> GetNoticeAsync(int id)
+        public async Task<NoticePartial> GetNoticeAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(Key3);
             //Check if user didn't changed id to an id out of his scope or to an message insted of notice
@@ -66,7 +58,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return await _dbContext.Messages
                 .Include(m => m.Users)
                 .Where(m => m.message_id == id)
-                .Select(m => new NoticeView
+                .Select(m => new NoticePartial
                 {
                     message_id = m.message_id,
                     topic = m.topic,
@@ -77,7 +69,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
-                NoticeView emptyNotice = new NoticeView();
+                NoticePartial emptyNotice = new NoticePartial();
                 emptyNotice.send_date = DateTime.Now;
                 emptyNotice.message_id = 0;
                 emptyNotice.content = "Błąd nie znaleziono ogłoszenia";
