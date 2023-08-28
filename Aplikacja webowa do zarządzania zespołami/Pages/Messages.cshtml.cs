@@ -230,15 +230,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
                    ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
 
-                foreach(var item in modelStateValidationErrors)
-                {
-                    Console.WriteLine(item.Key);
-                    foreach(var t in item.Value)
-                    {
-                        Console.WriteLine(t);
-                    }
-                }
-
                 return new JsonResult(modelStateValidationErrors);
             }
 

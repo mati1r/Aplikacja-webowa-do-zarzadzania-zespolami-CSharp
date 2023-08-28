@@ -140,4 +140,16 @@ tbody tr:hover td {
     border-bottom-left-radius: calc(.3rem - 1px);
 }
 
+.divider-line {
+    border-left: 1px solid rgba(255,255,255, 1);
+    height: 100%;
+    margin: 0 20px;
+}
+
+.btn-profile:hover, .btn-profile-active {
+    color: #375a7f;
+}
+
+
+
 

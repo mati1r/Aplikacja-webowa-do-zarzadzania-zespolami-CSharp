@@ -197,6 +197,11 @@
                     }
                 });
 
+                //Clear valmgs on submit
+                $("form").on('submit', function () {
+                    $("span[data-valmsg-for]").text("");
+                });
+
                 //Form validation and sending data
                 $("form").submit(function (event) {
                     event.preventDefault();
@@ -211,7 +216,6 @@
                         data: form.serialize(),
                         dataType: "json",
                         success: function (data) {
-                            //Object.keys(data).lenght sprawdza ile błędów znajduje się w data natomiast data != success ma za zadanie nie przechwicić udanego wykonania
                             if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
                                 let keys = Object.keys(data);
 
@@ -231,8 +235,7 @@
                             else {
                                 $('#succesModal').modal('show');
                                 //After succesful creation of message clear errors and data
-                                $(`span[data-valmsg-for="message.topic"]`).text("");
-                                $(`span[data-valmsg-for="message.content"]`).text("");
+                                $("span[data-valmsg-for]").text("");
                                 $("#message-topic").val("");
                                 $("#message-content").val("");
                                 $('#message')[0].selectize.clear();

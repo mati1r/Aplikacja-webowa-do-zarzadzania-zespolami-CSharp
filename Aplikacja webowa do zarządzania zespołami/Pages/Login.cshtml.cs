@@ -11,19 +11,20 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class LoginModel : PageModel
     {
-        public class UserDTO
-        {
-            [Required(ErrorMessage = "Pole email jest wymagane")]
-            public string e_mail { get; set; }
-            [Required(ErrorMessage = "Pole hasło jest wymagane")]
-            public string password { get; set; }
-        }
 
         private readonly DatabaseContext _dbContext;
 
         public LoginModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
+        }
+
+        public class UserDTO
+        {
+            [Required(ErrorMessage = "Pole email jest wymagane")]
+            public string e_mail { get; set; }
+            [Required(ErrorMessage = "Pole hasło jest wymagane")]
+            public string password { get; set; }
         }
 
         [BindProperty]
