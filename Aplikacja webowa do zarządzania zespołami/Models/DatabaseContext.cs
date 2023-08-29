@@ -57,7 +57,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
                 .HasForeignKey(pk => pk.sender_id);
 
             modelBuilder.Entity<Message_User>()
-            .HasKey(pk => new { pk.users_user_id, pk.messages_message_id });
+                .HasKey(pk => new { pk.users_user_id, pk.messages_message_id });
 
             modelBuilder.Entity<Message_User>()
                 .HasOne(pk => pk.Users)
@@ -68,6 +68,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
                 .HasOne(pk => pk.Messages)
                 .WithMany(k => k.Messages_Users)
                 .HasForeignKey(pk => pk.messages_message_id);
+
+            modelBuilder.Entity<Group>()
+                .HasKey(pk => new { pk.group_id });
+
+            modelBuilder.Entity<Group>()
+                .HasOne(pk => pk.Users)
+                .WithMany(k => k.Groups)
+                .HasForeignKey(pk => pk.owner_id);
         }
     }
 }

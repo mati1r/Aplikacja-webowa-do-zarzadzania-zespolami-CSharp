@@ -16,6 +16,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
         [Required(ErrorMessage = "Pole opis jest wymagane")]
         public string description { get; set; }
 
+        public int owner_id { get; set; }
+
+        public User? Users { get; set; }
+
         public ICollection<User_Group>? Users_Groups { get; set; }
         public ICollection<Models.Task>? Tasks { get; set; }
 
