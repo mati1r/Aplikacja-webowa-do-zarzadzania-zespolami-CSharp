@@ -33,6 +33,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             public string description { get; set; }
             public string owner_name { get; set; }
             public string role { get; set; }
+
+            public string status { get; set; }
         }
 
         public List<GroupJoinDTO> groupJoinList;
@@ -82,8 +84,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     name = g.name,
                     description = g.description,
                     owner_name = g.Users.username,
-                    role = ug.role
-                    
+                    role = ug.role,
+                    status = ug.status            
                 })
                 .GroupBy(dto => dto.group_id)
                 .Select(group => group.First())
@@ -185,7 +187,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Partial methods
-        private PartialViewResult OnGetLoadJoinGroups()
+        public PartialViewResult OnGetLoadJoinGroups()
         {
             userId = HttpContext.Session.GetInt32(Key2);
 
@@ -201,7 +203,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialJoinGroup", groupJoinList);
         }
 
-        private PartialViewResult OnGetQuitLoadGroups()
+        public PartialViewResult OnGetLoadQuitGroups()
         {
             userId = HttpContext.Session.GetInt32(Key2);
 
@@ -224,7 +226,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult(await GetJoinGroupAsync(id));
         }
 
-        public async Task<GroupJoinDTO> GetJoinGroupAsync(int id)
+        private async Task<GroupJoinDTO> GetJoinGroupAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(Key2);
 
@@ -266,7 +268,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult(await GetQuitGroupAsync(id));
         }
 
-        public async Task<GroupQuitDTO> GetQuitGroupAsync(int id)
+        private async Task<GroupQuitDTO> GetQuitGroupAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(Key2);
 
@@ -285,7 +287,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         name = g.name,
                         description = g.description,
                         owner_name = g.Users.username,
-                        role = ug.role
+                        role = ug.role,
+                        status = ug.status
                     }).FirstAsync();
 
             }
@@ -294,6 +297,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             emptyGroup.name = "Błąd";
             emptyGroup.owner_name = "Błąd";
             emptyGroup.role = "Błąd";
+            emptyGroup.status = "Błąd";
 
             if (!exists)
             {

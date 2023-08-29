@@ -115,6 +115,11 @@
                                     <hr />
                                     <p class="text-white-50" id="quit-group-role"></p>
                                 </div>
+                                <div class="col-md-6 mb-4">
+                                    <label>Status</label>
+                                    <hr />
+                                    <p class="text-white-50" id="quit-group-status"></p>
+                                </div>
                             </div>
                             <div class="mb-4">
                                 <label>Opis grupy</label>
@@ -169,6 +174,7 @@
 @section scripts{
     <script>
         function initializeDataTable() {
+
             $('#DataTable').DataTable({
                 "oLanguage": {
                     "oPaginate": {
@@ -182,6 +188,41 @@
                     "sInfoFiltered": "(wyszukane z _MAX_ pozycji)",
                     "sZeroRecords": "Brak wyników",
                     "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
+                }
+            });
+        }
+
+        function invokeAjaxCallJoin(){
+            $('#join-modal').modal('hide');
+
+            if ($("#groupsJoinContainer").children().length > 0) {
+                $("#groupsJoinContainer").empty();
+            }
+
+            $.ajax({
+                type: 'get',
+                url: '@Url.Page("JoinGroup", "LoadJoinGroups")',
+                success: function (partialResult) {
+                    $("#groupsJoinContainer").append(partialResult);
+
+                    //Once again initialize DT after loading new data
+                    initializeDataTable();
+                }
+            });
+        }
+
+        function invokeAjaxCallQuit(){
+            $('#quit-modal').modal('hide');
+
+            if ($("#groupsQuitContainer").children().length > 0) {
+                $("#groupsQuitContainer").empty();
+            }
+
+            $.ajax({
+                type: 'get',
+                url: '@Url.Page("JoinGroup", "LoadQuitGroups")',
+                success: function (partialResult) {
+                    $("#groupsQuitContainer").append(partialResult);
                 }
             });
         }
@@ -206,6 +247,7 @@
                     $('#quit-group-description').text(group.description);
                     $('#quit-group-owner-name').text(group.owner_name);
                     $('#quit-group-update').val(group.group_id);
+                  
                     if(group.role == "user"){
                         $('#quit-group-role').text("Użytkownik");
                     }
@@ -213,6 +255,12 @@
                         $('#quit-group-role').text("Właściciel");
                     }else{
                         $('#quit-group-role').text(group.role);
+                    }
+
+                    if(group.status == "nieaktywny"){
+                        $('#quit-group-status').text("Oczekujący na zatwierdzenie");
+                    }else{
+                        $('#quit-group-status').text("Użytkownik aktywny");
                     }
 
                 });
@@ -223,12 +271,7 @@
 
                 let form = $(this);
                 let actionUrl = form.attr("action");
-                let pageHandler = form.attr("asp-page-handler");
 
-                // Pełny adres URL z atrybutem asp-page-handler
-                if (pageHandler) {
-                    actionUrl += "?" + $.param({ "handler": pageHandler });
-                }
 
                 $.ajax({
                     type: form.attr("method"),
@@ -253,23 +296,11 @@
                             let nameValidationError = $(`span[data-valmsg-for="createGroup.name"]`);
                             nameValidationError.text(data[0]);
                         }else {
+                            //After succesfull reinitialise components (JoinGroups and QuitGroups)
+
                             $('#create-modal').modal('hide');
-                            $('#details-modal').modal('hide');
-
-                            if ($("#groupsJoinContainer").children().length > 0) {
-                                $("#groupsJoinContainer").empty();
-                            }
-
-                            $.ajax({
-                                type: 'get',
-                                url: '@Url.Page("JoinGroup", "LoadJoinGroups")',
-                                success: function (partialResult) {
-                                    $("#groupsJoinContainer").append(partialResult);
-
-                                    //Once again initialize DT after loading new data
-                                    initializeDataTable();
-                                }
-                            });
+                            invokeAjaxCallJoin();
+                            invokeAjaxCallQuit();
                         }
                     }
                 });
