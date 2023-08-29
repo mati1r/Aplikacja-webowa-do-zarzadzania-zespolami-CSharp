@@ -26,10 +26,22 @@
                                     <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#create-modal">Zalóż grupe</button>
                                 </div>
                             </div>
+                            <h3>Dołącz do grupy</h3>
                             <hr />
-                            <div class="table-responsive mt-3" id="groupsContainer">
-                                <partial name="Partials/_PartialJoinGroup" model="Model.groupList" />
+                            <div class="table-responsive mt-3 mb-5" id="groupsJoinContainer">
+                                <partial name="Partials/_PartialJoinGroup" model="Model.groupJoinList" />
                             </div>
+                            <hr />
+                        </div>
+                    </div>
+                    <div class="card bg-table">
+                        <div class="card-body">
+                            <h3>Grupy do których należysz</h3>
+                            <hr/>
+                            <div class="table-responsive mt-3" id="groupsQuitContainer">
+                                <partial name="Partials/_PartialQuitGroup" model="Model.groupQuitList" />
+                            </div>
+                            <hr />
                         </div>
                     </div>
                 </div>
@@ -38,8 +50,8 @@
     </div>
 </div>
 
-<!-- Show group modal -->
-<div class="modal fade" tabindex="-1" role="dialog" id="details-modal">
+<!-- Join group modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="join-modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <form method="post" asp-page-handler="Join">
@@ -50,26 +62,71 @@
                                 <div class="col-md-6 mb-4">
                                     <label>Nazwa grupy</label>
                                     <hr />
-                                    <p class="text-white-50" id="group-name"></p>
+                                    <p class="text-white-50" id="group-join-name"></p>
                                 </div>
 
                                 <div class="col-md-6 mb-4">
                                     <label>Właściciel</label>
                                     <hr />
-                                    <p class="text-white-50" id="owner-name"></p>
+                                    <p class="text-white-50" id="group-join-owner-name"></p>
                                 </div>
                             </div>
                             <div class="mb-4">
                                 <label>Opis grupy</label>
-                                <p class="text-white-50 mb-5 mt-2" id="description"></p>
+                                <p class="text-white-50 mb-5 mt-2" id="group-join-description"></p>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <input type="hidden" asp-for="joinGroupId" id="update" />
+                    <input type="hidden" asp-for="joinGroupId" id="group-join-update" />
                     <input class="btn btn-primary" id="action-btn" type="submit" value="Dołącz"/>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Quit group modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="quit-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Quit">
+                <div class="modal-body">
+                    <div class="mt-md-4 pb-5">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label>Nazwa grupy</label>
+                                    <hr />
+                                    <p class="text-white-50" id="quit-group-name"></p>
+                                </div>
+
+                                <div class="col-md-6 mb-4">
+                                    <label>Właściciel</label>
+                                    <hr />
+                                    <p class="text-white-50" id="quit-group-owner-name"></p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label>Twoja rola w grupie</label>
+                                    <hr />
+                                    <p class="text-white-50" id="quit-group-role"></p>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label>Opis grupy</label>
+                                <p class="text-white-50 mb-5 mt-2" id="quit-group-description"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                    <input type="hidden" asp-for="quitGroupId" id="quit-group-update" />
+                    <input class="btn btn-danger" id="action-btn" type="submit" value="Opuść grupe" />
                 </div>
             </form>
         </div>
@@ -134,22 +191,31 @@
             //DataTable
             initializeDataTable();
 
-            $("#groupsContainer").on("click", ".dataTable tbody tr", function () {
-                $.getJSON(`/JoinGroup?handler=GroupJson&id=${$(this).data('id')}`).done(function (group) {
-                    $('#group-name').text(group.name);
-                    $('#description').text(group.description);
-                    $('#owner-name').text(group.owner_name);
-                    $('#update').val(group.group_id);
+            $("#groupsJoinContainer").on("click", ".dataTable tbody tr", function () {
+                $.getJSON(`/JoinGroup?handler=JoinGroupJson&id=${$(this).data('id')}`).done(function (group) {
+                    $('#group-join-name').text(group.name);
+                    $('#group-join-description').text(group.description);
+                    $('#group-join-owner-name').text(group.owner_name);
+                    $('#group-join-update').val(group.group_id);
                 });
             });
 
-            $('form').on('submit', function () {
-                $('span[data-valmsg-for]').text('');
-            });
+            $("#groupsQuitContainer").on("click", ".table tbody tr", function () {
+                $.getJSON(`/JoinGroup?handler=QuitGroupJson&id=${$(this).data('id')}`).done(function (group) {
+                    $('#quit-group-name').text(group.name);
+                    $('#quit-group-description').text(group.description);
+                    $('#quit-group-owner-name').text(group.owner_name);
+                    $('#quit-group-update').val(group.group_id);
+                    if(group.role == "user"){
+                        $('#quit-group-role').text("Użytkownik");
+                    }
+                    else if(group.role == "owner"){
+                        $('#quit-group-role').text("Właściciel");
+                    }else{
+                        $('#quit-group-role').text(group.role);
+                    }
 
-            //Cleaning function on modal call
-            $('#create-modal').on('show.bs.modal', function () {
-                $('span[data-valmsg-for]').text('');
+                });
             });
 
             $("form").submit(function (event) {
@@ -190,15 +256,15 @@
                             $('#create-modal').modal('hide');
                             $('#details-modal').modal('hide');
 
-                            if ($("#groupsContainer").children().length > 0) {
-                                $("#groupsContainer").empty();
+                            if ($("#groupsJoinContainer").children().length > 0) {
+                                $("#groupsJoinContainer").empty();
                             }
 
                             $.ajax({
                                 type: 'get',
-                                url: '@Url.Page("JoinGroup", "LoadGroups")',
+                                url: '@Url.Page("JoinGroup", "LoadJoinGroups")',
                                 success: function (partialResult) {
-                                    $("#groupsContainer").append(partialResult);
+                                    $("#groupsJoinContainer").append(partialResult);
 
                                     //Once again initialize DT after loading new data
                                     initializeDataTable();

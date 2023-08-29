@@ -14,19 +14,29 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public JoinGroupModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            groupList = new List<GroupDTO>();
+            groupJoinList = new List<GroupJoinDTO>();
+            groupQuitList = new List<GroupQuitDTO>();
         }
 
-        public class GroupDTO
+        public class GroupJoinDTO
         {
             public int group_id { get; set; }
             public string name { get; set; }
             public string description { get; set; }
-
             public string owner_name { get; set; }
         }
 
-        public List<GroupDTO> groupList;
+        public class GroupQuitDTO
+        {
+            public int group_id { get; set; }
+            public string name { get; set; }
+            public string description { get; set; }
+            public string owner_name { get; set; }
+            public string role { get; set; }
+        }
+
+        public List<GroupJoinDTO> groupJoinList;
+        public List<GroupQuitDTO> groupQuitList;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
         public const string Key3 = "_groupId";
@@ -38,14 +48,19 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int joinGroupId { get; set; }
 
         [BindProperty]
+        public int quitGroupId { get; set; }
+
+        [BindProperty]
         public Models.Group createGroup { get; set; }
         public string error;
 
-        private List<GroupDTO> GetGroups(int userId)
+
+        //Return Lists methods
+        private List<GroupJoinDTO> GetGroupsToJoin(int userId)
         {
             return _dbContext.Groups
                 .Where(g => !g.Users_Groups.Any(ug => ug.users_user_id == userId))
-                .Select(g => new GroupDTO
+                .Select(g => new GroupJoinDTO
                 {
                     group_id = g.group_id,
                     name = g.name,
@@ -57,6 +72,25 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 .ToList();
         }
 
+        private List<GroupQuitDTO> GetGroupsToQuit(int userId)
+        {
+            return _dbContext.Groups
+                .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId) && g.owner_id != userId)
+                .SelectMany(g => g.Users_Groups, (g, ug) => new GroupQuitDTO
+                {
+                    group_id = g.group_id,
+                    name = g.name,
+                    description = g.description,
+                    owner_name = g.Users.username,
+                    role = ug.role
+                    
+                })
+                .GroupBy(dto => dto.group_id)
+                .Select(group => group.First())
+                .ToList();
+        }
+
+        //On get and post methods
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
@@ -64,74 +98,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                groupList = GetGroups((int)userId);
+                groupJoinList = GetGroupsToJoin((int)userId);
+                groupQuitList = GetGroupsToQuit((int)userId);
             }
             catch
             {
                 Page();
             }
-        }
-
-        public async Task<GroupDTO> GetGroupAsync(int id)
-        {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
-
-            Console.WriteLine(userId);
-
-            //Check if group exists
-            bool exists = _dbContext.Users_Groups.Any(ug => ug.groups_group_id == id);
-
-            //Check if user didn't changed id to id of a group which he is already a part of (even the one that he is a part on didn' accepted him yet)
-            if (_dbContext.Users_Groups.Count(ug => ug.users_user_id != userId && ug.groups_group_id != id) > 0 && exists)
-            {
-                Console.WriteLine("Jestem debilem3");
-                return await _dbContext.Groups
-                    .Where(g => g.group_id == id)
-                    .Select(g => new GroupDTO
-                    {
-                        group_id = g.group_id,
-                        name = g.name,
-                        description = g.description,
-                        owner_name = g.Users.username
-                    }).FirstAsync();
-
-            }
-            GroupDTO emptyGroup = new GroupDTO();
-            emptyGroup.group_id = 0;
-            emptyGroup.name = "Błąd";
-            emptyGroup.owner_name = "Błąd";
-            if (!exists)
-            {
-                emptyGroup.description = "Nie znaleziono grupy";
-            }
-            else
-            {
-                emptyGroup.description = "Należysz już do tej grupy";
-            }
-            return emptyGroup;
-        }
-
-
-        public async Task<JsonResult> OnGetGroupJsonAsync(int id)
-        {
-            return new JsonResult(await GetGroupAsync(id));
-        }
-
-        public PartialViewResult OnGetLoadGroups()
-        {
-            userId = HttpContext.Session.GetInt32(Key2);
-
-            try
-            {
-                groupList = GetGroups((int)userId);
-            }
-            catch
-            {
-                Page();
-            }
-
-            return Partial("Partials/_PartialJoinGroup", groupList);
         }
 
         public IActionResult OnPostJoin()
@@ -209,6 +182,128 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             return new JsonResult("success");
+        }
+
+        //Partial methods
+        private PartialViewResult OnGetLoadJoinGroups()
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+
+            try
+            {
+                groupJoinList = GetGroupsToJoin((int)userId);
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialJoinGroup", groupJoinList);
+        }
+
+        private PartialViewResult OnGetQuitLoadGroups()
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+
+            try
+            {
+                groupQuitList = GetGroupsToQuit((int)userId);
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialQuitGroup", groupQuitList);
+        }
+
+        //Async Methods
+        //Join group method
+        public async Task<JsonResult> OnGetJoinGroupJsonAsync(int id)
+        {
+            return new JsonResult(await GetJoinGroupAsync(id));
+        }
+
+        public async Task<GroupJoinDTO> GetJoinGroupAsync(int id)
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+
+            //Check if group exists
+            bool exists = _dbContext.Users_Groups.Any(ug => ug.groups_group_id == id);
+
+            //Check if user didn't changed id to id of a group which he is already a part of (even the one that he is a part on didn' accepted him yet)
+            if (_dbContext.Users_Groups.Count(ug => ug.users_user_id != userId && ug.groups_group_id != id) > 0 && exists)
+            {
+                return await _dbContext.Groups
+                    .Where(g => g.group_id == id)
+                    .Select(g => new GroupJoinDTO
+                    {
+                        group_id = g.group_id,
+                        name = g.name,
+                        description = g.description,
+                        owner_name = g.Users.username
+                    }).FirstAsync();
+
+            }
+            GroupJoinDTO emptyGroup = new GroupJoinDTO();
+            emptyGroup.group_id = 0;
+            emptyGroup.name = "Błąd";
+            emptyGroup.owner_name = "Błąd";
+            if (!exists)
+            {
+                emptyGroup.description = "Nie znaleziono grupy";
+            }
+            else
+            {
+                emptyGroup.description = "Należysz już do tej grupy";
+            }
+            return emptyGroup;
+        }
+
+        //Quit group method
+        public async Task<JsonResult> OnGetQuitGroupJsonAsync(int id)
+        {
+            return new JsonResult(await GetQuitGroupAsync(id));
+        }
+
+        public async Task<GroupQuitDTO> GetQuitGroupAsync(int id)
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+
+            //Check if group exists
+            bool exists = _dbContext.Users_Groups.Any(ug => ug.groups_group_id == id);
+            bool isOwner = _dbContext.Groups.Any(g => g.owner_id == userId && g.group_id == id);
+
+            //Check if user didn't changed id to id of a group which he isn't part of or he created the group and is current main owner
+            if (_dbContext.Users_Groups.Count(ug => ug.users_user_id == userId && ug.groups_group_id == id) > 0 && exists && !isOwner)
+            {
+                return await _dbContext.Groups
+                    .Where(g => g.group_id == id)
+                    .SelectMany(g => g.Users_Groups, (g, ug) => new GroupQuitDTO
+                    {
+                        group_id = g.group_id,
+                        name = g.name,
+                        description = g.description,
+                        owner_name = g.Users.username,
+                        role = ug.role
+                    }).FirstAsync();
+
+            }
+            GroupQuitDTO emptyGroup = new GroupQuitDTO();
+            emptyGroup.group_id = 0;
+            emptyGroup.name = "Błąd";
+            emptyGroup.owner_name = "Błąd";
+            emptyGroup.role = "Błąd";
+
+            if (!exists)
+            {
+                emptyGroup.description = "Nie znaleziono grupy";
+            }
+            if (isOwner)
+            {
+                emptyGroup.description = "Jesteś twórcą tej grupy";
+            }
+            return emptyGroup;
         }
     }
 }
