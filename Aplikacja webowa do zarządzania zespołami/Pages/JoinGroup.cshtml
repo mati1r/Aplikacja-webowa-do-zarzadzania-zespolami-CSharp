@@ -259,8 +259,10 @@
 
                     if(group.status == "nieaktywny"){
                         $('#quit-group-status').text("Oczekujący na zatwierdzenie");
-                    }else{
+                    }else if(group.status == "aktywny"){
                         $('#quit-group-status').text("Użytkownik aktywny");
+                    }else{
+                        $('#quit-group-status').text(group.status);
                     }
 
                 });
