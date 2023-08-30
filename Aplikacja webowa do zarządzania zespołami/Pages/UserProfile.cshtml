@@ -147,9 +147,6 @@
         $(document).ajaxSuccess(function (event, xhr, settings) {
             if (settings.url === '@Url.Page("UserProfile", "PersonalDataPartial")') {
 
-                //Delete valmsgs on Partial load
-                $("span[data-valmsg-for]").text("");
-
                 //Clear valmgs on submit
                 $("form").on('submit', function () {
                     $("span[data-valmsg-for]").text("");
@@ -163,9 +160,6 @@
             }
 
             if (settings.url === '@Url.Page("UserProfile", "AccountDataPartial")') {
-
-                //Delete valmsgs on Partial load
-                $("span[data-valmsg-for]").text("");
 
                 //Clear valmgs on submit
                 $("form").on('submit', function () {

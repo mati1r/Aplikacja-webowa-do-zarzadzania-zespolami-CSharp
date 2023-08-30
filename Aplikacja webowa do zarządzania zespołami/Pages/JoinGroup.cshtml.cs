@@ -142,8 +142,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Sprawdzić czy istnieje grupa z której użytkownik chce wyjść oraz czy jest on jej członkiem
             userId = HttpContext.Session.GetInt32(Key2);
             List<string> validationErrors = new List<string>();
-            Console.WriteLine("ID grupy" + quitGroupId);
-            Console.WriteLine("Czy jest członkiem grupy" + _dbContext.Users_Groups.Any(ug => ug.groups_group_id == quitGroupId && ug.users_user_id == userId));
 
             //Check if user is part of a group
             if( !_dbContext.Users_Groups.Any(ug => ug.groups_group_id == quitGroupId && ug.users_user_id == userId))
@@ -211,7 +209,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Partial methods
-        public PartialViewResult OnGetLoadJoinGroups()
+        public PartialViewResult OnGetLoadJoinGroupsPartial()
         {
             userId = HttpContext.Session.GetInt32(Key2);
 
@@ -227,7 +225,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialJoinGroup", groupJoinList);
         }
 
-        public PartialViewResult OnGetLoadQuitGroups()
+        public PartialViewResult OnGetLoadQuitGroupsPartial()
         {
             userId = HttpContext.Session.GetInt32(Key2);
 

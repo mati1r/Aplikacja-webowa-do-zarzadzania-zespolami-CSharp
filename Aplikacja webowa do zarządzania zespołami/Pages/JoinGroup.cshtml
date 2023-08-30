@@ -261,7 +261,7 @@
 
             $.ajax({
                 type: 'get',
-                url: '@Url.Page("JoinGroup", "LoadJoinGroups")',
+                url: '@Url.Page("JoinGroup", "LoadJoinGroupsPartial")',
                 success: function (partialResult) {
                     $("#groupsJoinContainer").append(partialResult);
 
@@ -280,7 +280,7 @@
 
             $.ajax({
                 type: 'get',
-                url: '@Url.Page("JoinGroup", "LoadQuitGroups")',
+                url: '@Url.Page("JoinGroup", "LoadQuitGroupsPartial")',
                 success: function (partialResult) {
                     $("#groupsQuitContainer").append(partialResult);
                 }
