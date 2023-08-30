@@ -83,6 +83,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal do dodawania -->
 <div class="modal fade" id="add-notice-modal">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -154,15 +155,15 @@
                 let idValue = $(this).attr("id");
 
                 $.getJSON(`/OwnerNotices?handler=NoticeJson&id=${idValue}`).done(function (notice) {
-                    $('#topicText').text(notice.topic);
-                    $('#topic').val(notice.topic);
-                    $('#content').text(notice.content);
-                    $('#update').val(notice.message_id);
-                    $('#sender').text("Od: " + notice.sender_name);
-                    $('#sendDate').text("Zamieszczono: " + notice.send_date.replace("T", " "));
+                    $("#topicText").text(notice.topic);
+                    $("#topic").val(notice.topic);
+                    $("#content").text(notice.content);
+                    $("#update").val(notice.message_id);
+                    $("#sender").text("Od: " + notice.sender_name);
+                    $("#sendDate").text("Zamieszczono: " + notice.send_date.replace("T", " "));
                 });
 
-                $('#notice-modal').modal('show');
+                $("#notice-modal").modal("show");
             });
 
             //Form handling method
@@ -196,8 +197,8 @@
                         }
                         else {
                             //Close modals
-                            $('#notice-modal').modal('hide');
-                            $('#add-notice-modal').modal('hide');
+                            $("#notice-modal").modal("hide");
+                            $("#add-notice-modal").modal("hide");
 
                             if ($("#noticeContainer").children().length > 0) {
                                 $("#noticeContainer").empty();

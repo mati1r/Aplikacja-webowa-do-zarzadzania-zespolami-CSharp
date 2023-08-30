@@ -146,8 +146,8 @@
 
             //On item click handlers
             $("#messageContainer").on("click", ".recive-item", function () {
-                var newDiv = $('<div></div>', {
-                    class: 'message',
+                var newDiv = $("<div></div>", {
+                    class: "message",
                 });
 
                 if ($(this).hasClass("active")) {
@@ -165,8 +165,8 @@
             });
 
             $("#messageContainer").on("click", ".sended-item", function () {
-                var newDiv = $('<div></div>', {
-                    class: 'message',
+                var newDiv = $("<div></div>", {
+                    class: "message",
                 });
 
                 if ($(this).hasClass("active")) {
@@ -179,7 +179,7 @@
                     let idValue = $(this).attr("id");
                     let partial = $(this).find(".message");
 
-                    partial.load('/Messages?handler=SendedMessage&id=' + idValue);
+                    partial.load("/Messages?handler=SendedMessage&id=" + idValue);
                 }
             });
         });
@@ -189,11 +189,11 @@
 
                 //Selectize initialization
                 $('#message').selectize({
-                    sortField: 'text',
+                    sortField: "text",
                     multiple: true,
 
                     onChange: function (value) {
-                        $('#message-user-hidden').val(value);
+                        $("#message-user-hidden").val(value);
                     }
                 });
 
@@ -233,12 +233,12 @@
                                 nameValidationError.text(data[0]);
                             }
                             else {
-                                $('#succesModal').modal('show');
+                                $("#succesModal").modal("show");
                                 //After succesful creation of message clear errors and data
                                 $("span[data-valmsg-for]").text("");
                                 $("#message-topic").val("");
                                 $("#message-content").val("");
-                                $('#message')[0].selectize.clear();
+                                $("#message")[0].selectize.clear();
                             }
                         }
                     });

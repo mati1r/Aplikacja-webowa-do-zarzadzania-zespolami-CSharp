@@ -120,7 +120,7 @@
         $(document).ready(function () {
 
             //DataTable
-            $('#DataTable').DataTable({
+            $("#DataTable").DataTable({
                 "oLanguage": {
                     "oPaginate": {
                         "sPrevious": "Poprzednie",
@@ -139,21 +139,21 @@
             //Modal text and coloring for priority
             $(".dataTable tbody tr").click(function () {
                 $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
-                    $('#title').text(task.task_name);
-                    $('#description').text(task.description);
-                    $('#status').text(task.status);
-                    $('#priority').text(task.priority);
-                    $('#start-date').text(task.start_date.replace("T", " "));
-                    $('#end-date').text(task.end_date.replace("T", " "));
-                    $('#update').val(task.task_id);
-                    $('#feedback').text(task.feedback);
+                    $("#title").text(task.task_name);
+                    $("#description").text(task.description);
+                    $("#status").text(task.status);
+                    $("#priority").text(task.priority);
+                    $("#start-date").text(task.start_date.replace("T", " "));
+                    $("#end-date").text(task.end_date.replace("T", " "));
+                    $("#update").val(task.task_id);
+                    $("#feedback").text(task.feedback);
 
                     if (task.priority == "niski") {
-                        $('#priority').css("color", "green");
+                        $("#priority").css("color", "green");
                     } else if (task.priority == "wysoki") {
-                        $('#priority').css("color", "red");
+                        $("#priority").css("color", "red");
                     } else {
-                        $('#priority').addClass("text-white-50");
+                        $("#priority").addClass("text-white-50");
                     }
 
                     if (task.status === "ukończone") {
@@ -167,9 +167,9 @@
             });
 
             //DataTable coloring for priority
-            $('.priority-table').each(function () {
+            $(".priority-table").each(function () {
                 if ($(this).html() == "niski") {
-                    $(this).css('color', 'green');
+                    $(this).css("color", "green");
                 }else if ($(this).html() == "wysoki") {
                     $(this).css("color", "red");
                 }

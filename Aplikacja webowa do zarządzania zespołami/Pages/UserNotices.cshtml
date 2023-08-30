@@ -66,13 +66,13 @@
                 let idValue = $(this).attr("id");
 
                 $.getJSON(`/UserNotices?handler=NoticeJson&id=${idValue}`).done(function (notice) {
-                    $('#topic').text(notice.topic);
-                    $('#content').text(notice.content);
-                    $('#sender').text("Od: " + notice.sender_name);
-                    $('#sendDate').text("Zamieszczono: " + notice.send_date.replace("T", " "));
+                    $("#topic").text(notice.topic);
+                    $("#content").text(notice.content);
+                    $("#sender").text("Od: " + notice.sender_name);
+                    $("#sendDate").text("Zamieszczono: " + notice.send_date.replace("T", " "));
                 });
 
-                $('#notice-modal').modal('show');
+                $("#notice-modal").modal("show");
             });
         });
     </script>

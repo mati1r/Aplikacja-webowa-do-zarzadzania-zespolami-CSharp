@@ -209,7 +209,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Partial methods
-        public PartialViewResult OnGetLoadJoinGroupsPartial()
+        public PartialViewResult OnGetJoinGroupsPartial()
         {
             userId = HttpContext.Session.GetInt32(Key2);
 
@@ -225,7 +225,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialJoinGroup", groupJoinList);
         }
 
-        public PartialViewResult OnGetLoadQuitGroupsPartial()
+        public PartialViewResult OnGetQuitGroupsPartial()
         {
             userId = HttpContext.Session.GetInt32(Key2);
 

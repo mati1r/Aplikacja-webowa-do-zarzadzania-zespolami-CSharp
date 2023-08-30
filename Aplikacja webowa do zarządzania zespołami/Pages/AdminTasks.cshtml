@@ -250,29 +250,29 @@
         $(document).ready(function () {
 
 
-            $('#task-user').selectize({
-                sortField: 'text',
+            $("#task-user").selectize({
+                sortField: "text",
 
                 onChange: function (value) {
                     //Set value for hidden input
-                    $('#task-user-hidden').val(value);
+                    $("#task-user-hidden").val(value);
                 }
             });
 
-            $('#task-user2').selectize({
-                sortField: 'text',
+            $("#task-user2").selectize({
+                sortField: "text",
 
                 onChange: function (value) {
                     //Set value for hidden input
-                    $('#task-user-hidden2').val(value);
+                    $("#task-user-hidden2").val(value);
                 }
             });
 
             //Get value of initialized item
-            let selectizeValue = $('#task-user2').selectize()[0].selectize.getValue();
+            let selectizeValue = $("#task-user2").selectize()[0].selectize.getValue();
 
             //Set value for hidden input
-            $('#task-user-hidden2').val(selectizeValue);
+            $("#task-user-hidden2").val(selectizeValue);
 
             //Change action for submit
             $("#deleteButton").click(function () {
@@ -281,13 +281,13 @@
                     $("form").submit();
             });
 
-            $('form').on('submit', function () {
-                $('span[data-valmsg-for]').text('');
+            $("form").on("submit", function () {
+                $("span[data-valmsg-for]").text("");
             });
 
             //Cleaning function on modal call
-            $('#edit-modal').on('show.bs.modal', function () {
-                $('span[data-valmsg-for]').text('');
+            $("#edit-modal").on("show.bs.modal", function () {
+                $("span[data-valmsg-for]").text("");
             });
 
             //Return errors on validation for specific span
@@ -320,7 +320,7 @@
                             nameValidationError.text(data[0]);
                         }
                         else {
-                            $('#edit-modal').modal('hide');
+                            $("#edit-modal").modal("hide");
                             //Tymczasowe przeładowanie strony fajnie by było jakby szło przeładować tylko content do tabeli
                             location.reload(true);
                         }
@@ -329,7 +329,7 @@
             });
 
         //DataTable
-            $('#DataTable').DataTable({
+            $("#DataTable").DataTable({
                 "oLanguage": {
                     "oPaginate": {
                         "sPrevious": "Poprzednie",
@@ -344,27 +344,27 @@
                     "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
                 },
                 "initComplete": function () {
-                    var searchInput = $('.dataTables_filter input');
+                    var searchInput = $(".dataTables_filter input");
 
                     // Add button next to seachbar
-                    var customButton = $('<button class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#create-modal" id="addButton">Dodaj zadanie</button>');
+                    var customButton = $("<button class='btn btn-primary ms-2' data-bs-toggle='modal' data-bs-target='#create-modal' id='addButton'>Dodaj zadanie</button>");
                     searchInput.parent().append(customButton);
                 }
             });
 
         //DataTable coloring for priority
-            $('.priority-table').each(function () {
+            $(".priority-table").each(function () {
                 if ($(this).html() == "niski") {
-                    $(this).css('color', 'green');
+                    $(this).css("color", "green");
                 } else if ($(this).html() == "wysoki") {
                     $(this).css("color", "red");
                 }
             });
         //Change color inside a modal
-            $('#priority').on('change', function () {
+            $("#priority").on("change", function () {
                 var selectedPriority = $(this).val();
 
-                var priorityElement = $('#priority');
+                var priorityElement = $("#priority");
                 if (selectedPriority == "niski") {
                     priorityElement.css("color", "green");
                 } else if (selectedPriority == "wysoki") {
@@ -375,39 +375,39 @@
             });
 
         //Modal text and coloring for priority
-            $('button.edit').on('click', function () {
+            $("button.edit").on("click", function () {
                 $.getJSON(`/AdminTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
-                    $('#title').text(task.task_name);
-                    $('#task-name').val(task.task_name);
-                    $('#description').text(task.description);
-                    $('#status').val(task.status);
-                    $('#priority').val(task.priority);
-                    $('#start-date').val(task.start_date);
-                    $('#end-date').val(task.end_date);
-                    $('#update').val(task.task_id);
-                    $('#delete').val(task.task_id);
+                    $("#title").text(task.task_name);
+                    $("#task-name").val(task.task_name);
+                    $("#description").text(task.description);
+                    $("#status").val(task.status);
+                    $("#priority").val(task.priority);
+                    $("#start-date").val(task.start_date);
+                    $("#end-date").val(task.end_date);
+                    $("#update").val(task.task_id);
+                    $("#delete").val(task.task_id);
 
                     //Set default value for selectize
-                    let selectizeControl = $('#task-user').selectize()[0].selectize;
+                    let selectizeControl = $("#task-user").selectize()[0].selectize;
                     selectizeControl.setValue(task.users_user_id);
 
                     //Set value for hidden input
-                    $('#task-user-hidden').val(task.users_user_id);
+                    $("#task-user-hidden").val(task.users_user_id);
 
                     //Coloring
                     if (task.priority == "niski") {
-                        $('#priority').css("color", "green");
+                        $("#priority").css("color", "green");
                     } else if (task.priority == "wysoki") {
-                        $('#priority').css("color", "red");
+                        $("#priority").css("color", "red");
                     } else {
-                        $('#priority').addClass("text-white-50");
+                        $("#priority").addClass("text-white-50");
                     }
 
                     //Status
                     if (task.status == "ukończone") {
-                        $('.status-input').prop("disabled", true);
+                        $(".status-input").prop("disabled", true);
                     } else {
-                        $('.status-input').prop("disabled", false);
+                        $(".status-input").prop("disabled", false);
                     }
                 });
             });
