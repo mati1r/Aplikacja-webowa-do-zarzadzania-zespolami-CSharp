@@ -59,7 +59,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 HttpContext.Session.SetInt32(Key3, changeGroupId);
             }
 
-            return RedirectToPage("Groups");
+            return RedirectToPage("ActiveGroup");
         }
     }
 }
