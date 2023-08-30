@@ -26,6 +26,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         [BindProperty(SupportsGet = true)]
         public Message notice { get; set; }
+
         private List<NoticePartial> GetNotice(int? groupId)
         {
             return _dbContext.Messages
@@ -43,6 +44,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 .ToList();
         }
 
+        //OnGet and OnPost methods
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
@@ -50,23 +52,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(Key3);
 
             noticesList = GetNotice(groupId);
-        }
-
-        public PartialViewResult OnGetLoadNotices()
-        {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
-
-            try
-            {
-                noticesList = GetNotice(groupId);
-            }
-            catch
-            {
-                Page();
-            }
-
-            return Partial("Partials/_PartialNoticesView", noticesList);
         }
 
         public IActionResult OnPostDelete()
@@ -159,6 +144,25 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult("success");
         }
 
+        //Partial methods
+        public PartialViewResult OnGetLoadNotices()
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+
+            try
+            {
+                noticesList = GetNotice(groupId);
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialNoticesView", noticesList);
+        }
+
+        //Async methods
         public async Task<NoticePartial> GetNoticeAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(Key3);

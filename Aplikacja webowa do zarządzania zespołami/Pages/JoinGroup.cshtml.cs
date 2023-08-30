@@ -55,7 +55,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public string error;
 
 
-        //Return Lists methods
+        //private return Lists methods
         private List<GroupJoinDTO> GetGroupsToJoin(int userId)
         {
             return _dbContext.Groups
@@ -242,6 +242,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Async Methods
+
         //Join group method
         public async Task<JsonResult> OnGetJoinGroupJsonAsync(int id)
         {

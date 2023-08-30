@@ -19,6 +19,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty]
         public User userData { get; set; }
         public string error;
+
+        //OnGet and OnPost methods
         public void OnGet()
         {
         }

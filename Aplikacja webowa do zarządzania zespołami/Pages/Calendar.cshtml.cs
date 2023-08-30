@@ -24,11 +24,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? userId;
         public int? groupId;
 
+        //OnGet and OnPost methods
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
         }
 
+        //Async methods
         public async Task<JsonResult> OnGetEventsAsync()
         {
             userId = HttpContext.Session.GetInt32(Key2);

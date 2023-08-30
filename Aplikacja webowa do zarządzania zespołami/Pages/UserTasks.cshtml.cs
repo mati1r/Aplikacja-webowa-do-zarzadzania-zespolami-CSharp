@@ -24,6 +24,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? userId;
         public int? groupId;
 
+        [BindProperty(SupportsGet = true)]
+        public int actionTaskId { get; set; }
+
+        [BindProperty(SupportsGet = true)]
+        public string feedbackMessage { get; set; }
+
+        //OnGet and OnPost methods
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
@@ -32,6 +39,28 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId && t.users_user_id == userId).ToList();
         }
 
+        public IActionResult OnPostComplete()
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+            ////Check if user didn't changed id to an id out of his scope
+            ///if there is a task get it and change its status
+
+            ///DODAĆ SPRAWDZANIE DATY UKOŃCZENIA NIE WYŚWIETLAĆ DANYCH STARSZYCH NIZ 7 dni
+            if (_dbContext.Tasks.Count(t => t.task_id == actionTaskId && t.groups_group_id == groupId && t.users_user_id == userId && t.status == "nieukończone") > 0)
+            {
+                var task = _dbContext.Tasks.Where(t => t.task_id == actionTaskId).First();
+                task.status = "ukończone";
+                task.feedback = feedbackMessage;
+                task.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second); ;
+                _dbContext.Tasks.Update(task);
+                _dbContext.SaveChanges();
+            }
+            return RedirectToPage("UserTasks");
+        }
+
+
+        //Async methods
         public async Task<Models.Task> GetTaskAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(Key2);
@@ -55,36 +84,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
         }
 
-
         public async Task<JsonResult> OnGetTaskJsonAsync(int id)
         {
             return new JsonResult(await GetTaskAsync(id));
-        }
-
-        [BindProperty(SupportsGet = true)]
-        public int actionTaskId { get; set; }
-
-        [BindProperty(SupportsGet = true)]
-        public string feedbackMessage { get; set; }
-
-        public IActionResult OnPostComplete()
-        {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
-            ////Check if user didn't changed id to an id out of his scope
-            ///if there is a task get it and change its status
-
-            ///DODAĆ SPRAWDZANIE DATY UKOŃCZENIA NIE WYŚWIETLAĆ DANYCH STARSZYCH NIZ 7 dni
-            if ( _dbContext.Tasks.Count(t => t.task_id == actionTaskId && t.groups_group_id == groupId && t.users_user_id == userId && t.status == "nieukończone") > 0)
-            {
-                var task = _dbContext.Tasks.Where(t => t.task_id == actionTaskId).First();
-                task.status = "ukończone";
-                task.feedback = feedbackMessage;
-                task.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second); ;
-                _dbContext.Tasks.Update(task);
-                _dbContext.SaveChanges();
-            }
-            return RedirectToPage("UserTasks");
         }
     }
 }

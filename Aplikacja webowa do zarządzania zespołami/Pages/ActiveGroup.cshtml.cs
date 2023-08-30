@@ -23,6 +23,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? userId;
         public int? groupId;
 
+        [BindProperty(SupportsGet = true)]
+        public int changeGroupId { get; set; }
+
+        //OnGet and OnPost methods
         public void OnGet()
         {
             //Read session data
@@ -36,8 +40,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         }
 
-        [BindProperty(SupportsGet = true)]
-        public int changeGroupId { get; set; }
 
         public IActionResult OnPostChangeActiveGroup()
         {

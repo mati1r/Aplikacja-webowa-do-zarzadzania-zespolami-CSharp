@@ -87,9 +87,6 @@
                                     <input type="hidden" asp-for="createOrEditTask.users_user_id" id="task-user-hidden" />
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="container">
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" for="status">Status</label>
@@ -111,9 +108,6 @@
                                     <span asp-validation-for="createOrEditTask.priority" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="container">
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" for="start-date">Data zadania</label>
@@ -129,13 +123,13 @@
                                     <span asp-validation-for="createOrEditTask.end_date" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="mb-4">
-                            <label class="form-label" for="description">Opis zadania</label>
-                            <br />
-                            <textarea class="status-input form-control bg-dark" id="description" rows="4" asp-for="createOrEditTask.description"></textarea>
-                            <span asp-validation-for="createOrEditTask.description" class="text-danger"></span>
+                            <div class="mb-4">
+                                <label class="form-label" for="description">Opis zadania</label>
+                                <br />
+                                <textarea class="status-input form-control bg-dark" id="description" rows="4" asp-for="createOrEditTask.description"></textarea>
+                                <span asp-validation-for="createOrEditTask.description" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -182,9 +176,6 @@
                                     <span asp-validation-for="createOrEditTask.users_user_id" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="container">
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" for="status">Status</label>
@@ -206,9 +197,6 @@
                                     <span asp-validation-for="createOrEditTask.priority" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="container">
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label class="form-label" for="start-date">Data zadania</label>
@@ -224,13 +212,13 @@
                                     <span asp-validation-for="createOrEditTask.end_date" class="text-danger"></span>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="mb-4">
-                            <label class="form-label" for="description">Opis zadania</label>
-                            <br />
-                            <textarea class="form-control bg-dark" id="description" rows="4" asp-for="createOrEditTask.description"></textarea>
-                            <span asp-validation-for="createOrEditTask.description" class="text-danger"></span>
+                            <div class="mb-4">
+                                <label class="form-label" for="description">Opis zadania</label>
+                                <br />
+                                <textarea class="form-control bg-dark" id="description" rows="4" asp-for="createOrEditTask.description"></textarea>
+                                <span asp-validation-for="createOrEditTask.description" class="text-danger"></span>
+                            </div>
                         </div>
                     </div>
                 </div>

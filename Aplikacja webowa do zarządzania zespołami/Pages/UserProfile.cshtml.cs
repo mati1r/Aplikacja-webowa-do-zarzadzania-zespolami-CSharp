@@ -42,6 +42,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 }).First();
         }
 
+        //OnGet and OnPost methods
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
@@ -55,22 +56,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             {
                 Page();
             }
-        }
-
-        public PartialViewResult OnGetPersonalDataPartial()
-        {
-            userId = HttpContext.Session.GetInt32(Key2);
-
-            try
-            {
-                userPersonalData = GetUserPersonalData((int)userId);
-            }
-            catch
-            {
-                Page();
-            }
-
-            return Partial("Partials/_PartialUserPersonalData", userPersonalData);
         }
 
         public IActionResult OnPostPersonalDataEdit()
@@ -92,7 +77,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             error = UserValidation.IsUserPersonalDataValid(userPersonalData.username, userPersonalData.name,
                                                            userPersonalData.surname, userPersonalData.name != null, userPersonalData.surname != null);
-            if(error != "")
+            if (error != "")
             {
                 validationErrors.Add(error);
                 return new JsonResult(validationErrors);
@@ -114,11 +99,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             _dbContext.SaveChanges();
 
             return new JsonResult("success");
-        }
-
-        public PartialViewResult OnGetAccountDataPartial()
-        {
-            return Partial("Partials/_PartialUserAccountData", userAccountData);
         }
 
         public IActionResult OnPostAccountDataEdit()
@@ -163,6 +143,29 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             _dbContext.SaveChanges();
 
             return new JsonResult("success");
+        }
+
+        //Partial methods
+        public PartialViewResult OnGetPersonalDataPartial()
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+
+            try
+            {
+                userPersonalData = GetUserPersonalData((int)userId);
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialUserPersonalData", userPersonalData);
+        }
+
+
+        public PartialViewResult OnGetAccountDataPartial()
+        {
+            return Partial("Partials/_PartialUserAccountData", userAccountData);
         }
     }
 }

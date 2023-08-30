@@ -26,17 +26,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             [Required(ErrorMessage = "Pole hasło jest wymagane")]
             public string password { get; set; }
         }
-
-        [BindProperty]
-        public UserDTO userCredentials { get; set; }
         public string error;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
         public const string Key3 = "_groupId";
 
-        public void OnGet()
-        {
-        }
+
+        [BindProperty]
+        public UserDTO userCredentials { get; set; }
 
         private void SetSessionData(string userType, int userId, int groupId)
         {
@@ -44,6 +41,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             HttpContext.Session.SetInt32(Key2, userId);
             HttpContext.Session.SetInt32(Key3, groupId);
         }
+
+        //OnGet and OnPost methods
+        public void OnGet()
+        {
+        }
+
 
         public void OnPost() 
         {

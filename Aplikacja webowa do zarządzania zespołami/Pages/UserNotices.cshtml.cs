@@ -40,6 +40,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 .ToList();
         }
 
+        //OnGet and OnPost methods
         public void OnGet()
         {
             data = HttpContext.Session.GetString(Key);
@@ -49,6 +50,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             noticesList = GetNotice(userId, groupId);  
         }
 
+        //Async methods
         public async Task<NoticePartial> GetNoticeAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(Key3);
