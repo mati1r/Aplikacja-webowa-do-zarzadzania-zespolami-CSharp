@@ -41,10 +41,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public List<GroupQuitDTO> groupQuitList;
         public const string Key = "_userType";
         public const string Key2 = "_userId";
-        public const string Key3 = "_groupId";
         public string data;
         public int? userId;
-        public int? groupId;
 
         [BindProperty]
         public int joinGroupId { get; set; }
@@ -139,14 +137,42 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult("success");
         }
 
+        public IActionResult OnPostQuit()
+        {
+            //Sprawdzić czy istnieje grupa z której użytkownik chce wyjść oraz czy jest on jej członkiem
+            userId = HttpContext.Session.GetInt32(Key2);
+            List<string> validationErrors = new List<string>();
+            Console.WriteLine("ID grupy" + quitGroupId);
+            Console.WriteLine("Czy jest członkiem grupy" + _dbContext.Users_Groups.Any(ug => ug.groups_group_id == quitGroupId && ug.users_user_id == userId));
+
+            //Check if user is part of a group
+            if( !_dbContext.Users_Groups.Any(ug => ug.groups_group_id == quitGroupId && ug.users_user_id == userId))
+            {
+                validationErrors.Add("Użytkownik nie znajduje sie w tej grupie");
+                return new JsonResult(validationErrors);
+            }
+
+            //Check if user is not a creator
+            if(_dbContext.Groups.Any(g => g.group_id == quitGroupId && g.owner_id  == userId))
+            {
+                validationErrors.Add("Twórca grupy nie może z niej wyjść");
+                return new JsonResult(validationErrors);
+            }
+
+            User_Group userGroup = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == quitGroupId && ug.users_user_id == userId).First();
+            _dbContext.Remove(userGroup);
+            _dbContext.SaveChanges();       
+
+            return new JsonResult("success");
+        }
+
         public IActionResult OnPostCreate()
         {
             userId = HttpContext.Session.GetInt32(Key2);
             List<string> validationErrors = new List<string>();
 
             //Need to clear ModelState to validate only the createGroup model
-            ModelState.Clear();
-            if (!TryValidateModel(createGroup))
+            if (!ModelState.IsValid)
             {
                 var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
                    ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
@@ -293,7 +319,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             }
             GroupQuitDTO emptyGroup = new GroupQuitDTO();
-            emptyGroup.group_id = 0;
+            emptyGroup.group_id = id;
             emptyGroup.name = "Błąd";
             emptyGroup.owner_name = "Błąd";
             emptyGroup.role = "Błąd";

@@ -20,28 +20,34 @@
                     <div class="card bg-table">
                         <div class="card-body">
                             <div class="d-flex flex-column align-items-start mb-5 mt-2">
-                                <h3>Chciałbyś poprowadzić swój własny zespół</h3>
-                                <div class="d-flex align-items-center">
-                                    <span class="p-1 me-1">Nie czekaj, zrób to już teraz</span>
-                                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#create-modal">Zalóż grupe</button>
+                                <div class="container">
+                                    <h3>Chciałbyś poprowadzić swój własny zespół</h3>
+                                    <div class="d-flex align-items-center">
+                                        <span class="p-1 me-1">Nie czekaj, zrób to już teraz</span>
+                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#create-modal">Zalóż grupe</button>
+                                    </div>
                                 </div>
                             </div>
-                            <h3>Dołącz do grupy</h3>
-                            <hr />
-                            <div class="table-responsive mt-3 mb-5" id="groupsJoinContainer">
-                                <partial name="Partials/_PartialJoinGroup" model="Model.groupJoinList" />
+                            <div class="container">
+                                <h3>Dołącz do grupy</h3>
+                                <hr />
+                                    <div class="table-responsive mt-3 mb-5" id="groupsJoinContainer">
+                                        <partial name="Partials/_PartialJoinGroup" model="Model.groupJoinList" />
+                                    </div>
+                                <hr />
                             </div>
-                            <hr />
                         </div>
                     </div>
                     <div class="card bg-table">
                         <div class="card-body">
-                            <h3>Grupy do których należysz</h3>
-                            <hr/>
-                            <div class="table-responsive mt-3" id="groupsQuitContainer">
-                                <partial name="Partials/_PartialQuitGroup" model="Model.groupQuitList" />
+                            <div class="container">
+                                <h3>Grupy do których należysz</h3>
+                                <hr/>
+                                <div class="table-responsive mt-3" id="groupsQuitContainer">
+                                    <partial name="Partials/_PartialQuitGroup" model="Model.groupQuitList" />
+                                </div>
+                                <hr />
                             </div>
-                            <hr />
                         </div>
                     </div>
                 </div>
@@ -54,7 +60,7 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="join-modal">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" asp-page-handler="Join">
+            <form method="post" id="joinForm" asp-page-handler="Join">
                 <div class="modal-body">
                     <div class="mt-md-4 pb-5">
                         <div class="container">
@@ -74,6 +80,7 @@
                             <div class="mb-4">
                                 <label>Opis grupy</label>
                                 <p class="text-white-50 mb-5 mt-2" id="group-join-description"></p>
+                                <span asp-validation-for="joinGroupId" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -81,7 +88,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
                     <input type="hidden" asp-for="joinGroupId" id="group-join-update" />
-                    <input class="btn btn-primary" id="action-btn" type="submit" value="Dołącz"/>
+                    <input class="btn btn-primary" type="submit" value="Dołącz"/>
                 </div>
             </form>
         </div>
@@ -92,46 +99,66 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="quit-modal">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post" asp-page-handler="Quit">
-                <div class="modal-body">
-                    <div class="mt-md-4 pb-5">
-                        <div class="container">
-                            <div class="row">
-                                <div class="col-md-6 mb-4">
-                                    <label>Nazwa grupy</label>
-                                    <hr />
-                                    <p class="text-white-50" id="quit-group-name"></p>
-                                </div>
+            <div class="modal-body">
+                <div class="mt-md-4 pb-5">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label>Nazwa grupy</label>
+                                <hr />
+                                <p class="text-white-50" id="quit-group-name"></p>
+                            </div>
 
-                                <div class="col-md-6 mb-4">
-                                    <label>Właściciel</label>
-                                    <hr />
-                                    <p class="text-white-50" id="quit-group-owner-name"></p>
-                                </div>
+                            <div class="col-md-6 mb-4">
+                                <label>Właściciel</label>
+                                <hr />
+                                <p class="text-white-50" id="quit-group-owner-name"></p>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6 mb-4">
-                                    <label>Twoja rola w grupie</label>
-                                    <hr />
-                                    <p class="text-white-50" id="quit-group-role"></p>
-                                </div>
-                                <div class="col-md-6 mb-4">
-                                    <label>Status</label>
-                                    <hr />
-                                    <p class="text-white-50" id="quit-group-status"></p>
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label>Twoja rola w grupie</label>
+                                <hr />
+                                <p class="text-white-50" id="quit-group-role"></p>
                             </div>
-                            <div class="mb-4">
-                                <label>Opis grupy</label>
-                                <p class="text-white-50 mb-5 mt-2" id="quit-group-description"></p>
+                            <div class="col-md-6 mb-4">
+                                <label>Status</label>
+                                <hr />
+                                <p class="text-white-50" id="quit-group-status"></p>
                             </div>
+                        </div>
+                        <div class="mb-4">
+                            <label>Opis grupy</label>
+                            <p class="text-white-50 mb-5 mt-2" id="quit-group-description"></p>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <input type="hidden" asp-for="quitGroupId" id="quit-group-update" />
-                    <input class="btn btn-danger" id="action-btn" type="submit" value="Opuść grupe" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                <button class="btn btn-danger" id="quit-btn">Opuść grupe</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm quit group modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="confirm-quit-modal">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="quitForm" asp-page-handler="Quit">
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="mb-3">
+                            <h4>Czy na pewno chcesz opuścić grupe?</h4>
+                            <span asp-validation-for="quitGroupId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
+                        <input type="hidden" asp-for="quitGroupId" id="quit-group-update" />
+                        <input class="btn btn-danger px-5 me-2" type="submit" value="Tak" />
+                    </div>
                 </div>
             </form>
         </div>
@@ -146,7 +173,7 @@
                 <h5 class="modal-title">Stwórz grupe</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" asp-page-handler="Create">
+            <form method="post" id="createForm" asp-page-handler="Create">
                 <div class="modal-body">
                     <div class="mt-md-4 pb-5">
                         <div class="mb-4">
@@ -173,6 +200,39 @@
 
 @section scripts{
     <script>
+        function handleFormSubmit(form, valmsgFor) {
+            let actionUrl = form.attr("action");
+
+            $.ajax({
+                type: form.attr("method"),
+                url: actionUrl,
+                data: form.serialize(),
+                dataType: "json",
+                success: function (data) {
+                    if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                        let keys = Object.keys(data);
+
+                        for (let i = 0; i < keys.length; i++) {
+                            let key = keys[i];
+                            let errors = data[key];
+                            let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+
+                            if (errorSpan.length > 0) {
+                                errorSpan.text(errors[0]);
+                            }
+                        }
+                    } else if (Array.isArray(data) && data.length > 0) {
+                        let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
+                        nameValidationError.text(data[0]);
+                    } else {
+                        $('#create-modal').modal('hide');
+                        invokeAjaxCallJoin();
+                        invokeAjaxCallQuit();
+                    }
+                }
+            });
+        }
+
         function initializeDataTable() {
 
             $('#DataTable').DataTable({
@@ -212,7 +272,7 @@
         }
 
         function invokeAjaxCallQuit(){
-            $('#quit-modal').modal('hide');
+            $('#confirm-quit-modal').modal('hide');
 
             if ($("#groupsQuitContainer").children().length > 0) {
                 $("#groupsQuitContainer").empty();
@@ -228,6 +288,14 @@
         }
 
         $(document).ready(function () {
+
+            $("#quit-btn").click(function(){
+                //Delete valmsgs
+                $("span[data-valmsg-for]").text("");
+                $('#quit-modal').modal('hide');
+                $('#confirm-quit-modal').modal('show');
+            });
+
 
             //DataTable
             initializeDataTable();
@@ -268,44 +336,27 @@
                 });
             });
 
-            $("form").submit(function (event) {
+            //Delete valmsgs
+            $("span[data-valmsg-for]").text("");
+
+            //Delete valmgs on form submit
+            $("form").on('submit', function () {
+                $("span[data-valmsg-for]").text("");
+            });
+
+            $("#joinForm").submit(function (event) {
                 event.preventDefault();
+                handleFormSubmit($(this), "joinGroupId");
+            });
 
-                let form = $(this);
-                let actionUrl = form.attr("action");
+            $("#quitForm").submit(function (event) {
+                event.preventDefault();
+                handleFormSubmit($(this), "quitGroupId");
+            });
 
-
-                $.ajax({
-                    type: form.attr("method"),
-                    url: actionUrl,
-                    data: form.serialize(),
-                    dataType: "json",
-                    success: function (data) {
-                        //Object.keys(data).lenght sprawdza ile błędów znajduje się w data natomiast data != success ma za zadanie nie przechwicić udanego wykonania
-                        if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
-                            var keys = Object.keys(data);
-
-                            for (let i = 0; i < keys.length; i++) {
-                                let key = keys[i];
-                                let errors = data[key];
-                                let errorSpan = $(`span[data-valmsg-for="${key}"]`);
-
-                                if (errorSpan.length > 0) {
-                                    errorSpan.text(errors[0]);
-                                }
-                            }
-                        } else if (Array.isArray(data) && data.length > 0) {
-                            let nameValidationError = $(`span[data-valmsg-for="createGroup.name"]`);
-                            nameValidationError.text(data[0]);
-                        }else {
-                            //After succesfull reinitialise components (JoinGroups and QuitGroups)
-
-                            $('#create-modal').modal('hide');
-                            invokeAjaxCallJoin();
-                            invokeAjaxCallQuit();
-                        }
-                    }
-                });
+            $("#createForm").submit(function (event) {
+                event.preventDefault();
+                handleFormSubmit($(this), "createGroup.description");
             });
         });
     </script>
