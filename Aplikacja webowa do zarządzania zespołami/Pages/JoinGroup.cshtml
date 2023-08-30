@@ -87,7 +87,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <input type="hidden" asp-for="joinGroupId" id="group-join-update" />
+                    <input type="hidden" asp-for="joinGroupId" id="group-join-id" />
                     <input class="btn btn-primary" type="submit" value="Dołącz"/>
                 </div>
             </form>
@@ -144,19 +144,20 @@
 
 <!-- Confirm quit group modal -->
 <div class="modal fade" tabindex="-1" role="dialog" id="confirm-quit-modal">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <form method="post" id="quitForm" asp-page-handler="Quit">
                 <div class="modal-body">
                     <div class="container">
-                        <div class="mb-3">
+                        <span asp-validation-for="quitGroupId" class="text-danger"></span>
+                        <div class="mb-3 mt-3">
                             <h4>Czy na pewno chcesz opuścić grupe?</h4>
-                            <span asp-validation-for="quitGroupId" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="text-end">
+                    <hr/>
+                    <div class="text-end mb-3">
                         <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
-                        <input type="hidden" asp-for="quitGroupId" id="quit-group-update" />
+                        <input type="hidden" asp-for="quitGroupId" id="quit-group-id" />
                         <input class="btn btn-danger px-5 me-2" type="submit" value="Tak" />
                     </div>
                 </div>
@@ -225,7 +226,7 @@
                         let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
                         nameValidationError.text(data[0]);
                     } else {
-                        $('#create-modal').modal('hide');
+                        $("#create-modal").modal("hide");
                         invokeAjaxCallJoin();
                         invokeAjaxCallQuit();
                     }
@@ -235,7 +236,7 @@
 
         function initializeDataTable() {
 
-            $('#DataTable').DataTable({
+            $("#DataTable").DataTable({
                 "oLanguage": {
                     "oPaginate": {
                         "sPrevious": "Poprzednie",
@@ -253,7 +254,7 @@
         }
 
         function invokeAjaxCallJoin(){
-            $('#join-modal').modal('hide');
+            $('#join-modal').modal("hide");
 
             if ($("#groupsJoinContainer").children().length > 0) {
                 $("#groupsJoinContainer").empty();
@@ -272,7 +273,7 @@
         }
 
         function invokeAjaxCallQuit(){
-            $('#confirm-quit-modal').modal('hide');
+            $('#confirm-quit-modal').modal("hide");
 
             if ($("#groupsQuitContainer").children().length > 0) {
                 $("#groupsQuitContainer").empty();
@@ -292,8 +293,8 @@
             $("#quit-btn").click(function(){
                 //Delete valmsgs
                 $("span[data-valmsg-for]").text("");
-                $('#quit-modal').modal('hide');
-                $('#confirm-quit-modal').modal('show');
+                $("#quit-modal").modal("hide");
+                $("#confirm-quit-modal").modal("show");
             });
 
 
@@ -302,35 +303,35 @@
 
             $("#groupsJoinContainer").on("click", ".dataTable tbody tr", function () {
                 $.getJSON(`/JoinGroup?handler=JoinGroupJson&id=${$(this).data('id')}`).done(function (group) {
-                    $('#group-join-name').text(group.name);
-                    $('#group-join-description').text(group.description);
-                    $('#group-join-owner-name').text(group.owner_name);
-                    $('#group-join-update').val(group.group_id);
+                    $("#group-join-name").text(group.name);
+                    $("#group-join-description").text(group.description);
+                    $("#group-join-owner-name").text(group.owner_name);
+                    $("#group-join-id").val(group.group_id);
                 });
             });
 
             $("#groupsQuitContainer").on("click", ".table tbody tr", function () {
                 $.getJSON(`/JoinGroup?handler=QuitGroupJson&id=${$(this).data('id')}`).done(function (group) {
-                    $('#quit-group-name').text(group.name);
-                    $('#quit-group-description').text(group.description);
-                    $('#quit-group-owner-name').text(group.owner_name);
-                    $('#quit-group-update').val(group.group_id);
+                    $("#quit-group-name").text(group.name);
+                    $("#quit-group-description").text(group.description);
+                    $("#quit-group-owner-name").text(group.owner_name);
+                    $("#quit-group-id").val(group.group_id);
                   
                     if(group.role == "user"){
-                        $('#quit-group-role').text("Użytkownik");
+                        $("#quit-group-role").text("Użytkownik");
                     }
                     else if(group.role == "owner"){
-                        $('#quit-group-role').text("Właściciel");
+                        $("#quit-group-role").text("Właściciel");
                     }else{
-                        $('#quit-group-role').text(group.role);
+                        $("#quit-group-role").text(group.role);
                     }
 
                     if(group.status == "nieaktywny"){
-                        $('#quit-group-status').text("Oczekujący na zatwierdzenie");
+                        $("#quit-group-status").text("Oczekujący na zatwierdzenie");
                     }else if(group.status == "aktywny"){
-                        $('#quit-group-status').text("Użytkownik aktywny");
+                        $("#quit-group-status").text("Użytkownik aktywny");
                     }else{
-                        $('#quit-group-status').text(group.status);
+                        $("#quit-group-status").text(group.status);
                     }
 
                 });

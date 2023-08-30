@@ -1,0 +1,22 @@
+﻿@model List<Models.User>
+
+<h3>Użytkownicy oczekujący na przyjęcie</h3>
+<hr />
+<table class="table table-borderless">
+    <thead>
+        <tr>
+            <th scope="col" class="col-md-3">Nazwa użytkownika</th>
+            <th scope="col" class="col-md-3">Adres e-mail</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr data-id="@item.user_id" data-bs-toggle="modal" data-bs-target="#accept-pending-user-modal">
+                <td>@item.username</td>
+                <td>@item.e_mail</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

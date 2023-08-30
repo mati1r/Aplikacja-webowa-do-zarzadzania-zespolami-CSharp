@@ -9,14 +9,92 @@
 }
 
 <div class="w-100 h-100 d-inline-block overflow-auto bg-main">
-    <div class="table-responsive mt-3 mb-5" id="groupEditContainer">
+    <div class="mt-3" id="groupEditGroupContainer">
         <partial name="Partials/_PartialEditGroup" model="Model.group" />
+    </div>
+    <div class="p-3">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-table">
+                        <div class="card-body">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-md-6" id="groupPendingUsersContainer">
+                                        <partial name="Partials/_PartialPendingUsers" model="Model.pendingUsersList" />
+                                    </div>
+                                    <div class="col-md-6" id="groupActiveUsersContainer">
+                                        <partial name="Partials/_PartialActiveUsers" model="Model.activeUsersList" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm pending user accept to group modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="accept-pending-user-modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="acceptPendingForm" asp-page-handler="AcceptPendingUser">
+                <div class="modal-body">
+                    <div class="container">
+                        <span asp-validation-for="pendingUserId" class="text-danger"></span>
+                        <div class="mb-3 mt-3">
+                            <h4>Czy na pewno chcesz przyjąć użytkownika do grupy</h4>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div class="text-end mb-3">
+                        <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
+                        <input type="hidden" asp-for="pendingUserId" id="pending-user-id" />
+                        <input class="btn btn-primary px-5 me-2" type="submit" value="Tak" />
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
 @section scripts{
     <script>
         function handleFormSubmit(form, valmsgFor) {
+            let actionUrl = form.attr("action");
+
+            $.ajax({
+                type: form.attr("method"),
+                url: actionUrl,
+                data: form.serialize(),
+                dataType: "json",
+                success: function (data) {
+                    if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                        let keys = Object.keys(data);
+
+                        for (let i = 0; i < keys.length; i++) {
+                            let key = keys[i];
+                            let errors = data[key];
+                            let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+
+                            if (errorSpan.length > 0) {
+                                errorSpan.text(errors[0]);
+                            }
+                        }
+                    } else if (Array.isArray(data) && data.length > 0) {
+                        let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
+                        nameValidationError.text(data[0]);
+                    } else {
+                        $("#accept-pending-user-modal").modal("hide");
+                        invokeAjaxCallPendingUsers();
+                        invokeAjaxCallActiveUsers();
+                    }
+                }
+            });
+        }
+        function handleFormSubmitEdit(form, valmsgFor) {
             let actionUrl = form.attr("action");
 
             $.ajax({
@@ -48,29 +126,59 @@
         }
 
         function invokeAjaxCallEdit() {
-            if ($("#groupEditContainer").children().length > 0) {
-                $("#groupEditContainer").empty();
+            if ($("#groupEditGroupContainer").children().length > 0) {
+                $("#groupEditGroupContainer").empty();
             }
 
             $.ajax({
                 type: 'get',
-                url: '@Url.Page("EditGroup", "LoadEditPartial")',
+                url: '@Url.Page("EditGroup", "EditPartial")',
                 success: function (partialResult) {
-                    $("#groupEditContainer").append(partialResult);
+                    $("#groupEditGroupContainer").append(partialResult);
                 }
             });
         }
 
-        function editPartial(){
+        function invokeAjaxCallPendingUsers() {
+            if ($("#groupPendingUsersContainer").children().length > 0) {
+                $("#groupPendingUsersContainer").empty();
+            }
+
+            $.ajax({
+                type: 'get',
+                url: '@Url.Page("EditGroup", "PendingUsersPartial")',
+                success: function (partialResult) {
+                    $("#groupPendingUsersContainer").append(partialResult);
+                }
+            });
+        }
+
+        function invokeAjaxCallActiveUsers() {
+            if ($("#groupActiveUsersContainer").children().length > 0) {
+                $("#groupActiveUsersContainer").empty();
+            }
+
+            $.ajax({
+                type: 'get',
+                url: '@Url.Page("EditGroup", "ActiveUsersPartial")',
+                success: function (partialResult) {
+                    $("#groupActiveUsersContainer").append(partialResult);
+                }
+            });
+        }
+
+        function clearValidationMessagesOnSubmit(){
             //Clear valmgs on submit
             $("form").on('submit', function () {
                 $("span[data-valmsg-for]").text("");
             });
+        }
 
+        function editPartial(){
             //Form submit handler to show valmgs
             $("#editForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmit($(this), "description");
+                handleFormSubmitEdit($(this), "description");
             });
         }
 
@@ -79,15 +187,25 @@
             //Delete valmsgs
             $("span[data-valmsg-for]").text("");
 
+            clearValidationMessagesOnSubmit();
             editPartial();
+
+            $("#groupPendingUsersContainer").on("click", ".table tbody tr", function () {
+                $("#pending-user-id").val($(this).data("id"));
+            });
+
+            $("#acceptPendingForm").submit(function (event) {
+                event.preventDefault();
+                handleFormSubmit($(this), "pendingUserId");
+            });
         });
 
         //After loadning partial througth ajax
         $(document).ajaxSuccess(function (event, xhr, settings) {
-            if (settings.url === '@Url.Page("EditGroup", "LoadEditPartial")') {
+            if (settings.url === '@Url.Page("EditGroup", "EditPartial")') {
+                clearValidationMessagesOnSubmit();
                 editPartial();
             }
-
         });
     </script>
 }
