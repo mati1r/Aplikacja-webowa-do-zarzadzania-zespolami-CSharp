@@ -43,7 +43,7 @@
                             <div class="container">
                                 <h3>Grupy do których należysz</h3>
                                 <hr/>
-                                <div class="table-responsive mt-3" id="groupsQuitContainer">
+                                <div class="table-responsive overflow-auto mt-3" style="max-height: 400px;" id="groupsQuitContainer">
                                     <partial name="Partials/_PartialQuitGroup" model="Model.groupQuitList" />
                                 </div>
                                 <hr />
@@ -79,7 +79,7 @@
                             </div>
                             <div class="mb-4">
                                 <label>Opis grupy</label>
-                                <p class="text-white-50 mb-5 mt-2" id="group-join-description"></p>
+                                <p class="text-white-50 mb-5 mt-2 wrap-text" id="group-join-description"></p>
                                 <span asp-validation-for="joinGroupId" class="text-danger"></span>
                             </div>
                         </div>
@@ -129,7 +129,7 @@
                         </div>
                         <div class="mb-4">
                             <label>Opis grupy</label>
-                            <p class="text-white-50 mb-5 mt-2" id="quit-group-description"></p>
+                            <p class="text-white-50 wrap-text mb-5 mt-2" id="quit-group-description"></p>
                         </div>
                     </div>
                 </div>

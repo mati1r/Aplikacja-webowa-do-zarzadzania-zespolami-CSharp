@@ -171,7 +171,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             List<string> validationErrors = new List<string>();
 
-            //Need to clear ModelState to validate only the createGroup model
             if (!ModelState.IsValid)
             {
                 var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
@@ -196,8 +195,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 User_Group userGroup = new User_Group();
 
                 userGroup.users_user_id = (int)HttpContext.Session.GetInt32(Key2);
-                var groupId = _dbContext.Groups.Where(g => g.name == createGroup.name).Select(g => g.group_id).First();
-                userGroup.groups_group_id = groupId;
+                userGroup.groups_group_id = _dbContext.Groups.Where(g => g.name == createGroup.name).Select(g => g.group_id).First();
                 userGroup.status = "aktywny";
                 userGroup.role = "owner";
                 _dbContext.Users_Groups.Add(userGroup);
