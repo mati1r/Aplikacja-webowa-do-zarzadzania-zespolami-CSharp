@@ -60,6 +60,52 @@
     </div>
 </div>
 
+<!-- Menage user in group modal -->
+<div class="modal fade" id="manage-user-modal">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form method="post" id="editActiveUserForm">
+                <div class="modal-header">
+                    <h3>Zarządzaj użytkownikiem</h3>
+                </div>
+                <div class="modal-body mt-2">
+                    <div class="contain">
+                        <div class="row mb-5">
+                            <div class="col-md-6">
+                                <label class="form-label">Nazwa użytkownika</label>
+                                <hr />
+                                <p class="text-white" id="username"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">E-mail</label>
+                                <hr />
+                                <p class="text-white" id="email"></p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label" for="role">Rola w grupie</label>
+                                <select class="form-control bg-dark" id="role" asp-for="activeUserRole">
+                                    <option value="user">Użytkownik</option>
+                                    <option value="owner">Właściciel</option>
+                                </select>
+                                <span asp-validation-for="activeUserId" class="text-danger"></span>
+                            </div>
+                        <p class="text-white-50 mt-5"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zamknij</button>
+                    <button type="button" class="btn btn-danger me-2" id="removeButton">Usuń z grupy</button>
+                    <input type="hidden" asp-for="activeUserId" id="active-user-id" />
+                    <button type="button" class="btn btn-primary" id="editButton">Edytuj role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @section scripts{
     <script>
         function handleFormSubmit(form, valmsgFor) {
@@ -71,23 +117,12 @@
                 data: form.serialize(),
                 dataType: "json",
                 success: function (data) {
-                    if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
-                        let keys = Object.keys(data);
-
-                        for (let i = 0; i < keys.length; i++) {
-                            let key = keys[i];
-                            let errors = data[key];
-                            let errorSpan = $(`span[data-valmsg-for="${key}"]`);
-
-                            if (errorSpan.length > 0) {
-                                errorSpan.text(errors[0]);
-                            }
-                        }
-                    } else if (Array.isArray(data) && data.length > 0) {
+                    if (Array.isArray(data) && data.length > 0) {
                         let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
                         nameValidationError.text(data[0]);
                     } else {
                         $("#accept-pending-user-modal").modal("hide");
+                        $("#manage-user-modal").modal("hide");
                         invokeAjaxCallPendingUsers();
                         invokeAjaxCallActiveUsers();
                     }
@@ -187,20 +222,51 @@
             //Delete valmsgs
             $("span[data-valmsg-for]").text("");
 
+            $('.modal').on('shown.bs.modal', function () {
+                $("span[data-valmsg-for]").text("");
+            });
             clearValidationMessagesOnSubmit();
             editPartial();
 
+            //Change action for submit
+            $("#removeButton").click(function () {
+                $("#editActiveUserForm").attr("action", "/EditGroup?handler=RemoveUser");
+                $("#editActiveUserForm").submit();
+            });
+
+            $("#editButton").click(function () {
+                $("#editActiveUserForm").attr("action", "/EditGroup?handler=EditUserRole");
+                $("#editActiveUserForm").submit();
+            });
+
+            //On table click
             $("#groupPendingUsersContainer").on("click", ".table tbody tr", function () {
                 $("#pending-user-id").val($(this).data("id"));
             });
 
+            $("#groupActiveUsersContainer").on("click", ".table tbody tr", function () {
+                $.getJSON(`/EditGroup?handler=ActiveUserJson&id=${$(this).data('id')}`).done(function (user) {
+                    $("#active-user-id").val(user.user_id);
+                    $("#username").text(user.username);
+                    $("#email").text(user.e_mail);
+                    $("#role").val(user.role);
+                });
+            });
+
+            //Form submit handling
             $("#acceptPendingForm").submit(function (event) {
                 event.preventDefault();
                 handleFormSubmit($(this), "pendingUserId");
             });
+
+            $("#editActiveUserForm").submit(function (event) {
+                event.preventDefault();
+                handleFormSubmit($(this), "activeUserId");
+            });
         });
 
         //After loadning partial througth ajax
+
         $(document).ajaxSuccess(function (event, xhr, settings) {
             if (settings.url === '@Url.Page("EditGroup", "EditPartial")') {
                 clearValidationMessagesOnSubmit();

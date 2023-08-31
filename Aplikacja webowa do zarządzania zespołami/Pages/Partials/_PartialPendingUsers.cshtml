@@ -13,7 +13,22 @@
         @foreach (var item in Model)
         {
             <tr data-id="@item.user_id" data-bs-toggle="modal" data-bs-target="#accept-pending-user-modal">
-                <td>@item.username</td>
+                <td>
+                    @item.username
+
+                    @if (item.name != null && item.surname != null)
+                    {
+                        @($"({item.name} {item.surname})")
+                    }
+                    else if (item.name != null)
+                    {
+                        @($"({item.name})")
+                    }
+                    else if (item.surname != null)
+                    {
+                        @($"({item.surname})")
+                    }
+                </td>
                 <td>@item.e_mail</td>
             </tr>
         }

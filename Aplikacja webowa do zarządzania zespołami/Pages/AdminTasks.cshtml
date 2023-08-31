@@ -62,7 +62,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="title"></h5>
             </div>
-            <form method="post" asp-page-handler="Edit">
+            <form method="post">
                 <div class="modal-body">
                     <div class="mt-md-4 pb-5">
 
@@ -137,7 +137,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
                     <button type="button" class="btn btn-danger" id="deleteButton">Usuń</button>
                     <input type="hidden" asp-for="createOrEditTask.task_id" id="update" />
-                    <input class="btn btn-primary" id="submitButton" type="submit" value="Edytuj zadanie" />
+                    <input class="btn btn-primary" id="editButton" type="submit" value="Edytuj zadanie" />
                 </div>
             </form>
         </div>
@@ -265,8 +265,12 @@
             //Change action for submit
             $("#deleteButton").click(function () {
                 $("form").attr("action", "/AdminTasks?handler=Delete");
-                $("form").attr("asp-page-handler", "Delete");
-                    $("form").submit();
+                $("form").submit();
+            });
+
+            $("#editButton").click(function () {
+                $("form").attr("action", "/AdminTasks?handler=Edit");
+                $("form").submit();
             });
 
             $("form").on("submit", function () {

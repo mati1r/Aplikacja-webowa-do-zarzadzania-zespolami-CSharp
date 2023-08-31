@@ -1,6 +1,8 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using static Aplikacja_webowa_do_zarządzania_zespołami.Pages.JoinGroupModel;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
@@ -12,9 +14,17 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public EditGroupModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            Group group = new Group();
-            List<User> pendingUsersList = new List<User>();
-            List<User> activeUsersList = new List<User>();
+            group = new Group();
+            pendingUsersList = new List<User>();
+            activeUsersList = new List<User>();
+        }
+
+        public class ActiveUser
+        {
+            public int user_id { get; set; }
+            public string username { get; set; }
+            public string e_mail { get; set; }
+            public string role { get; set; }
         }
 
         public List<User> pendingUsersList;
@@ -34,6 +44,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         [BindProperty]
         public int activeUserId { get; set; }
+
+        [BindProperty]
+        public string activeUserRole { get; set; }
 
         private Group GetActiveGroup(int groupId)
         {
@@ -137,6 +150,58 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult("success");
         }
 
+        public IActionResult OnPostRemoveUser()
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+            List<string> validationErrors = new List<string>();
+            //Check if user didn't changed id
+            //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
+            if (!_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "aktywny"
+                                          && ug.Groups.owner_id != activeUserId && userId != activeUserId && ug.users_user_id == activeUserId)))
+            {
+                validationErrors.Add("Wybrany użytkownik nie może być usuniety z grupy");
+                return new JsonResult(validationErrors);
+            }
+
+
+            User_Group removeUserGroup = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == activeUserId).First();
+            _dbContext.Remove(removeUserGroup);
+            _dbContext.SaveChanges();
+
+            return new JsonResult("success");
+        }
+
+        public IActionResult OnPostEditUserRole()
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+            List<string> validationErrors = new List<string>();
+            //Check if user didn't changed id
+            //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
+            if (!_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "aktywny"
+                                          && ug.Groups.owner_id != activeUserId && userId != activeUserId && ug.users_user_id == activeUserId)))
+            {
+                validationErrors.Add("Wybrany użytkownik nie podlega zmianą");
+                return new JsonResult(validationErrors);
+            }
+
+            if(activeUserRole != "owner" && activeUserRole != "user")
+            {
+                validationErrors.Add("Nie istnieje rola którą próbujesz przypisać użytkownikowi");
+                return new JsonResult(validationErrors);
+            }
+
+            Console.WriteLine("ROLA = " + activeUserRole);
+
+            User_Group editRoleUserGroup = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == activeUserId).First();
+            editRoleUserGroup.role = activeUserRole;
+            _dbContext.Update(editRoleUserGroup);
+            _dbContext.SaveChanges();
+
+            return new JsonResult("success");
+        }
+
         //Partial methods
         public PartialViewResult OnGetEditPartial()
         {
@@ -188,5 +253,40 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Async methods
+        public async Task<ActiveUser> GetActiveUserAsync(int id)
+        {
+            userId = HttpContext.Session.GetInt32(Key2);
+            groupId = HttpContext.Session.GetInt32(Key3);
+
+            //Check if user didn't changed id
+            //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
+            if (_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "aktywny"
+                                          && ug.Groups.owner_id != id && userId != id && ug.users_user_id == id)))
+            {
+                return await _dbContext.Users.Where(u => u.user_id == id)
+                    .SelectMany(u => u.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == id), (u, ug) => new ActiveUser
+                {
+                    user_id = u.user_id,
+                    username = u.username,
+                    e_mail = u.e_mail,
+                    role = ug.role
+                }).FirstAsync();
+            }
+            else
+            {
+                ActiveUser emptyUser = new ActiveUser();
+                emptyUser.user_id = 0;
+                emptyUser.username = "Błąd";
+                emptyUser.e_mail = "Błąd";
+                emptyUser.role = "user";
+
+                return emptyUser;
+            }
+        }
+
+        public async Task<JsonResult> OnGetActiveUserJsonAsync(int id)
+        {
+            return new JsonResult(await GetActiveUserAsync(id));
+        }
     }
 }

@@ -22,6 +22,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public string data;
         public int? userId;
         public int? groupId;
+        public string activeGroup;
 
         [BindProperty(SupportsGet = true)]
         public int changeGroupId { get; set; }
@@ -34,10 +35,17 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
             groupId = HttpContext.Session.GetInt32(Key3);
 
-            groupList = _dbContext.Groups
-                .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId && ug.status == "aktywny"))
-                .ToList();
-
+            try
+            {
+                groupList = _dbContext.Groups
+                    .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId && ug.status == "aktywny"))
+                    .ToList();
+                activeGroup = _dbContext.Groups.Where(g => g.group_id == groupId).Select(g => g.name).First();
+            }
+            catch
+            {
+                Page();
+            }
         }
 
 
