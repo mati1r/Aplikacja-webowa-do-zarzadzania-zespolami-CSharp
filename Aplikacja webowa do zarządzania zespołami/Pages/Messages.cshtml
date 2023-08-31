@@ -34,7 +34,7 @@
 </div>
 
 <!--Modal-->
-<div class="modal fade" id="succesModal">
+<div class="modal fade" id="succes-modal">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-body mt-2">
@@ -233,7 +233,7 @@
                                 nameValidationError.text(data[0]);
                             }
                             else {
-                                $("#succesModal").modal("show");
+                                $("#succes-modal").modal("show");
                                 //After succesful creation of message clear errors and data
                                 $("span[data-valmsg-for]").text("");
                                 $("#message-topic").val("");
