@@ -29,19 +29,17 @@
                                             <th scope="col">Data wykonania</th>
                                             <th scope="col">Status</th>
                                             <th scope="col">Stopień ważności</th>
-                                            <th scope="col" data-orderable="false"></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach (var item in Model.tasksList)
                                         {
-                                            <tr>
+                                            <tr data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#edit-modal">
                                                 <td>@item.task_name</td>
                                                 <td>@item.start_date</td>
                                                 <td>@item.end_date</td>
                                                 <td>@item.status</td>
                                                 <td class="priority-table">@item.priority</td>
-                                                <td><button class="btn btn-sm btn-dark edit" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#edit-modal">Details</button></td>
                                             </tr>
                                         }
                                     </tbody>
@@ -367,7 +365,7 @@
             });
 
         //Modal text and coloring for priority
-            $("button.edit").on("click", function () {
+            $(".dataTable tbody tr").click(function () {
                 $.getJSON(`/OwnerTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
                     $("#title").text(task.task_name);
                     $("#task-name").val(task.task_name);
