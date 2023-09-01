@@ -15,7 +15,7 @@ builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddMvc().AddRazorPagesOptions(option =>
 {
-    option.Conventions.AddPageRoute("/AdminTasks", "/Zarzadzanie zadaniami");
+    option.Conventions.AddPageRoute("/OwnerTasks", "/Zarzadzanie zadaniami");
     option.Conventions.AddPageRoute("/UserTasks", "/Zadania");
     option.Conventions.AddPageRoute("/Groups", "/Aktywna grupa");
     option.Conventions.AddPageRoute("/JoinGroup", "/Grupy");

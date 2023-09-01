@@ -8,11 +8,11 @@ using System.Text.RegularExpressions;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
-    public class AdminTasksModel : PageModel
+    public class OwnerTasksModel : PageModel
     {
         private readonly DatabaseContext _dbContext;
 
-        public AdminTasksModel(DatabaseContext dbContext)
+        public OwnerTasksModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
             tasksList = new List<Models.Task>();
