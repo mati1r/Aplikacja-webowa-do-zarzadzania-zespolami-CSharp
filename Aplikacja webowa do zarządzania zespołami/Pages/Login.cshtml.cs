@@ -1,5 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
-using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
+using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

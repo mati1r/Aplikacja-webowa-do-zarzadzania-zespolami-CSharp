@@ -1,10 +1,9 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
-using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
+using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using static Aplikacja_webowa_do_zarządzania_zespołami.Pages.JoinGroupModel;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
@@ -18,14 +17,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             group = new Group();
             pendingUsersList = new List<User>();
             activeUsersList = new List<User>();
-        }
-
-        public class ActiveUser
-        {
-            public int user_id { get; set; }
-            public string username { get; set; }
-            public string e_mail { get; set; }
-            public string role { get; set; }
         }
 
         public List<User> pendingUsersList;
@@ -253,7 +244,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Async methods
-        public async Task<ActiveUser> GetActiveUserAsync(int id)
+        public async Task<ActiveUserDTO> GetActiveUserAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
@@ -264,7 +255,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                                           && ug.Groups.owner_id != id && userId != id && ug.users_user_id == id)))
             {
                 return await _dbContext.Users.Where(u => u.user_id == id)
-                    .SelectMany(u => u.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == id), (u, ug) => new ActiveUser
+                    .SelectMany(u => u.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == id), (u, ug) => new ActiveUserDTO
                 {
                     user_id = u.user_id,
                     username = u.username,
@@ -274,7 +265,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
             else
             {
-                ActiveUser emptyUser = new ActiveUser();
+                ActiveUserDTO emptyUser = new ActiveUserDTO();
                 emptyUser.user_id = 0;
                 emptyUser.username = "Błąd";
                 emptyUser.e_mail = "Błąd";

@@ -1,4 +1,4 @@
-﻿namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars
+﻿namespace Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars
 {
     public static class ConstVariables
     {
