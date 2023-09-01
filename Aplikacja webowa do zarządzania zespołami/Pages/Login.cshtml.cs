@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
-using static Aplikacja_webowa_do_zarządzania_zespołami.Pages.LoginModel;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
