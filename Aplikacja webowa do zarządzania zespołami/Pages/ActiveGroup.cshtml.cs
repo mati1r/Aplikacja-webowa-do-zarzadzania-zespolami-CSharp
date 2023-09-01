@@ -55,10 +55,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             //Check if someone doesn't replaced id with some other id that is not in groupList
-            if (_dbContext.Users_Groups.Where(ugl => ugl.users_user_id == userId && ugl.status == "active").Count(ugl => ugl.groups_group_id == changeGroupId) > 0)
+            if (_dbContext.Users_Groups.Where(ugl => ugl.users_user_id == userId && ugl.status == "active").Any(ugl => ugl.groups_group_id == changeGroupId))
             {
                 //Check if user is an owner
-                if(_dbContext.Users_Groups.Count(ugl => ugl.users_user_id == userId && ugl.groups_group_id == changeGroupId && ugl.role == "owner") > 0)
+                if(_dbContext.Users_Groups.Any(ugl => ugl.users_user_id == userId && ugl.groups_group_id == changeGroupId && ugl.role == "owner"))
                 {
                     HttpContext.Session.SetString(ConstVariables.GetKeyValue(1), "Owner");
                 }
