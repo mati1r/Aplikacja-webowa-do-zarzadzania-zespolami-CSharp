@@ -15,40 +15,21 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public JoinGroupModel(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
-            groupJoinList = new List<GroupJoinDTO>();
-            groupQuitList = new List<GroupQuitDTO>();
+            groupJoinList = new List<GroupJoinPartial>();
+            groupQuitList = new List<GroupQuitPartial>();
         }
 
-        public class GroupJoinDTO
-        {
-            public int group_id { get; set; }
-            public string name { get; set; }
-            public string description { get; set; }
-            public string owner_name { get; set; }
-        }
-
-        public class GroupQuitDTO
-        {
-            public int group_id { get; set; }
-            public string name { get; set; }
-            public string description { get; set; }
-            public string owner_name { get; set; }
-            public string role { get; set; }
-
-            public string status { get; set; }
-        }
-
-        public List<GroupJoinDTO> groupJoinList;
-        public List<GroupQuitDTO> groupQuitList;
+        public List<GroupJoinPartial> groupJoinList;
+        public List<GroupQuitPartial> groupQuitList;
         public string data;
         public int? userId;
         public string username;
 
         [BindProperty]
-        public int joinGroupId { get; set; }
+        public int groupJoinId { get; set; }
 
         [BindProperty]
-        public int quitGroupId { get; set; }
+        public int groupQuitId { get; set; }
 
         [BindProperty]
         public Models.Group createGroup { get; set; }
@@ -56,27 +37,27 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
 
         //private return Lists methods
-        private List<GroupJoinDTO> GetGroupsToJoin(int userId)
+        private List<GroupJoinPartial> GetGroupsToJoin(int userId)
         {
             return _dbContext.Groups
                 .Where(g => !g.Users_Groups.Any(ug => ug.users_user_id == userId))
-                .Select(g => new GroupJoinDTO
+                .Select(g => new GroupJoinPartial
                 {
                     group_id = g.group_id,
                     name = g.name,
                     description = g.description,
                     owner_name = g.Users.username
                 })
-                .GroupBy(dto => dto.group_id)
+                .GroupBy(gb => gb.group_id)
                 .Select(group => group.First())
                 .ToList();
         }
 
-        private List<GroupQuitDTO> GetGroupsToQuit(int userId)
+        private List<GroupQuitPartial> GetGroupsToQuit(int userId)
         {
             return _dbContext.Groups
                 .Where(g => g.owner_id != userId)
-                .SelectMany(g => g.Users_Groups.Where(ug => ug.users_user_id == userId && ug.groups_group_id == g.group_id), (g, ug) => new GroupQuitDTO
+                .SelectMany(g => g.Users_Groups.Where(ug => ug.users_user_id == userId && ug.groups_group_id == g.group_id), (g, ug) => new GroupQuitPartial
                 {
                     group_id = g.group_id,
                     name = g.name,
@@ -85,7 +66,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     role = ug.role,
                     status = ug.status            
                 })
-                .GroupBy(dto => dto.group_id)
+                .GroupBy(gb => gb.group_id)
                 .Select(group => group.First())
                 .ToList();
         }
@@ -113,7 +94,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             List<string> validationErrors = new List<string>();
 
-            if(_dbContext.Users_Groups.Any(ug => ug.users_user_id == userId && ug.groups_group_id == joinGroupId))
+            if(_dbContext.Users_Groups.Any(ug => ug.users_user_id == userId && ug.groups_group_id == groupJoinId))
             {
                 validationErrors.Add("Użytkownik znajduje się już w tej grupie");
                 return new JsonResult(validationErrors);
@@ -122,7 +103,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             try
             {
                 User_Group userGroup = new User_Group();
-                userGroup.groups_group_id = joinGroupId;
+                userGroup.groups_group_id = groupJoinId;
                 userGroup.users_user_id = (int)userId;
                 userGroup.role = "user";
                 userGroup.status = "pending";
@@ -145,20 +126,20 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if user is part of a group
-            if( !_dbContext.Users_Groups.Any(ug => ug.groups_group_id == quitGroupId && ug.users_user_id == userId))
+            if( !_dbContext.Users_Groups.Any(ug => ug.groups_group_id == groupQuitId && ug.users_user_id == userId))
             {
                 validationErrors.Add("Użytkownik nie znajduje sie w tej grupie");
                 return new JsonResult(validationErrors);
             }
 
             //Check if user is not a creator
-            if(_dbContext.Groups.Any(g => g.group_id == quitGroupId && g.owner_id  == userId))
+            if(_dbContext.Groups.Any(g => g.group_id == groupQuitId && g.owner_id  == userId))
             {
                 validationErrors.Add("Twórca grupy nie może z niej wyjść");
                 return new JsonResult(validationErrors);
             }
 
-            User_Group userGroup = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == quitGroupId && ug.users_user_id == userId).First();
+            User_Group userGroup = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupQuitId && ug.users_user_id == userId).First();
             _dbContext.Remove(userGroup);
             _dbContext.SaveChanges();       
 
@@ -210,7 +191,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Partial methods
-        public PartialViewResult OnGetJoinGroupsPartial()
+        public PartialViewResult OnGetGroupsJoinPartial()
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
@@ -223,10 +204,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 Page();
             }
 
-            return Partial("Partials/_PartialJoinGroup", groupJoinList);
+            return Partial("Partials/_PartialGroupsJoin", groupJoinList);
         }
 
-        public PartialViewResult OnGetQuitGroupsPartial()
+        public PartialViewResult OnGetGroupsQuitPartial()
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
@@ -239,18 +220,18 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 Page();
             }
 
-            return Partial("Partials/_PartialQuitGroup", groupQuitList);
+            return Partial("Partials/_PartialGroupsQuit", groupQuitList);
         }
 
         //Async Methods
 
         //Join group method
-        public async Task<JsonResult> OnGetJoinGroupJsonAsync(int id)
+        public async Task<JsonResult> OnGetGroupJoinJsonAsync(int id)
         {
-            return new JsonResult(await GetJoinGroupAsync(id));
+            return new JsonResult(await GetGroupJoinAsync(id));
         }
 
-        private async Task<GroupJoinDTO> GetJoinGroupAsync(int id)
+        private async Task<GroupJoinPartial> GetGroupJoinAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
@@ -262,7 +243,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             {
                 return await _dbContext.Groups
                     .Where(g => g.group_id == id)
-                    .Select(g => new GroupJoinDTO
+                    .Select(g => new GroupJoinPartial
                     {
                         group_id = g.group_id,
                         name = g.name,
@@ -271,7 +252,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     }).FirstAsync();
 
             }
-            GroupJoinDTO emptyGroup = new GroupJoinDTO();
+            GroupJoinPartial emptyGroup = new GroupJoinPartial();
             emptyGroup.group_id = 0;
             emptyGroup.name = "Błąd";
             emptyGroup.owner_name = "Błąd";
@@ -287,12 +268,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Quit group method
-        public async Task<JsonResult> OnGetQuitGroupJsonAsync(int id)
+        public async Task<JsonResult> OnGetGroupQuitJsonAsync(int id)
         {
-            return new JsonResult(await GetQuitGroupAsync(id));
+            return new JsonResult(await GetGroupQuitAsync(id));
         }
 
-        private async Task<GroupQuitDTO> GetQuitGroupAsync(int id)
+        private async Task<GroupQuitPartial> GetGroupQuitAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
@@ -305,7 +286,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             {
                 return await _dbContext.Groups
                     .Where(g => g.group_id == id)
-                    .SelectMany(g => g.Users_Groups.Where(ug => ug.users_user_id == userId && ug.groups_group_id == g.group_id), (g, ug) => new GroupQuitDTO
+                    .SelectMany(g => g.Users_Groups.Where(ug => ug.users_user_id == userId && ug.groups_group_id == g.group_id), (g, ug) => new GroupQuitPartial
                     {
                         group_id = g.group_id,
                         name = g.name,
@@ -316,7 +297,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     }).FirstAsync();
 
             }
-            GroupQuitDTO emptyGroup = new GroupQuitDTO();
+            GroupQuitPartial emptyGroup = new GroupQuitPartial();
             emptyGroup.group_id = id;
             emptyGroup.name = "Błąd";
             emptyGroup.owner_name = "Błąd";
