@@ -21,7 +21,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty]
         public string email { get; set; }
 
-        public string PasswordGenerator(int howLong)
+        private string PasswordGenerator(int howLong)
         {
             //Using string builder cause it is much faster that appending to string
             const string characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
