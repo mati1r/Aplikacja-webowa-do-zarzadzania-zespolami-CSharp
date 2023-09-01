@@ -59,7 +59,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 if (error == "")
                 {
                     //Check if credentials are correct for any avaiable user
-                    if (usersList.Count(ul => ul.e_mail == userEmail && Hash.VerifyPassword(password, ul.password, ul.salt)) > 0)
+                    if (usersList.Any(ul => ul.e_mail == userEmail && Hash.VerifyPassword(password, ul.password, ul.salt)))
                     {
                         //Get the Id and name of user that is trying to login
                         var userData = usersList
@@ -74,7 +74,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         var ownerList = usersGroupsList.Where(ugl => ugl.role == "owner").Select(ugl => ugl.users_user_id).ToList();
 
                         //Check if user that is trying to login is a owner of any group if so then log him to one of his groups
-                        if (ownerList.Count(ol => ol == userData.userId) > 0)
+                        if (ownerList.Any(ol => ol == userData.userId))
                         {
                             var ownerGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userData.userId && ugl.role == "owner")
                                                                .Select(ugl => ugl.users_user_id).First();
@@ -86,7 +86,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         else
                         {
                             //Check if user is a part of any group and if he have an active member status
-                            if (usersGroupsList.Count(ugl => ugl.users_user_id == userData.userId && ugl.status == "active") > 0)
+                            if (usersGroupsList.Any(ugl => ugl.users_user_id == userData.userId && ugl.status == "active"))
                             {
                                 //Find a group fo a user
                                 var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userData.userId && ugl.status == "active" && ugl.role == "user")

@@ -60,7 +60,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if message exists, if its in the group and is a notice
-            if (_dbContext.Messages.Count(m => m.message_id == notice.message_id && m.groups_group_id == groupId && m.notice == true) == 0)
+            if (!_dbContext.Messages.Any(m => m.message_id == notice.message_id && m.groups_group_id == groupId && m.notice == true))
             {
                 validationErrors.Add("Podane ogłoszenie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
@@ -112,7 +112,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if message exists, if its in the group and is a notice
-            if (_dbContext.Messages.Count(m => m.message_id == notice.message_id && m.groups_group_id == groupId && m.notice == true) == 0)
+            if (!_dbContext.Messages.Any(m => m.message_id == notice.message_id && m.groups_group_id == groupId && m.notice == true))
             {
                 validationErrors.Add("Podane ogłoszenie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
@@ -167,7 +167,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             //Check if user didn't changed id to an id out of his scope or to an message insted of notice
-            if (_dbContext.Messages.Count(m => m.message_id == id && m.groups_group_id == groupId && m.notice == true) > 0)
+            if (_dbContext.Messages.Any(m => m.message_id == id && m.groups_group_id == groupId && m.notice == true))
             {
                 return await _dbContext.Messages
                 .Include(m => m.Users)

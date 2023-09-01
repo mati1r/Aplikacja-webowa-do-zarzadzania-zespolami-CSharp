@@ -56,8 +56,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         private Message GetRecivedMessageContent(int messageId, int userId, int groupId)
         {
             //Get message and validate if user didn't changed id to some out of his scope or active group
-            if (_dbContext.Messages.Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId)
-                                        && m.groups_group_id == groupId && m.notice == false && m.message_id == messageId).Count() > 0)
+            if (_dbContext.Messages.Any(m => m.Messages_Users.Any(mu => mu.users_user_id == userId)
+                                        && m.groups_group_id == groupId && m.notice == false && m.message_id == messageId))
             {
                 return _dbContext.Messages.Where(m => m.message_id == messageId).First();
             }
@@ -90,8 +90,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         private List<SendedMessagePartial> GetSendedMessageContent(int messageId, int userId, int groupId)
         {
             List<SendedMessagePartial> messagesList = new List<SendedMessagePartial>();
-            if (_dbContext.Messages.Where(m => m.sender_id == userId && m.groups_group_id == groupId
-                                         && m.notice == false && m.message_id == messageId).Count() > 0)
+            if (_dbContext.Messages.Any(m => m.sender_id == userId && m.groups_group_id == groupId
+                                         && m.notice == false && m.message_id == messageId))
             {
                 messagesList = _dbContext.Messages
                     .Where(m => m.message_id == messageId)
