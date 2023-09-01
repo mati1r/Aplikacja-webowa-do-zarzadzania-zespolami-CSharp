@@ -94,6 +94,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             List<string> validationErrors = new List<string>();
 
+            //Check if group exists
+            if(!_dbContext.Users_Groups.Any(ug => ug.groups_group_id == groupJoinId))
+            {
+                validationErrors.Add("Podana grupa nie istnieje");
+                return new JsonResult(validationErrors);
+            }
+
             if(_dbContext.Users_Groups.Any(ug => ug.users_user_id == userId && ug.groups_group_id == groupJoinId))
             {
                 validationErrors.Add("Użytkownik znajduje się już w tej grupie");
@@ -159,7 +166,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(modelStateValidationErrors);
             }
 
-            if(_dbContext.Groups.Count(g => g.name == createGroup.name) > 0)
+            if(_dbContext.Groups.Any(g => g.name == createGroup.name))
             {
                 validationErrors.Add("Jest już grupa o tej nazwie");
                 return new JsonResult(validationErrors);
@@ -239,7 +246,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             bool exists = _dbContext.Users_Groups.Any(ug => ug.groups_group_id == id);
 
             //Check if user didn't changed id to id of a group which he is already a part of (even the one that he is a part on didn' accepted him yet)
-            if (_dbContext.Users_Groups.Count(ug => ug.users_user_id != userId && ug.groups_group_id != id) > 0 && exists)
+            if (_dbContext.Users_Groups.Any(ug => ug.users_user_id != userId && ug.groups_group_id != id) && exists)
             {
                 return await _dbContext.Groups
                     .Where(g => g.group_id == id)
@@ -282,7 +289,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             bool isOwner = _dbContext.Groups.Any(g => g.owner_id == userId && g.group_id == id);
 
             //Check if user didn't changed id to id of a group which he isn't part of or he created the group and is current main owner
-            if (_dbContext.Users_Groups.Count(ug => ug.users_user_id == userId && ug.groups_group_id == id) > 0 && exists && !isOwner)
+            if (_dbContext.Users_Groups.Any(ug => ug.users_user_id == userId && ug.groups_group_id == id) && exists && !isOwner)
             {
                 return await _dbContext.Groups
                     .Where(g => g.group_id == id)

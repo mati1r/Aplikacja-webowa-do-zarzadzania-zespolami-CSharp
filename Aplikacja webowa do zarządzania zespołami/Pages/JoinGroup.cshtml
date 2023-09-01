@@ -149,12 +149,12 @@
             <form method="post" id="quitForm" asp-page-handler="Quit">
                 <div class="modal-body">
                     <div class="container">
-                        <span asp-validation-for="groupQuitId" class="text-danger"></span>
                         <div class="mb-3 mt-3">
                             <h4>Czy na pewno chcesz opuścić grupe?</h4>
                         </div>
                     </div>
                     <hr/>
+                        <span asp-validation-for="groupQuitId" class="text-danger text-start ms-3"></span>
                     <div class="text-end mb-3">
                         <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
                         <input type="hidden" asp-for="groupQuitId" id="group-quit-id" />
@@ -297,6 +297,10 @@
                 $("#confirm-quit-modal").modal("show");
             });
 
+            //Clear valmgs on modal open
+            $('.modal').on('shown.bs.modal', function () {
+                $("span[data-valmsg-for]").text("");
+            });
 
             //DataTable
             initializeDataTable();

@@ -222,9 +222,11 @@
             //Delete valmsgs
             $("span[data-valmsg-for]").text("");
 
+            //Clear valmgs on modal open
             $('.modal').on('shown.bs.modal', function () {
                 $("span[data-valmsg-for]").text("");
             });
+
             clearValidationMessagesOnSubmit();
             editPartial();
 
