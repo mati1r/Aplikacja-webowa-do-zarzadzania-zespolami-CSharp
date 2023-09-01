@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -21,9 +22,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public List<Models.Task> tasksList;
         public List<Models.User> userList;
         private string error ="";
-        private const string Key = "_userType";
-        private const string Key2 = "_userId";
-        private const string Key3 = "_groupId";
         public string data;
         public int? userId;
         public int? groupId;
@@ -80,9 +78,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //OnGet and OnPost methods
         public void OnGet()
         {
-            data = HttpContext.Session.GetString(Key);
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId).ToList();
 
             //Find all users that are active and belong to that group beside owners
@@ -94,7 +92,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostDelete()
         {
-            groupId = HttpContext.Session.GetInt32(Key3);
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Check if task exists in group
             if (_dbContext.Tasks.Count(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId) == 0)
@@ -112,8 +110,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             //Reset the value of the error and get session values
             error = "";
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
 
             if (!ModelState.IsValid)
@@ -169,8 +167,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             //Reset the value of the error and get session values
             error = "";
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
 
             //Check if task exists in group
@@ -234,7 +232,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Async methods
         public async Task<Models.Task> GetTaskAsync(int id)
         {
-            groupId = HttpContext.Session.GetInt32(Key3);
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             //Check if requested task is in the same group as owner that is loged in
             if (_dbContext.Tasks.Count(t => t.task_id == id && t.groups_group_id == groupId) > 0)

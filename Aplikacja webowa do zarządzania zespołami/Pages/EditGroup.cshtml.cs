@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -29,9 +30,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public List<User> pendingUsersList;
         public List<User> activeUsersList;
-        public const string Key = "_userType";
-        public const string Key2 = "_userId";
-        public const string Key3 = "_groupId";
         public string data;
         public int? userId;
         public int? groupId;
@@ -67,9 +65,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //On get and post methods
         public void OnGet()
         {
-            data = HttpContext.Session.GetString(Key);
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
             {
@@ -85,7 +83,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostEdit()
         {
-            groupId = HttpContext.Session.GetInt32(Key3);
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
 
             //Need to clear ModelState to validate only the userPersonalData model
@@ -123,7 +121,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostAcceptPendingUser()
         {
-            groupId = HttpContext.Session.GetInt32(Key3);
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Check if user is in that group and his status is pending
             if (!_dbContext.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id == pendingUserId && ug.status == "pending"))
@@ -152,8 +150,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostRemoveUser()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
@@ -174,8 +172,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostEditUserRole()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
@@ -205,7 +203,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Partial methods
         public PartialViewResult OnGetEditPartial()
         {
-            groupId = HttpContext.Session.GetInt32(Key3);
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
             {
@@ -221,7 +219,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public PartialViewResult OnGetPendingUsersPartial()
         {
-            groupId = HttpContext.Session.GetInt32(Key3);
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
             {
@@ -237,8 +235,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public PartialViewResult OnGetActiveUsersPartial()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
             {
@@ -255,8 +253,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Async methods
         public async Task<ActiveUser> GetActiveUserAsync(int id)
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator

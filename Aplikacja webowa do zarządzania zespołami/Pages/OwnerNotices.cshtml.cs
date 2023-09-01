@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
@@ -17,9 +18,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         public List<NoticePartial> noticesList;
-        public const string Key = "_userType";
-        public const string Key2 = "_userId";
-        public const string Key3 = "_groupId";
         public string data;
         public int? userId;
         public int? groupId;
@@ -47,16 +45,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //OnGet and OnPost methods
         public void OnGet()
         {
-            data = HttpContext.Session.GetString(Key);
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             noticesList = GetNotice(groupId);
         }
 
         public IActionResult OnPostDelete()
         {
-            groupId = HttpContext.Session.GetInt32(Key3);
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
 
             //Check if message exists, if its in the group and is a notice
@@ -74,8 +72,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public IActionResult OnPostAdd()
         {
             string error = "";
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
 
             if (!ModelState.IsValid)
@@ -107,8 +105,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public IActionResult OnPostEdit()
         {
             string error = "";
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
 
             //Check if message exists, if its in the group and is a notice
@@ -147,8 +145,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Partial methods
         public PartialViewResult OnGetLoadNotices()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
             {
@@ -165,7 +163,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Async methods
         public async Task<NoticePartial> GetNoticeAsync(int id)
         {
-            groupId = HttpContext.Session.GetInt32(Key3);
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             //Check if user didn't changed id to an id out of his scope or to an message insted of notice
             if (_dbContext.Messages.Count(m => m.message_id == id && m.groups_group_id == groupId && m.notice == true) > 0)
             {

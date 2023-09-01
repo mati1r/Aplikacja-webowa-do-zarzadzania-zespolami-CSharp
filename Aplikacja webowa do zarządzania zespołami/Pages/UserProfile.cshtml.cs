@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
@@ -18,9 +19,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userAccountData = new UserAccountDataPartial();
         }
 
-        public const string Key = "_userType";
-        public const string Key2 = "_userId";
-        public const string Key3 = "_groupId";
         public string data;
         public int? userId;
         public int? groupId;
@@ -45,8 +43,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //OnGet and OnPost methods
         public void OnGet()
         {
-            data = HttpContext.Session.GetString(Key);
-            userId = HttpContext.Session.GetInt32(Key2);
+            data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             try
             {
@@ -61,7 +59,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public IActionResult OnPostPersonalDataEdit()
         {
             string error = "";
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             List<string> validationErrors = new List<string>();
 
@@ -104,7 +102,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public IActionResult OnPostAccountDataEdit()
         {
             string error = "";
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             List<string> validationErrors = new List<string>();
 
@@ -148,7 +146,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Partial methods
         public PartialViewResult OnGetPersonalDataPartial()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             try
             {

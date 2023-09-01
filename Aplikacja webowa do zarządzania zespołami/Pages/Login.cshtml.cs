@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -27,19 +28,17 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             public string password { get; set; }
         }
         public string error;
-        public const string Key = "_userType";
-        public const string Key2 = "_userId";
-        public const string Key3 = "_groupId";
 
 
         [BindProperty]
         public UserDTO userCredentials { get; set; }
 
-        private void SetSessionData(string userType, int userId, int groupId)
+        private void SetSessionData(string userType, int userId, int groupId , string userName)
         {
-            HttpContext.Session.SetString(Key, userType);
-            HttpContext.Session.SetInt32(Key2, userId);
-            HttpContext.Session.SetInt32(Key3, groupId);
+            HttpContext.Session.SetString(ConstVariables.GetKeyValue(1), userType);
+            HttpContext.Session.SetInt32(ConstVariables.GetKeyValue(2), userId);
+            HttpContext.Session.SetInt32(ConstVariables.GetKeyValue(3), groupId);
+            HttpContext.Session.SetString(ConstVariables.GetKeyValue(4), userName);
         }
 
         //OnGet and OnPost methods
@@ -70,39 +69,43 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                     //Check if credentials are correct for any avaiable user
                     if (usersList.Count(ul => ul.e_mail == userEmail && Hash.VerifyPassword(password, ul.password, ul.salt)) > 0)
                     {
-                        //Get the Id of user that is trying to login
-                        int userId = usersList
+                        //Get the Id and name of user that is trying to login
+                        var userData = usersList
                             .Where(ul => ul.e_mail == userEmail && Hash.VerifyPassword(password, ul.password, ul.salt))
-                            .Select(u => u.user_id)
+                            .Select(u => new
+                            {
+                                userId = u.user_id,
+                                username = u.username
+                            })
                             .First();
 
                         var ownerList = usersGroupsList.Where(ugl => ugl.role == "owner").Select(ugl => ugl.users_user_id).ToList();
 
                         //Check if user that is trying to login is a owner of any group if so then log him to one of his groups
-                        if (ownerList.Count(ol => ol == userId) > 0)
+                        if (ownerList.Count(ol => ol == userData.userId) > 0)
                         {
-                            var ownerGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userId && ugl.role == "owner")
+                            var ownerGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userData.userId && ugl.role == "owner")
                                                                .Select(ugl => ugl.users_user_id).First();
                             //Set session propertise
-                            SetSessionData("Owner", userId, ownerGroupId);
+                            SetSessionData("Owner", userData.userId, ownerGroupId, userData.username);
                             Response.Redirect("/Zarzadzanie zadaniami");
                         }
                         //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
                         else
                         {
                             //Check if user is a part of any group and if he have an active member status
-                            if (usersGroupsList.Count(ugl => ugl.users_user_id == userId && ugl.status == "active") > 0)
+                            if (usersGroupsList.Count(ugl => ugl.users_user_id == userData.userId && ugl.status == "active") > 0)
                             {
                                 //Find a group fo a user
-                                var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userId && ugl.status == "active" && ugl.role == "user")
+                                var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userData.userId && ugl.status == "active" && ugl.role == "user")
                                                                   .Select(ug => ug.groups_group_id).First();
                                 //Set session propertise
-                                SetSessionData("User", userId, userGroupId);
+                                SetSessionData("User", userData.userId, userGroupId, userData.username);
                             }
                             //If user is not part of any group or he is not active in any set session group to 0
                             else
                             {
-                                SetSessionData("User", userId, 0);
+                                SetSessionData("User", userData.userId, 0, userData.username);
                             }
                             Response.Redirect("/Zadania");
                         }

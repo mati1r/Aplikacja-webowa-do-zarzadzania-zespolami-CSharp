@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -39,8 +40,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public List<GroupJoinDTO> groupJoinList;
         public List<GroupQuitDTO> groupQuitList;
-        public const string Key = "_userType";
-        public const string Key2 = "_userId";
         public string data;
         public int? userId;
 
@@ -93,8 +92,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //On get and post methods
         public void OnGet()
         {
-            data = HttpContext.Session.GetString(Key);
-            userId = HttpContext.Session.GetInt32(Key2);
+            data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             try
             {
@@ -109,7 +108,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostJoin()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             List<string> validationErrors = new List<string>();
 
             if(_dbContext.Users_Groups.Any(ug => ug.users_user_id == userId && ug.groups_group_id == joinGroupId))
@@ -140,7 +139,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public IActionResult OnPostQuit()
         {
             //Sprawdzić czy istnieje grupa z której użytkownik chce wyjść oraz czy jest on jej członkiem
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             List<string> validationErrors = new List<string>();
 
             //Check if user is part of a group
@@ -166,7 +165,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostCreate()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             List<string> validationErrors = new List<string>();
 
             if (!ModelState.IsValid)
@@ -192,7 +191,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
                 User_Group userGroup = new User_Group();
 
-                userGroup.users_user_id = (int)HttpContext.Session.GetInt32(Key2);
+                userGroup.users_user_id = (int)HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
                 userGroup.groups_group_id = _dbContext.Groups.Where(g => g.name == createGroup.name).Select(g => g.group_id).First();
                 userGroup.status = "active";
                 userGroup.role = "owner";
@@ -211,7 +210,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Partial methods
         public PartialViewResult OnGetJoinGroupsPartial()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             try
             {
@@ -227,7 +226,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public PartialViewResult OnGetQuitGroupsPartial()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             try
             {
@@ -251,7 +250,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         private async Task<GroupJoinDTO> GetJoinGroupAsync(int id)
         {
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             //Check if group exists
             bool exists = _dbContext.Users_Groups.Any(ug => ug.groups_group_id == id);
@@ -293,7 +292,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         private async Task<GroupQuitDTO> GetQuitGroupAsync(int id)
         {
-            userId = HttpContext.Session.GetInt32(Key2);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             //Check if group exists
             bool exists = _dbContext.Users_Groups.Any(ug => ug.groups_group_id == id);

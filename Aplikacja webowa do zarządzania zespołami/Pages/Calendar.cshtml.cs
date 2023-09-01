@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -17,9 +18,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         public List<Models.Task> tasksList;
-        private const string Key = "_userType";
-        private const string Key2 = "_userId";
-        private const string Key3 = "_groupId";
         public string data;
         public int? userId;
         public int? groupId;
@@ -27,14 +25,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //OnGet and OnPost methods
         public void OnGet()
         {
-            data = HttpContext.Session.GetString(Key);
+            data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
         }
 
         //Async methods
         public async Task<JsonResult> OnGetEventsAsync()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             var events = await _dbContext.Tasks
                 .Where(t => t.groups_group_id == groupId && t.users_user_id == userId)

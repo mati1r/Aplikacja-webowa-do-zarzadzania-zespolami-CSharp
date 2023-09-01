@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
@@ -25,9 +26,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public List<ReciveMessagePartial> reciveMessagesList;
         public List<SendedMessagePartial> sendedMessagesList;
         public Message message;
-        public const string Key = "_userType";
-        public const string Key2 = "_userId";
-        public const string Key3 = "_groupId";
         public string data;
         public int? userId;
         public int? groupId;
@@ -145,9 +143,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //OnGet and OnPost methods
         public void OnGet()
         {
-            data = HttpContext.Session.GetString(Key);
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             //Check if user didn't deleted session (it causes function to throw exeptions (even tho it should be able to accept null as userId and groupId))
             try
@@ -162,9 +160,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostCreate()
         {
-            data = HttpContext.Session.GetString(Key);
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             List<string> validationErrors = new List<string>();
             if (!ModelState.IsValid)
@@ -231,8 +229,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Partial methods
         public PartialViewResult OnGetReciveMessagesPartial(int howMany)
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
             {
@@ -248,8 +246,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public PartialViewResult OnGetReciveMessage(int id)
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
             {
@@ -264,8 +262,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public PartialViewResult OnGetSendedMessagesPartial(int howMany)
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             //Get list of messages and nickname of one person that recived it (Group by and select statment)
             try
@@ -283,8 +281,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public PartialViewResult OnGetSendedMessage(int id)
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             try
             {
                 sendedMessagesList = GetSendedMessageContent(id, (int)userId, (int)groupId);
@@ -298,8 +296,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
         public PartialViewResult OnGetCreateMessage()
         {
-            userId = HttpContext.Session.GetInt32(Key2);
-            groupId = HttpContext.Session.GetInt32(Key3);
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             createMessagesPartial.usersList = _dbContext.Users
                 .Where(g => g.Users_Groups
