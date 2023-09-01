@@ -139,7 +139,7 @@
             //Form submit handler to show valmgs (It is used only on first page load then we need to use the after ajax one)
             $("#personalForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmit($(this));
+                handleFormSubmit($(this), "username");
             });
         });
 

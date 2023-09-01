@@ -84,7 +84,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Check if there is any other user with that username (exluding us)
-            if (_dbContext.Users.Where(u => u.user_id != userId).Count(ul => ul.username == userPersonalData.username) > 0)
+            if (_dbContext.Users.Where(u => u.user_id != userId).Any(ul => ul.username == userPersonalData.username))
             {
                 validationErrors.Add("Podana nazwa użytkownika jest już zajęta");
                 return new JsonResult(validationErrors);

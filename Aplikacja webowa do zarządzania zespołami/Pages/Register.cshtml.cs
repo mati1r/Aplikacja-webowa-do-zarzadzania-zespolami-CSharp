@@ -37,11 +37,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             {
                 var usersList = _dbContext.Users.ToList<User>();
                 //Check if there is already a user using this e-mail or this username
-                if (usersList.Count(ul => ul.e_mail == userData.e_mail) > 0)
+                if (usersList.Any(ul => ul.e_mail == userData.e_mail))
                 {
                     error = "Istnieje już użytkownik korzystający z tego adresu e-mail";
                 }
-                else if (usersList.Count(ul => ul.username == userData.username) > 0)
+                else if (usersList.Any(ul => ul.username == userData.username))
                 {
                     error = "Podana nazwa użytkownika jest już zajęta";
                 }

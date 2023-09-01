@@ -46,7 +46,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             ///if there is a task get it and change its status
 
             ///DODAĆ SPRAWDZANIE DATY UKOŃCZENIA NIE WYŚWIETLAĆ DANYCH STARSZYCH NIZ 7 dni
-            if (_dbContext.Tasks.Count(t => t.task_id == actionTaskId && t.groups_group_id == groupId && t.users_user_id == userId && t.status == "nieukończone") > 0)
+            if (_dbContext.Tasks.Any(t => t.task_id == actionTaskId && t.groups_group_id == groupId && t.users_user_id == userId && t.status == "nieukończone"))
             {
                 var task = _dbContext.Tasks.Where(t => t.task_id == actionTaskId).First();
                 task.status = "ukończone";
@@ -65,7 +65,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             //Check if user didn't changed id to an id out of his scope
-            if ( _dbContext.Tasks.Count(t => t.task_id == id && t.groups_group_id == groupId && t.users_user_id == userId) > 0)
+            if ( _dbContext.Tasks.Any(t => t.task_id == id && t.groups_group_id == groupId && t.users_user_id == userId))
             {
                 return await _dbContext.Tasks.FirstAsync(t => t.task_id == id);
             }

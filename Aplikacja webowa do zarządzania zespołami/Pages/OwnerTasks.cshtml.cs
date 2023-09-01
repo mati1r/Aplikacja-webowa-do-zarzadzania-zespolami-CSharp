@@ -98,7 +98,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Check if task exists in group
-            if (_dbContext.Tasks.Count(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId) == 0)
+            if (!_dbContext.Tasks.Any(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId))
             {
                 validationErrors.Add("Podane zadanie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
@@ -139,7 +139,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         .ToList();
 
             //Check if selected user is on the list of users in the group
-            if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() == 0)
+            if (!userList.Any(ul => ul.user_id == createOrEditTask.users_user_id))
             {
                 //If there is no such a user in the group
                 validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
@@ -175,14 +175,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if task exists in group
-            if (_dbContext.Tasks.Count(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId) == 0)
+            if (!_dbContext.Tasks.Any(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId))
             {
                 validationErrors.Add("Podane zadanie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
             }
 
             //Check if task is completed
-            if (_dbContext.Tasks.Count(t => t.task_id == createOrEditTask.task_id && t.status == "ukończone") > 0)
+            if (_dbContext.Tasks.Any(t => t.task_id == createOrEditTask.task_id && t.status == "ukończone"))
             {
                 validationErrors.Add("Podane zadanie jest już ukończone i nie podlega modyfikacji");
                 return new JsonResult(validationErrors);
@@ -204,7 +204,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         .ToList();
 
             //If selected user is not on the list of users in the group
-            if (userList.Where(ul => ul.user_id == createOrEditTask.users_user_id).Count() == 0)
+            if (!userList.Any(ul => ul.user_id == createOrEditTask.users_user_id))
             {
                 validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
                 return new JsonResult(validationErrors);
@@ -238,7 +238,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             //Check if requested task is in the same group as owner that is loged in
-            if (_dbContext.Tasks.Count(t => t.task_id == id && t.groups_group_id == groupId) > 0)
+            if (_dbContext.Tasks.Any(t => t.task_id == id && t.groups_group_id == groupId))
             {
                 return await _dbContext.Tasks.FirstAsync(t => t.task_id == id);
             }
