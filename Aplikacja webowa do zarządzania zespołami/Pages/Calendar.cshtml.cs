@@ -21,11 +21,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public string data;
         public int? userId;
         public int? groupId;
+        public string? username;
 
         //OnGet and OnPost methods
         public void OnGet()
         {
             data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
+            username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
         }
 
         //Async methods

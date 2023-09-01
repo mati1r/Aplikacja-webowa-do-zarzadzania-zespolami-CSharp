@@ -25,6 +25,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public string data;
         public int? userId;
         public int? groupId;
+        public string? username;
 
         [BindProperty(SupportsGet = true)]
         public Models.Task createOrEditTask { get; set; }
@@ -81,6 +82,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
+
             tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId).ToList();
 
             //Find all users that are active and belong to that group beside owners

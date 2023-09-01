@@ -20,6 +20,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public string data;
         public int? userId;
         public int? groupId;
+        public string? username;
 
         private List<NoticePartial> GetNotice(int? userId, int? groupId)
         {
@@ -44,6 +45,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
             noticesList = GetNotice(userId, groupId);  
         }

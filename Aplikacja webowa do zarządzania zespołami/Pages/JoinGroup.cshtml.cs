@@ -42,6 +42,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public List<GroupQuitDTO> groupQuitList;
         public string data;
         public int? userId;
+        public string username;
 
         [BindProperty]
         public int joinGroupId { get; set; }
@@ -94,6 +95,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
             try
             {
