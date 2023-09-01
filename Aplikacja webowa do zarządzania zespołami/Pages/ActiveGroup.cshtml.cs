@@ -38,7 +38,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             try
             {
                 groupList = _dbContext.Groups
-                    .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId && ug.status == "aktywny"))
+                    .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId && ug.status == "active"))
                     .ToList();
                 activeGroup = _dbContext.Groups.Where(g => g.group_id == groupId).Select(g => g.name).First();
             }
@@ -55,7 +55,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(Key2);
 
             //Check if someone doesn't replaced id with some other id that is not in groupList
-            if (_dbContext.Users_Groups.Where(ugl => ugl.users_user_id == userId && ugl.status == "aktywny").Count(ugl => ugl.groups_group_id == changeGroupId) > 0)
+            if (_dbContext.Users_Groups.Where(ugl => ugl.users_user_id == userId && ugl.status == "active").Count(ugl => ugl.groups_group_id == changeGroupId) > 0)
             {
                 //Check if user is an owner
                 if(_dbContext.Users_Groups.Count(ugl => ugl.users_user_id == userId && ugl.groups_group_id == changeGroupId && ugl.role == "owner") > 0)

@@ -91,10 +91,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                         else
                         {
                             //Check if user is a part of any group and if he have an active member status
-                            if (usersGroupsList.Count(ugl => ugl.users_user_id == userId && ugl.status == "aktywny") > 0)
+                            if (usersGroupsList.Count(ugl => ugl.users_user_id == userId && ugl.status == "active") > 0)
                             {
                                 //Find a group fo a user
-                                var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userId && ugl.status == "aktywny" && ugl.role == "user")
+                                var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userId && ugl.status == "active" && ugl.role == "user")
                                                                   .Select(ug => ug.groups_group_id).First();
                                 //Set session propertise
                                 SetSessionData("User", userId, userGroupId);

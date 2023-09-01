@@ -326,9 +326,9 @@
                         $("#quit-group-role").text(group.role);
                     }
 
-                    if(group.status == "nieaktywny"){
+                    if (group.status == "pending") {
                         $("#quit-group-status").text("Oczekujący na zatwierdzenie");
-                    }else if(group.status == "aktywny"){
+                    }else if(group.status == "active"){
                         $("#quit-group-status").text("Użytkownik aktywny");
                     }else{
                         $("#quit-group-status").text(group.status);

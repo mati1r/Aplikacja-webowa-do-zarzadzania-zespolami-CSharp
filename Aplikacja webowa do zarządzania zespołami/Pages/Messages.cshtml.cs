@@ -201,7 +201,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get values of users that are in the group
             List<int> usersIdList = _dbContext.Users
                 .Where(g => g.Users_Groups
-                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "active"))
                 .Select(g => g.user_id).ToList();
 
 
@@ -303,7 +303,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             createMessagesPartial.usersList = _dbContext.Users
                 .Where(g => g.Users_Groups
-                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "active"))
                 .ToList();
 
             return Partial("Partials/_PartialCreateMessage", createMessagesPartial);

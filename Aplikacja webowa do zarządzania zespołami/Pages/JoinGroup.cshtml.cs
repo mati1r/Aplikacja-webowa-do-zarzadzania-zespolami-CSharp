@@ -75,8 +75,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         private List<GroupQuitDTO> GetGroupsToQuit(int userId)
         {
             return _dbContext.Groups
-                .Where(g => g.Users_Groups.Any(ug => ug.users_user_id == userId) && g.owner_id != userId)
-                .SelectMany(g => g.Users_Groups, (g, ug) => new GroupQuitDTO
+                .Where(g => g.owner_id != userId)
+                .SelectMany(g => g.Users_Groups.Where(ug => ug.users_user_id == userId && ug.groups_group_id == g.group_id), (g, ug) => new GroupQuitDTO
                 {
                     group_id = g.group_id,
                     name = g.name,
@@ -124,7 +124,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 userGroup.groups_group_id = joinGroupId;
                 userGroup.users_user_id = (int)userId;
                 userGroup.role = "user";
-                userGroup.status = "nieaktywny";
+                userGroup.status = "pending";
                 _dbContext.Add(userGroup);
                 _dbContext.SaveChanges();
             }
@@ -194,7 +194,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
                 userGroup.users_user_id = (int)HttpContext.Session.GetInt32(Key2);
                 userGroup.groups_group_id = _dbContext.Groups.Where(g => g.name == createGroup.name).Select(g => g.group_id).First();
-                userGroup.status = "aktywny";
+                userGroup.status = "active";
                 userGroup.role = "owner";
                 _dbContext.Users_Groups.Add(userGroup);
                 _dbContext.SaveChanges();
@@ -304,7 +304,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             {
                 return await _dbContext.Groups
                     .Where(g => g.group_id == id)
-                    .SelectMany(g => g.Users_Groups, (g, ug) => new GroupQuitDTO
+                    .SelectMany(g => g.Users_Groups.Where(ug => ug.users_user_id == userId && ug.groups_group_id == g.group_id), (g, ug) => new GroupQuitDTO
                     {
                         group_id = g.group_id,
                         name = g.name,

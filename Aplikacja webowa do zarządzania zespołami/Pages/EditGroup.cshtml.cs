@@ -55,12 +55,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         private List<User> GetPendingUsersList(int groupId)
         {
-            return _dbContext.Users.Where(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "nieaktywny")).ToList();
+            return _dbContext.Users.Where(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "pending")).ToList();
         }
 
         private List<User> GetActiveUsersList(int groupId, int userId)
         {
-            return _dbContext.Users.Where(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "aktywny" 
+            return _dbContext.Users.Where(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active" 
                                           && ug.users_user_id != ug.Groups.owner_id && ug.users_user_id != userId)).ToList();
         }
 
@@ -126,7 +126,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(Key3);
             List<string> validationErrors = new List<string>();
             //Check if user is in that group and his status is pending
-            if (!_dbContext.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id == pendingUserId && ug.status == "nieaktywny"))
+            if (!_dbContext.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id == pendingUserId && ug.status == "pending"))
             {
                 validationErrors.Add("Wybrany użytkownik nie może być dołączony do grupy");
                 return new JsonResult(validationErrors);
@@ -137,7 +137,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 User_Group pendingUser = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == pendingUserId).First();
 
                 //We don't need to asigne him a role cause it was asigned during pending request
-                pendingUser.status = "aktywny";
+                pendingUser.status = "active";
                 _dbContext.Update(pendingUser);
                 _dbContext.SaveChanges();
             }
@@ -157,7 +157,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
-            if (!_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "aktywny"
+            if (!_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active"
                                           && ug.Groups.owner_id != activeUserId && userId != activeUserId && ug.users_user_id == activeUserId)))
             {
                 validationErrors.Add("Wybrany użytkownik nie może być usuniety z grupy");
@@ -179,7 +179,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
-            if (!_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "aktywny"
+            if (!_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active"
                                           && ug.Groups.owner_id != activeUserId && userId != activeUserId && ug.users_user_id == activeUserId)))
             {
                 validationErrors.Add("Wybrany użytkownik nie podlega zmianą");
@@ -260,7 +260,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
-            if (_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "aktywny"
+            if (_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active"
                                           && ug.Groups.owner_id != id && userId != id && ug.users_user_id == id)))
             {
                 return await _dbContext.Users.Where(u => u.user_id == id)

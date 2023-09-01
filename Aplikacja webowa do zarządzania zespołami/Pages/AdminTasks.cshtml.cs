@@ -88,7 +88,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Find all users that are active and belong to that group beside owners
             userList = _dbContext.Users
             .Where(g => g.Users_Groups
-            .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "aktywny"))
+            .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "active"))
             .ToList();
         }
 
@@ -134,7 +134,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get list of actve users in the group
             userList = _dbContext.Users
                         .Where(g => g.Users_Groups
-                        .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "aktywny"))
+                        .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "active"))
                         .ToList();
 
             //Check if selected user is on the list of users in the group
@@ -199,7 +199,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get list of actve users in the group
             userList = _dbContext.Users
                         .Where(g => g.Users_Groups
-                        .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "aktywny"))
+                        .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "active"))
                         .ToList();
 
             //If selected user is not on the list of users in the group
