@@ -7,21 +7,23 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class MessagesModel : PageModel
     {
-        private readonly DatabaseContext _dbContext;
-        public MessagesModel(DatabaseContext dbContext)
+        private readonly IMessageRepository _messageRepository;
+        private readonly IUserRepository _userRepository;
+        public MessagesModel(DatabaseContext dbContext, IMessageRepository messageRepository, IUserRepository userRepository)
         {
-            _dbContext = dbContext;
+            _messageRepository = messageRepository;
+            _userRepository = userRepository;
             reciveMessagesList = new List<ReciveMessagePartial>();
             sendedMessagesList = new List<SendedMessagePartial>();
             createMessagesPartial = new CreateMessagePartial();
             message = new Models.Message();
         }
-
 
         public List<ReciveMessagePartial> reciveMessagesList;
         public List<SendedMessagePartial> sendedMessagesList;
@@ -34,112 +36,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty(SupportsGet = true)]
         public CreateMessagePartial createMessagesPartial { get; set; }
 
-        //Recived message private methods
-        private List<ReciveMessagePartial> GetRecivedMessages(int howManyRecords, int userId, int groupId)
-        {
-            return _dbContext.Messages
-                .Include(m => m.Users) //Include Users table by FK
-                .Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId) && m.groups_group_id == groupId && m.notice == false) //Get elements that met the requaierments
-                .OrderByDescending(m => m.send_date)
-                .Take(howManyRecords)
-                .Select(m => new ReciveMessagePartial
-                {
-                    message_id = m.message_id,
-                    topic = m.topic,
-                    content = m.content,
-                    send_date = m.send_date,
-                    sender_name = m.Users.username
-                })
-                .ToList();
-        }
-
-        private Message GetRecivedMessageContent(int messageId, int userId, int groupId)
-        {
-            //Get message and validate if user didn't changed id to some out of his scope or active group
-            if (_dbContext.Messages.Any(m => m.Messages_Users.Any(mu => mu.users_user_id == userId)
-                                        && m.groups_group_id == groupId && m.notice == false && m.message_id == messageId))
-            {
-                return _dbContext.Messages.Where(m => m.message_id == messageId).First();
-            }
-            Message falseMessage = new Message();
-            falseMessage.content = "Błąd, widomość o tym id nie istnieje";
-            return falseMessage;
-        }
-
-        //Sended message private methods
-        private List<SendedMessagePartial> GetSendedMessages(int howManyRecords, int userId, int groupId)
-        {
-            return _dbContext.Messages
-                .Where(m => m.sender_id == userId && m.groups_group_id == groupId && m.notice == false)
-                .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessagePartial
-                {
-                    message_id = m.message_id,
-                    topic = m.topic,
-                    content = m.content,
-                    send_date = m.send_date,
-                    reciver_name = mu.Users.username
-                })
-                .GroupBy(g => g.message_id)
-                .Select(g => g.OrderByDescending(m => m.send_date).First())
-                .AsEnumerable() //Changing execution mode to the application level
-                .OrderByDescending(m => m.send_date)
-                .Take(howManyRecords)
-                .ToList();
-        }
-
-        private List<SendedMessagePartial> GetSendedMessageContent(int messageId, int userId, int groupId)
-        {
-            List<SendedMessagePartial> messagesList = new List<SendedMessagePartial>();
-            if (_dbContext.Messages.Any(m => m.sender_id == userId && m.groups_group_id == groupId
-                                         && m.notice == false && m.message_id == messageId))
-            {
-                messagesList = _dbContext.Messages
-                    .Where(m => m.message_id == messageId)
-                    .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessagePartial
-                    {
-                        message_id = m.message_id,
-                        topic = m.topic,
-                        content = m.content,
-                        send_date = m.send_date,
-                        reciver_name = mu.Users.username
-                    })
-                    .ToList();
-            }
-            else
-            {
-                messagesList.Add(new SendedMessagePartial
-                {
-                    message_id = messageId,
-                    topic = "",
-                    content = "Błąd, widomość o tym id nie istnieje",
-                    send_date = DateTime.Now,
-                    reciver_name = ""
-                });
-            }
-
-            return messagesList;
-        }
-
-        //Create message private methods
-        private void CreateMessage(Message message, List<int> reciversList)
-        {
-            message.groups_group_id = (int)groupId;
-            message.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
-            message.sender_id = (int)userId;
-            message.notice = false;
-            _dbContext.Add(message);
-            _dbContext.SaveChanges();
-
-            Message_User messageUser = new Message_User();
-
-            foreach (int receiverId in reciversList)
-            {
-                messageUser.users_user_id = receiverId;
-                messageUser.messages_message_id = createMessagesPartial.message.message_id;
-                _dbContext.Add(messageUser);
-                _dbContext.SaveChanges();
-            }
-        }
 
         //OnGet and OnPost methods
         public void OnGet()
@@ -152,7 +48,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Check if user didn't deleted session (it causes function to throw exeptions (even tho it should be able to accept null as userId and groupId))
             try
             {
-                reciveMessagesList = GetRecivedMessages(10, (int)userId, (int)groupId);
+                reciveMessagesList = _messageRepository.GetRecivedMessages(10, (int)userId, (int)groupId);
             }
             catch
             {
@@ -166,6 +62,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             List<string> validationErrors = new List<string>();
+
             if (!ModelState.IsValid)
             {
                 var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
@@ -197,12 +94,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 }
             }
 
-            //Get values of users that are in the group
-            List<int> usersIdList = _dbContext.Users
-                .Where(g => g.Users_Groups
-                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "active"))
-                .Select(g => g.user_id).ToList();
-
+            List<int> usersIdList = _userRepository.GetIdOfActiveUsersInGroup(userId, groupId);
 
             //Check if values on the list are valid users from that group
             foreach (int receiverId in reciversList)
@@ -223,8 +115,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //At this point everything is correct so we can create a message
-            CreateMessage(createMessagesPartial.message, reciversList);
-            return new JsonResult("success");
+            return _messageRepository.CreateMessage(createMessagesPartial.message, reciversList, (int)userId, (int)groupId);
         }
 
         //Partial methods
@@ -235,7 +126,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                reciveMessagesList = GetRecivedMessages(howMany, (int)userId, (int)groupId);
+                reciveMessagesList = _messageRepository.GetRecivedMessages(howMany, (int)userId, (int)groupId);
             }
             catch
             {
@@ -252,7 +143,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                message = GetRecivedMessageContent(id, (int)userId, (int)groupId);
+                message = _messageRepository.GetRecivedMessageContent(id, (int)userId, (int)groupId);
             }
             catch
             {
@@ -269,7 +160,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get list of messages and nickname of one person that recived it (Group by and select statment)
             try
             {
-                sendedMessagesList = GetSendedMessages(howMany, (int)userId, (int)groupId);
+                sendedMessagesList = _messageRepository.GetSendedMessages(howMany, (int)userId, (int)groupId);
             }
             catch
             {
@@ -286,7 +177,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             try
             {
-                sendedMessagesList = GetSendedMessageContent(id, (int)userId, (int)groupId);
+                sendedMessagesList = _messageRepository.GetSendedMessageContent(id, (int)userId, (int)groupId);
             }
             catch
             {
@@ -300,10 +191,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
-            createMessagesPartial.usersList = _dbContext.Users
-                .Where(g => g.Users_Groups
-                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "active"))
-                .ToList();
+            createMessagesPartial.usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
 
             return Partial("Partials/_PartialCreateMessage", createMessagesPartial);
         }

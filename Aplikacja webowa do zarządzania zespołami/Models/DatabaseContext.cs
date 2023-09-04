@@ -5,7 +5,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
     public class DatabaseContext: DbContext
     {
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options) { }
-
         public DbSet<Models.Task> Tasks { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Group> Groups { get; set; }

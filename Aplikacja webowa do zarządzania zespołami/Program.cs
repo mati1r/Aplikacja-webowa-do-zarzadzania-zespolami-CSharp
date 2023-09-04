@@ -1,4 +1,5 @@
 using Aplikacja_webowa_do_zarz¹dzania_zespo³ami.Models;
+using Aplikacja_webowa_do_zarz¹dzania_zespo³ami.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -6,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddTransient<IMessageRepository, MessageRepository>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<DatabaseContext>(options =>
