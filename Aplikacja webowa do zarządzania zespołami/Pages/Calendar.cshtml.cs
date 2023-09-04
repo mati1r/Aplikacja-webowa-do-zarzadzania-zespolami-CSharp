@@ -3,6 +3,8 @@ using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
+using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
@@ -10,10 +12,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     {
 
         private readonly DatabaseContext _dbContext;
+        private readonly ITaskRepository _taskRepository;
 
-        public CalendarModel(DatabaseContext dbContext)
+        public CalendarModel(DatabaseContext dbContext, ITaskRepository taskRepository)
         {
             _dbContext = dbContext;
+            _taskRepository = taskRepository;
             tasksList = new List<Models.Task>();
         }
 
@@ -22,6 +26,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? userId;
         public int? groupId;
         public string? username;
+
 
         //OnGet and OnPost methods
         public void OnGet()
@@ -36,15 +41,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
-            var events = await _dbContext.Tasks
-                .Where(t => t.groups_group_id == groupId && t.users_user_id == userId)
-                .Select(t => new
-                {
-                    title = t.task_name,
-                    start = t.start_date.ToString("yyyy-MM-dd"),
-                    end = t.end_date.ToString("yyyy-MM-dd")
-                })
-                .ToListAsync();
+            List<CalendarEventsDTO> events = await _taskRepository.GetCalendarEventsAsync(userId, groupId);
 
             return new JsonResult(events);
         }
