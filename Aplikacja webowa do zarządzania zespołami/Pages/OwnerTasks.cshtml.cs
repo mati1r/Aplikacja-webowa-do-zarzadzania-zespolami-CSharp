@@ -5,22 +5,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
+using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class OwnerTasksModel : PageModel
     {
-        private readonly DatabaseContext _dbContext;
-
-        public OwnerTasksModel(DatabaseContext dbContext)
+        private readonly ITaskRepository _taskRepository;
+        private readonly IUserRepository _userRepository;
+        public OwnerTasksModel(ITaskRepository taskRepository, IUserRepository userRepository)
         {
-            _dbContext = dbContext;
+            _taskRepository = taskRepository;
+            _userRepository = userRepository;
             tasksList = new List<Models.Task>();
-            userList = new List<Models.User>();
+            usersList = new List<User>();
         }
 
         public List<Models.Task> tasksList;
-        public List<Models.User> userList;
+        public List<User> usersList;
         private string error ="";
         public string data;
         public int? userId;
@@ -33,41 +35,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty(SupportsGet = true)]
         public int deleteTask { get; set; }
 
-        private Models.Task CreateEmptyTask(int id)
+        //Private methods
+        private bool IsSelectedUserIsOnTheList(List<User> usersList)
         {
-            Models.Task emptyTask = new Models.Task();
-            emptyTask.start_date = DateTime.Now;
-            emptyTask.end_date = DateTime.Now;
-            emptyTask.task_id = id;
-            emptyTask.task_name = "Błąd";
-            emptyTask.description = "Nie znaleziono w bazie określonego zadania";
-            emptyTask.status = "Błąd";
-            emptyTask.priority = "Błąd";
-
-            return emptyTask;
+            return usersList.Any(ul => ul.user_id == createOrEditTask.users_user_id);
         }
-
-        private void EditTask(Models.Task task)
-        {
-            //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
-            //if status changed from nieukończone to ukończone then add finish_date
-            Models.Task originalTask = _dbContext.Tasks.Where(t => t.task_id == task.task_id).First();
-            if (originalTask.status == "nieukończone" && createOrEditTask.status == "ukończone")
-            {
-                //Setting a date on now and setting seconds to 0
-                originalTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
-            }
-            originalTask.task_name = task.task_name;
-            originalTask.users_user_id = task.users_user_id;
-            originalTask.description = task.description;
-            originalTask.start_date = task.start_date;
-            originalTask.end_date = task.end_date;
-            originalTask.status = task.status;
-            originalTask.priority = task.priority;
-            _dbContext.Update(originalTask);
-            _dbContext.SaveChanges();
-        }
-
         private string IsEndDateHigherThanStartDate(DateTime startDate, DateTime endDate)
         {
             if (endDate < startDate)
@@ -75,7 +47,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             return "";
         }
-
         //OnGet and OnPost methods
         public void OnGet()
         {
@@ -84,29 +55,25 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
-            tasksList = _dbContext.Tasks.Where(t => t.groups_group_id == groupId).ToList();
+            tasksList = _taskRepository.GetAllTaskForGroup(groupId);
 
             //Find all users that are active and belong to that group beside owners
-            userList = _dbContext.Users
-            .Where(g => g.Users_Groups
-            .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "active"))
-            .ToList();
+            usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
         }
 
         public IActionResult OnPostDelete()
         {
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
             //Check if task exists in group
-            if (!_dbContext.Tasks.Any(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId))
+            if (!_taskRepository.IsExistingTaskInGroup(createOrEditTask, groupId))
             {
                 validationErrors.Add("Podane zadanie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
             }
 
-            _dbContext.Remove(createOrEditTask);
-            _dbContext.SaveChanges();
-            return new JsonResult("success");
+            return _taskRepository.DeleteTask(createOrEditTask);
         }
 
         public IActionResult OnPostAdd()
@@ -133,13 +100,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Get list of actve users in the group
-            userList = _dbContext.Users
-                        .Where(g => g.Users_Groups
-                        .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "active"))
-                        .ToList();
+            usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
 
             //Check if selected user is on the list of users in the group
-            if (!userList.Any(ul => ul.user_id == createOrEditTask.users_user_id))
+            if (!IsSelectedUserIsOnTheList(usersList))
             {
                 //If there is no such a user in the group
                 validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
@@ -153,17 +117,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
             }
 
-            //Check if task is set to complete if so set finish_date
-            if (createOrEditTask.status == "ukończone")
+            //Check if user didn't deleted session data
+            try
             {
-                //Setting a date on now and setting seconds to 0
-                createOrEditTask.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+                return _taskRepository.CreateTask(createOrEditTask, (int)groupId);
             }
-
-            createOrEditTask.groups_group_id = (int)groupId;
-            _dbContext.Tasks.Add(createOrEditTask);
-            _dbContext.SaveChanges();
-            return new JsonResult("success");
+            catch
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
         }
 
         public IActionResult OnPostEdit()
@@ -175,14 +138,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if task exists in group
-            if (!_dbContext.Tasks.Any(t => t.task_id == createOrEditTask.task_id && t.groups_group_id == groupId))
+            if (!_taskRepository.IsExistingTaskInGroup(createOrEditTask,groupId))
             {
                 validationErrors.Add("Podane zadanie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
             }
 
             //Check if task is completed
-            if (_dbContext.Tasks.Any(t => t.task_id == createOrEditTask.task_id && t.status == "ukończone"))
+            if (_taskRepository.IsTaskCompleted(createOrEditTask))
             {
                 validationErrors.Add("Podane zadanie jest już ukończone i nie podlega modyfikacji");
                 return new JsonResult(validationErrors);
@@ -198,13 +161,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Get list of actve users in the group
-            userList = _dbContext.Users
-                        .Where(g => g.Users_Groups
-                        .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "active"))
-                        .ToList();
+            usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
 
             //If selected user is not on the list of users in the group
-            if (!userList.Any(ul => ul.user_id == createOrEditTask.users_user_id))
+            if (!IsSelectedUserIsOnTheList(usersList))
             {
                 validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
                 return new JsonResult(validationErrors);
@@ -227,31 +187,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //If nothing got returned to this point that means that it validated correctly
-            EditTask(createOrEditTask);
-            return new JsonResult("success");
+            return _taskRepository.EditTask(createOrEditTask);
         }
 
 
         //Async methods
-        public async Task<Models.Task> GetTaskAsync(int id)
-        {
-            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
-
-            //Check if requested task is in the same group as owner that is loged in
-            if (_dbContext.Tasks.Any(t => t.task_id == id && t.groups_group_id == groupId))
-            {
-                return await _dbContext.Tasks.FirstAsync(t => t.task_id == id);
-            }
-            else
-            {
-                return CreateEmptyTask(id);
-            }
-        }
-
-
         public async Task<JsonResult> OnGetTaskJsonAsync(int id)
         {
-            return new JsonResult(await GetTaskAsync(id));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            return new JsonResult(await _taskRepository.GetTaskAsync(id, groupId));
         }
 
     }

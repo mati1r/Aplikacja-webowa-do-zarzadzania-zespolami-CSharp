@@ -17,12 +17,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             _dbContext = dbContext;
         }
 
-        //Messages
+        //Messages and OwnerTask
         public List<User> GetActiveUsersInGroup(int? userId, int? groupId)
         {
             return _dbContext.Users
                 .Where(g => g.Users_Groups
-                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "active"))
+                .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "active"))
                 .ToList();
         }
 
@@ -117,6 +117,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             _dbContext.SaveChanges();
         }
 
+        //Login
         public List<User> GetAllUsers()
         {
             return _dbContext.Users.ToList();

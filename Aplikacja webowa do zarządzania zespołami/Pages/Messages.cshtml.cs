@@ -42,7 +42,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
-            //Check if user didn't deleted session (it causes function to throw exeptions (even tho it should be able to accept null as userId and groupId))
+            //Check if user didn't deleted session (it causes function to throw exeptions
             try
             {
                 reciveMessagesList = _messageRepository.GetRecivedMessages(10, (int)userId, (int)groupId);
