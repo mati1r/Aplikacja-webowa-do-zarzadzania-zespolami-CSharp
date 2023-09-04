@@ -31,7 +31,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public void OnGet()
         {
             data = HttpContext.Session.GetString(ConstVariables.GetKeyValue(1));
-            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
@@ -121,7 +120,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Partial methods
         public PartialViewResult OnGetLoadNotices()
         {
-            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
