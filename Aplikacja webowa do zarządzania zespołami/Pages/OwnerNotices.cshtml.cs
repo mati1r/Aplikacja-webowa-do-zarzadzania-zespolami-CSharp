@@ -11,7 +11,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     public class OwnerNoticesModel : PageModel
     {
         private readonly IMessageRepository _messageRepository;
-        public OwnerNoticesModel(DatabaseContext dbContext, IMessageRepository messageRepository)
+        public OwnerNoticesModel(IMessageRepository messageRepository)
         {
             _messageRepository = messageRepository;
             noticesList = new List<NoticePartial>();
