@@ -4,9 +4,6 @@ using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
@@ -15,14 +12,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     {
         private readonly IMessageRepository _messageRepository;
         private readonly IUserRepository _userRepository;
-        public MessagesModel(DatabaseContext dbContext, IMessageRepository messageRepository, IUserRepository userRepository)
+        public MessagesModel(IMessageRepository messageRepository, IUserRepository userRepository)
         {
             _messageRepository = messageRepository;
             _userRepository = userRepository;
             reciveMessagesList = new List<ReciveMessagePartial>();
             sendedMessagesList = new List<SendedMessagePartial>();
             createMessagesPartial = new CreateMessagePartial();
-            message = new Models.Message();
+            message = new Message();
         }
 
         public List<ReciveMessagePartial> reciveMessagesList;

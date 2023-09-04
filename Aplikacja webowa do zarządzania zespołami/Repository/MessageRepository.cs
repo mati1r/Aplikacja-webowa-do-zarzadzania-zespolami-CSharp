@@ -14,6 +14,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             _dbContext = dbContext;
         }
 
+        //Messages
         public JsonResult CreateMessage(Message message, List<int> reciversList, int userId, int groupId)
         {
             message.groups_group_id = groupId;
@@ -117,6 +118,98 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                 .OrderByDescending(m => m.send_date)
                 .Take(howManyRecords)
                 .ToList();
+        }
+
+        //User Notices
+        public List<NoticePartial> GetNotice(int? groupId)
+        {
+            return _dbContext.Messages
+                .Include(m => m.Users) //Include Users table by FK
+                .Where(m => m.groups_group_id == groupId && m.notice == true)
+                .OrderByDescending(m => m.send_date)
+                .Select(m => new NoticePartial
+                {
+                    message_id = m.message_id,
+                    topic = m.topic,
+                    content = m.content,
+                    send_date = m.send_date,
+                    sender_name = m.Users.username
+                })
+                .ToList();
+        }
+
+        public async Task<NoticePartial> GetNoticeAsync(int id, int? groupId)
+        {
+            //Check if user didn't changed id to an id out of his scope or to an message insted of notice
+            if (IsNotice(id, groupId))
+            {
+                return await _dbContext.Messages
+                .Include(m => m.Users)
+                .Where(m => m.message_id == id)
+                .Select(m => new NoticePartial
+                {
+                    message_id = m.message_id,
+                    topic = m.topic,
+                    content = m.content,
+                    send_date = m.send_date,
+                    sender_name = m.Users.username
+                }).FirstAsync(m => m.message_id == id);
+            }
+            else
+            {
+                NoticePartial emptyNotice = new NoticePartial();
+                emptyNotice.send_date = DateTime.Now;
+                emptyNotice.message_id = 0;
+                emptyNotice.content = "Błąd nie znaleziono ogłoszenia";
+                emptyNotice.sender_name = "Błąd";
+                emptyNotice.topic = "Błąd";
+                return emptyNotice;
+            }
+        }
+
+        public bool IsNotice(int id, int? groupId)
+        {
+            return _dbContext.Messages.Any(m => m.message_id == id && m.groups_group_id == groupId && m.notice == true);
+        }
+
+        public JsonResult DeleteNotice(Message notice, int? groupId)
+        {
+            List<string> validationErrors = new List<string>();
+
+            //Check if message exists, if its in the group and is a notice
+            if (!IsNotice(notice.message_id, groupId))
+            {
+                validationErrors.Add("Podane ogłoszenie nie isnieje w tej grupie");
+                return new JsonResult(validationErrors);
+            }
+
+            _dbContext.Remove(notice);
+            _dbContext.SaveChanges();
+            return new JsonResult("success");
+        }
+
+        public JsonResult CreateNotice(Message notice, int userId, int groupId)
+        {
+            notice.notice = true;
+            notice.sender_id = userId;
+            notice.groups_group_id = groupId;
+            notice.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            _dbContext.Add(notice);
+            _dbContext.SaveChanges();
+
+            return new JsonResult("success");
+        }
+
+        public JsonResult EditNotice(Message notice, int userId, int groupId)
+        {
+            notice.groups_group_id = groupId;
+            notice.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            notice.sender_id = userId;
+            notice.notice = true;
+            _dbContext.Update(notice);
+            _dbContext.SaveChanges();
+
+            return new JsonResult("success");
         }
     }
 }

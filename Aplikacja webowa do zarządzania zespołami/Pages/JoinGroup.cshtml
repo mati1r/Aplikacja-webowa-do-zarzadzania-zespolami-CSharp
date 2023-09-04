@@ -88,7 +88,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
                     <input type="hidden" asp-for="groupJoinId" id="group-join-id" />
-                    <input class="btn btn-primary" type="submit" value="Dołącz"/>
+                    <button type="button" class="btn btn-primary" id="joinBtn">Dołącz</button>
                 </div>
             </form>
         </div>
@@ -136,7 +136,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                <button class="btn btn-danger" id="quit-btn">Opuść grupe</button>
+                <button class="btn btn-danger" id="quitBtn">Opuść grupe</button>
             </div>
         </div>
     </div>
@@ -158,7 +158,7 @@
                     <div class="text-end mb-3">
                         <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
                         <input type="hidden" asp-for="groupQuitId" id="group-quit-id" />
-                        <input class="btn btn-danger px-5 me-2" type="submit" value="Tak" />
+                        <button type="button" class="btn btn-danger px-5 me-2" id="confirmQuitBtn">Tak</button>
                     </div>
                 </div>
             </form>
@@ -192,7 +192,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <input class="btn btn-primary" type="submit" value="Stwórz" />
+                    <button type="button" class="btn btn-primary" id="createBtn">Stwórz</button>
                 </div>
             </form>
         </div>
@@ -290,7 +290,7 @@
 
         $(document).ready(function () {
 
-            $("#quit-btn").click(function(){
+            $("#quitBtn").click(function(){
                 //Delete valmsgs
                 $("span[data-valmsg-for]").text("");
                 $("#quit-modal").modal("hide");
@@ -339,6 +339,19 @@
                     }
 
                 });
+            });
+
+            //Submit buttons
+            $("#joinBtn").click(function () {
+                $("#joinForm").submit();
+            });
+
+            $("#confirmQuitBtn").click(function () {
+                $("#quitForm").submit();
+            });
+
+            $("#createBtn").click(function () {
+                $("#createForm").submit();
             });
 
             //Delete valmsgs
