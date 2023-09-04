@@ -6,16 +6,17 @@ using System.Net;
 using System.Web;
 using System.Text;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
+using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class PasswordRecoveryModel : PageModel
     {
-        private readonly DatabaseContext _dbContext;
+        private readonly IUserRepository _userRepository;
 
-        public PasswordRecoveryModel(DatabaseContext dbContext)
+        public PasswordRecoveryModel(DatabaseContext dbContext, IUserRepository userRepository)
         {
-            _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         [BindProperty]
@@ -42,7 +43,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             List<string> validationErrors = new List<string>();
 
-            if(!_dbContext.Users.Any(u => u.e_mail == email))
+            if(!_userRepository.IsAccountWithEmail(email))
             {
                 validationErrors.Add("Nie istnieje konto powiązane z tym adresem e-mail");
                 return new JsonResult(validationErrors);
@@ -77,15 +78,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //If we are here that means that message was send
-            User user = new User();
-            user = _dbContext.Users.Where(u => u.e_mail == email).First();
-            user.salt = Hash.GenerateSalt(16);
-            user.password = Hash.HashPassword(newPassword, user.salt);
-
-            _dbContext.Update(user);
-            _dbContext.SaveChanges();
-
-            return new JsonResult("success");
+            return _userRepository.SetNewPasswordEmail(email, newPassword);
         }
 
     }

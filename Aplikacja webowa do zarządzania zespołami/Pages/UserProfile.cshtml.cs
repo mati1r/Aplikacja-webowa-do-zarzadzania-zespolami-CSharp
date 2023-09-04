@@ -6,15 +6,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using static Aplikacja_webowa_do_zarządzania_zespołami.Pages.LoginModel;
+using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using System.Runtime.InteropServices;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class UserProfileModel : PageModel
     {
         private readonly DatabaseContext _dbContext;
-        public UserProfileModel(DatabaseContext dbContext)
+        private readonly IUserRepository _userRepository;
+        public UserProfileModel(DatabaseContext dbContext, IUserRepository userRepository)
         {
             _dbContext = dbContext;
+            _userRepository = userRepository;
             userPersonalData = new UserPersonalDataPartial();
             userAccountData = new UserAccountDataPartial();
         }
@@ -30,17 +34,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty]
         public UserAccountDataPartial userAccountData { get; set; }
 
-        private UserPersonalDataPartial GetUserPersonalData(int userId)
-        {
-           return _dbContext.Users.Where(u => u.user_id == userId)
-                .Select(u => new UserPersonalDataPartial
-                {
-                    username = u.username,
-                    name = u.name,
-                    surname = u.surname
-                }).First();
-        }
-
         //OnGet and OnPost methods
         public void OnGet()
         {
@@ -50,7 +43,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                userPersonalData = GetUserPersonalData((int)userId);
+                userPersonalData = _userRepository.GetUserPersonalData((int)userId);
             }
             catch
             {
@@ -84,21 +77,22 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Check if there is any other user with that username (exluding us)
-            if (_dbContext.Users.Where(u => u.user_id != userId).Any(ul => ul.username == userPersonalData.username))
+            if (_userRepository.IsUsernameAvailable(userPersonalData.username, userId))
             {
                 validationErrors.Add("Podana nazwa użytkownika jest już zajęta");
                 return new JsonResult(validationErrors);
             }
 
-            //Get the original and replace what changed
-            User originalUserData = _dbContext.Users.Where(u => u.user_id == userId).First();
-            originalUserData.username = userPersonalData.username;
-            originalUserData.name = userPersonalData.name;
-            originalUserData.surname = userPersonalData.surname;
-            _dbContext.Users.Update(originalUserData);
-            _dbContext.SaveChanges();
-
-            return new JsonResult("success");
+            //Check if user didn't deleted session
+            try
+            {
+                return _userRepository.EditPersonalData(userPersonalData, (int)userId);
+            }
+            catch
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
         }
 
         public IActionResult OnPostAccountDataEdit()
@@ -119,7 +113,17 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Check if old password is correct (first need to get current one)
-            User passwordCheck = _dbContext.Users.Where(u => u.user_id == userId).First();
+            User passwordCheck = new User();
+            try
+            {
+                passwordCheck = _userRepository.GetUserById((int)userId);
+            }
+            catch
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
+
             if (!Hash.VerifyPassword(userAccountData.oldPassword, passwordCheck.password, passwordCheck.salt))
             {
                 validationErrors.Add("Podane stare hasło jest nie poprawne");
@@ -133,16 +137,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
             }
 
-            //Get the original and replace what changed
-            User originalUserData = _dbContext.Users.Where(u => u.user_id == userId).First();
-
-            //Generate new salt and hash password
-            originalUserData.salt = Hash.GenerateSalt(16);
-            originalUserData.password = Hash.HashPassword(userAccountData.newPassword, originalUserData.salt);
-            _dbContext.Users.Update(originalUserData);
-            _dbContext.SaveChanges();
-
-            return new JsonResult("success");
+            try
+            {
+                return _userRepository.EditAccountData(userAccountData, (int)userId);
+            }
+            catch
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
         }
 
         //Partial methods
@@ -152,7 +155,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                userPersonalData = GetUserPersonalData((int)userId);
+                userPersonalData = _userRepository.GetUserPersonalData((int)userId);
             }
             catch
             {
