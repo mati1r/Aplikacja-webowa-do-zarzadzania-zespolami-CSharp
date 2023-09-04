@@ -14,12 +14,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     public class LoginModel : PageModel
     {
 
-        private readonly DatabaseContext _dbContext;
         private readonly IUserRepository _userRepository;
 
-        public LoginModel(DatabaseContext dbContext, IUserRepository userRepository)
+        public LoginModel(IUserRepository userRepository)
         {
-            _dbContext = dbContext;
             _userRepository = userRepository;
         }
 
