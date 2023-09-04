@@ -14,7 +14,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     {
         private readonly IUserRepository _userRepository;
 
-        public PasswordRecoveryModel(DatabaseContext dbContext, IUserRepository userRepository)
+        public PasswordRecoveryModel(IUserRepository userRepository)
         {
             _userRepository = userRepository;
         }

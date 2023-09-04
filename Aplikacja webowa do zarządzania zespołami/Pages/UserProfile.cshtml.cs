@@ -13,11 +13,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class UserProfileModel : PageModel
     {
-        private readonly DatabaseContext _dbContext;
         private readonly IUserRepository _userRepository;
-        public UserProfileModel(DatabaseContext dbContext, IUserRepository userRepository)
+        public UserProfileModel(IUserRepository userRepository)
         {
-            _dbContext = dbContext;
             _userRepository = userRepository;
             userPersonalData = new UserPersonalDataPartial();
             userAccountData = new UserAccountDataPartial();
@@ -77,7 +75,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Check if there is any other user with that username (exluding us)
-            if (_userRepository.IsUsernameAvailable(userPersonalData.username, userId))
+            if (_userRepository.IsUsernameTakenUserProfile(userPersonalData.username, userId))
             {
                 validationErrors.Add("Podana nazwa użytkownika jest już zajęta");
                 return new JsonResult(validationErrors);

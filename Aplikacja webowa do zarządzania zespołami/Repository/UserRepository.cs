@@ -1,7 +1,10 @@
-﻿using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+﻿using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
+using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+using Aplikacja_webowa_do_zarządzania_zespołami.Pages;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
@@ -76,7 +79,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Users.Where(u => u.user_id == id).First();
         }
 
-        public bool IsUsernameAvailable(string username, int? userId)
+        public bool IsUsernameTakenUserProfile(string username, int? userId)
         {
             return _dbContext.Users.Where(u => u.user_id != userId).Any(ul => ul.username == username);
         }
@@ -98,6 +101,62 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             _dbContext.SaveChanges();
 
             return new JsonResult("success");
+        }
+
+        //Register
+        public bool IsUsernameTaken(string username)
+        {
+            return _dbContext.Users.Any(ul => ul.username == username);
+        }
+
+        public void CreateAccount(User userData)
+        {
+            userData.salt = Hash.GenerateSalt(16);
+            userData.password = Hash.HashPassword(userData.password, userData.salt);
+            _dbContext.Users.Add(userData);
+            _dbContext.SaveChanges();
+        }
+
+        public List<User> GetAllUsers()
+        {
+            return _dbContext.Users.ToList();
+        }
+
+        public LoginUserDTO GetDataOfLogingUser(List<User> usersList, UserDTO userCredentials)
+        {
+            return usersList
+                .Where(ul => ul.e_mail == userCredentials.e_mail && Hash.VerifyPassword(userCredentials.password, ul.password, ul.salt))
+                .Select(u => new LoginUserDTO
+                {
+                    userId = u.user_id,
+                    username = u.username
+                })
+                .First();
+        }
+
+        public bool IsUserAnOwner(LoginUserDTO userData)
+        {
+            return _dbContext.Users_Groups.Where(ugl => ugl.role == "owner").Any(ugl => ugl.users_user_id == userData.userId);
+        }
+
+        public int GetOwnerGroupId(LoginUserDTO userData)
+        {
+            return _dbContext.Users_Groups
+                    .Where(ugl => ugl.users_user_id == userData.userId && ugl.role == "owner")
+                    .Select(ugl => ugl.users_user_id).First();
+        }
+
+        public bool IsUserActiveMemberOfGroup(LoginUserDTO userData)
+        {
+            return _dbContext.Users_Groups.Any(ugl => ugl.users_user_id == userData.userId && ugl.status == "active");
+        }
+
+        public int GetUserGroupId(LoginUserDTO userData)
+        {
+            return _dbContext.Users_Groups
+                    .Where(ugl => ugl.users_user_id == userData.userId && ugl.status == "active" && ugl.role == "user")
+                    .Select(ug => ug.groups_group_id)
+                    .First();
         }
     }
 }

@@ -3,9 +3,11 @@ using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
+using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
@@ -13,10 +15,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     {
 
         private readonly DatabaseContext _dbContext;
+        private readonly IUserRepository _userRepository;
 
-        public LoginModel(DatabaseContext dbContext)
+        public LoginModel(DatabaseContext dbContext, IUserRepository userRepository)
         {
             _dbContext = dbContext;
+            _userRepository = userRepository;
         }
 
         public string error;
@@ -38,77 +42,50 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
         }
 
+        //Private methods
+        private bool AreCredentialsCorrect(List<User> usersList)
+        {
+            return usersList.Any(ul => ul.e_mail == userCredentials.e_mail && Hash.VerifyPassword(userCredentials.password, ul.password, ul.salt));
+        }
 
-        public void OnPost() 
+        public IActionResult OnPost() 
         {
             //Reset the value of the error
             error = "";
             if (!ModelState.IsValid)
             {
-                Page();
+                return Page();
             }
+
+            List<User> usersList = _userRepository.GetAllUsers();
+            if (!AreCredentialsCorrect(usersList))
+            {
+                error = "Podane dane są niepoprawne";
+                return Page();
+            }
+
+            //Get the Id and name of user that is trying to login
+            LoginUserDTO userData = _userRepository.GetDataOfLogingUser(usersList, userCredentials);
+
+            if (_userRepository.IsUserAnOwner(userData))
+            {
+                SetSessionData("Owner", userData.userId, _userRepository.GetOwnerGroupId(userData), userData.username);
+                return Redirect("/Zarzadzanie zadaniami");
+            }
+            //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
+
+            //Check if user is a part of any group and if he have an active member status
+            if (_userRepository.IsUserActiveMemberOfGroup(userData))
+            {
+                SetSessionData("User", userData.userId, _userRepository.GetUserGroupId(userData), userData.username);
+            }
+            //If user is not part of any group or he is not active in any set session group to 0
             else
             {
-                var usersList = _dbContext.Users.ToList<User>();
-                var usersGroupsList = _dbContext.Users_Groups.ToList<User_Group>();
-                string userEmail = userCredentials.e_mail;
-                string password = userCredentials.password;
-
-                //Check if data submited by user are valid
-                error = UserValidation.IsUserLoginValid(userCredentials.e_mail, userCredentials.password);
-                if (error == "")
-                {
-                    //Check if credentials are correct for any avaiable user
-                    if (usersList.Any(ul => ul.e_mail == userEmail && Hash.VerifyPassword(password, ul.password, ul.salt)))
-                    {
-                        //Get the Id and name of user that is trying to login
-                        var userData = usersList
-                            .Where(ul => ul.e_mail == userEmail && Hash.VerifyPassword(password, ul.password, ul.salt))
-                            .Select(u => new
-                            {
-                                userId = u.user_id,
-                                username = u.username
-                            })
-                            .First();
-
-                        var ownerList = usersGroupsList.Where(ugl => ugl.role == "owner").Select(ugl => ugl.users_user_id).ToList();
-
-                        //Check if user that is trying to login is a owner of any group if so then log him to one of his groups
-                        if (ownerList.Any(ol => ol == userData.userId))
-                        {
-                            var ownerGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userData.userId && ugl.role == "owner")
-                                                               .Select(ugl => ugl.users_user_id).First();
-                            //Set session propertise
-                            SetSessionData("Owner", userData.userId, ownerGroupId, userData.username);
-                            Response.Redirect("/Zarzadzanie zadaniami");
-                        }
-                        //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
-                        else
-                        {
-                            //Check if user is a part of any group and if he have an active member status
-                            if (usersGroupsList.Any(ugl => ugl.users_user_id == userData.userId && ugl.status == "active"))
-                            {
-                                //Find a group fo a user
-                                var userGroupId = usersGroupsList.Where(ugl => ugl.users_user_id == userData.userId && ugl.status == "active" && ugl.role == "user")
-                                                                  .Select(ug => ug.groups_group_id).First();
-                                //Set session propertise
-                                SetSessionData("User", userData.userId, userGroupId, userData.username);
-                            }
-                            //If user is not part of any group or he is not active in any set session group to 0
-                            else
-                            {
-                                SetSessionData("User", userData.userId, 0, userData.username);
-                            }
-                            Response.Redirect("/Zadania");
-                        }
-                    }
-                    //If there is no such user in system
-                    else
-                    {
-                        error = "Podane dane są niepoprawne";
-                    }
-                }
+                SetSessionData("User", userData.userId, 0, userData.username);
             }
+            return Redirect("/Zadania");           
+            
         }
     }
 }

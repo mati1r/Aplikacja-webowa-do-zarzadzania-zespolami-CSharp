@@ -1,4 +1,5 @@
-﻿using Aplikacja_webowa_do_zarządzania_zespołami.Models;
+﻿using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
+using Aplikacja_webowa_do_zarządzania_zespołami.Models;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,9 +17,21 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
 
         //User Profile
         UserPersonalDataPartial GetUserPersonalData(int userId);
-        bool IsUsernameAvailable(string username, int? userId);
+        bool IsUsernameTakenUserProfile(string username, int? userId);
         User GetUserById(int id);
         JsonResult EditPersonalData(UserPersonalDataPartial userPersonalData, int userId);
         JsonResult EditAccountData(UserAccountDataPartial userAccountData, int userId);
+
+        //Register
+        bool IsUsernameTaken(string username);
+        void CreateAccount(User userData);
+
+        //Login
+        List<User> GetAllUsers();
+        LoginUserDTO GetDataOfLogingUser(List<User> usersList, UserDTO userCredentials);
+        bool IsUserAnOwner(LoginUserDTO userData);
+        int GetOwnerGroupId(LoginUserDTO userData);
+        bool IsUserActiveMemberOfGroup(LoginUserDTO userData);
+        int GetUserGroupId(LoginUserDTO userData);
     }
 }
