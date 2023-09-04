@@ -133,30 +133,5 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                 })
                 .First();
         }
-
-        public bool IsUserAnOwner(LoginUserDTO userData)
-        {
-            return _dbContext.Users_Groups.Where(ugl => ugl.role == "owner").Any(ugl => ugl.users_user_id == userData.userId);
-        }
-
-        public int GetOwnerGroupId(LoginUserDTO userData)
-        {
-            return _dbContext.Users_Groups
-                    .Where(ugl => ugl.users_user_id == userData.userId && ugl.role == "owner")
-                    .Select(ugl => ugl.users_user_id).First();
-        }
-
-        public bool IsUserActiveMemberOfGroup(LoginUserDTO userData)
-        {
-            return _dbContext.Users_Groups.Any(ugl => ugl.users_user_id == userData.userId && ugl.status == "active");
-        }
-
-        public int GetUserGroupId(LoginUserDTO userData)
-        {
-            return _dbContext.Users_Groups
-                    .Where(ugl => ugl.users_user_id == userData.userId && ugl.status == "active" && ugl.role == "user")
-                    .Select(ug => ug.groups_group_id)
-                    .First();
-        }
     }
 }

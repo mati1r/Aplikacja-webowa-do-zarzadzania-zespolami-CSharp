@@ -3,10 +3,6 @@ using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
 using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
@@ -15,10 +11,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     {
 
         private readonly IUserRepository _userRepository;
+        private readonly IGroupRepository _groupRepository;
 
-        public LoginModel(IUserRepository userRepository)
+        public LoginModel(IUserRepository userRepository, IGroupRepository groupRepository)
         {
             _userRepository = userRepository;
+            _groupRepository = groupRepository;
         }
 
         public string error;
@@ -65,17 +63,17 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get the Id and name of user that is trying to login
             LoginUserDTO userData = _userRepository.GetDataOfLogingUser(usersList, userCredentials);
 
-            if (_userRepository.IsUserAnOwner(userData))
+            if (_groupRepository.IsUserAnOwner(userData))
             {
-                SetSessionData("Owner", userData.userId, _userRepository.GetOwnerGroupId(userData), userData.username);
+                SetSessionData("Owner", userData.userId, _groupRepository.GetOwnerGroupId(userData), userData.username);
                 return Redirect("/Zarzadzanie zadaniami");
             }
             //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
 
             //Check if user is a part of any group and if he have an active member status
-            if (_userRepository.IsUserActiveMemberOfGroup(userData))
+            if (_groupRepository.IsUserActiveMemberOfGroup(userData))
             {
-                SetSessionData("User", userData.userId, _userRepository.GetUserGroupId(userData), userData.username);
+                SetSessionData("User", userData.userId, _groupRepository.GetUserGroupId(userData), userData.username);
             }
             //If user is not part of any group or he is not active in any set session group to 0
             else

@@ -29,9 +29,5 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
         //Login
         List<User> GetAllUsers();
         LoginUserDTO GetDataOfLogingUser(List<User> usersList, UserDTO userCredentials);
-        bool IsUserAnOwner(LoginUserDTO userData);
-        int GetOwnerGroupId(LoginUserDTO userData);
-        bool IsUserActiveMemberOfGroup(LoginUserDTO userData);
-        int GetUserGroupId(LoginUserDTO userData);
     }
 }
