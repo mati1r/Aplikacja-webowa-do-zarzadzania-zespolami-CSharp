@@ -83,7 +83,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(modelStateValidationErrors);
             }
 
-            if (_groupRepository.IsGroupNameTaken(groupId, group.name))
+            if (_groupRepository.IsGroupNameTakenChange(groupId, group.name))
             {
                 validationErrors.Add("Jest już grupa o tej nazwie");
                 return new JsonResult(validationErrors);
