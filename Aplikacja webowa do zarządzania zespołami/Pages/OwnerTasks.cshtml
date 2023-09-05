@@ -133,9 +133,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <button type="button" class="btn btn-danger" id="deleteButton">Usuń</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn">Usuń</button>
                     <input type="hidden" asp-for="createOrEditTask.task_id" id="update" />
-                    <input class="btn btn-primary" id="editButton" type="submit" value="Edytuj zadanie" />
+                    <button type="button" class="btn btn-primary" id="editBtn">Edytuj zadanie</button>
                 </div>
             </form>
         </div>
@@ -223,7 +223,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
                     <input type="hidden" asp-for="createOrEditTask.task_id" id="update" />
-                    <input class="btn btn-primary" id="submitButton" type="submit" value="Stwórz zadanie" />
+                    <button type="button" class="btn btn-primary" id="submitBtn">Stwórz zadanie</button>
                 </div>
             </form>
         </div>
@@ -261,12 +261,16 @@
             $("#task-user-hidden2").val(selectizeValue);
 
             //Change action for submit
-            $("#deleteButton").click(function () {
+            $("#deleteBtn").click(function () {
                 $("form").attr("action", "/OwnerTasks?handler=Delete");
                 $("form").submit();
             });
 
-            $("#editButton").click(function () {
+            $("#submitBtn").click(function () {
+                $("form").submit();
+            });
+
+            $("#editBtn").click(function () {
                 $("form").attr("action", "/OwnerTasks?handler=Edit");
                 $("form").submit();
             });

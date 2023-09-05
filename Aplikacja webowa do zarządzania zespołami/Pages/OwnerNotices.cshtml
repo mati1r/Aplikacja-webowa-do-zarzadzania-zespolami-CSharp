@@ -75,9 +75,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <button class="btn btn-danger" id="deleteButton">Usuń</button>
+                    <button type="button" class="btn btn-danger" id="deleteBtn">Usuń</button>
                     <input type="hidden" asp-for="notice.message_id" id="update" />
-                    <button class="btn btn-primary" id="editButton">Edytuj</button>
+                    <button type="button" class="btn btn-primary" id="editBtn">Edytuj</button>
                 </div>
             </form>
         </div>
@@ -113,7 +113,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <button class="btn btn-primary" id="addButton">Dodaj</button>
+                    <button type="button" class="btn btn-primary" id="addBtn">Dodaj</button>
                 </div>
             </form>
         </div>
@@ -124,16 +124,20 @@
     <script>
         $(document).ready(function () {
 
+            $("#addBtn").click(function () {
+                $("#addForm").submit();
+            });
+
             //Changing form action to edit
-            $("#editButton").click(function () {
+            $("#editBtn").click(function () {
                 $("#deleteEditForm").attr("action", "/OwnerNotices?handler=Edit");
-                $("#deleteEditForm").attr("asp-page-handler", "Edit");
+                $("#deleteEditForm").submit();
             });
 
             //Changing form action to delete
-            $("#deleteButton").click(function () {
+            $("#deleteBtn").click(function () {
                 $("#deleteEditForm").attr("action", "/OwnerNotices?handler=Delete");
-                $("#deleteEditForm").attr("asp-page-handler", "Delete");
+                $("#deleteEditForm").submit();
             });
 
             //Cleaning function on modal call and submit

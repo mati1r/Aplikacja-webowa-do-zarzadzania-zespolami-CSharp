@@ -56,7 +56,7 @@
 @section scripts{
     <script>
         //Declaring form handler function
-        function handleFormSubmit(form, valmsgFor) {
+        function HandleFormSubmit(form, valmsgFor) {
             let actionUrl = form.attr("action");
 
             $.ajax({
@@ -87,7 +87,7 @@
             });
         }
 
-        function highlightBtn(btn){
+        function HighlightBtn(btn){
             //Remove class that highlight current "page" from all butttons
             $(".btn-profile").removeClass("btn-profile-active");
             //Add class to current button
@@ -97,7 +97,7 @@
         $(document).ready(function () {
 
             $("#personalData").click(function () {
-                highlightBtn(this)
+                HighlightBtn(this)
 
                 if ($("#dataContainer").children().length > 0) {
                     $("#dataContainer").empty();
@@ -113,7 +113,7 @@
             });
 
             $("#accountData").click(function () {
-                highlightBtn(this)
+                HighlightBtn(this)
 
                 if ($("#dataContainer").children().length > 0) {
                     $("#dataContainer").empty();
@@ -139,7 +139,7 @@
             //Form submit handler to show valmgs (It is used only on first page load then we need to use the after ajax one)
             $("#personalForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmit($(this), "username");
+                HandleFormSubmit($(this), "username");
             });
         });
 
@@ -155,7 +155,7 @@
                 //Form submit handler to show valmgs
                 $("#personalForm").submit(function (event) {
                     event.preventDefault();
-                    handleFormSubmit($(this), "username");
+                    HandleFormSubmit($(this), "username");
                 });
             }
 
@@ -169,7 +169,7 @@
                 //Form submit handler to show valmgs
                 $("#accountForm").submit(function (event) {
                     event.preventDefault();
-                    handleFormSubmit($(this), "newPasswordRepeat");
+                    HandleFormSubmit($(this), "newPasswordRepeat");
                 });
             }
         });
