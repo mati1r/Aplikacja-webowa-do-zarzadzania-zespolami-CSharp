@@ -4,16 +4,19 @@ using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class EditGroupModel : PageModel
     {
         private readonly DatabaseContext _dbContext;
+        private readonly IGroupRepository _groupRepository;
 
-        public EditGroupModel(DatabaseContext dbContext)
+        public EditGroupModel(DatabaseContext dbContext, IGroupRepository groupRepository)
         {
             _dbContext = dbContext;
+            _groupRepository = groupRepository;
             group = new Group();
             pendingUsersList = new List<User>();
             activeUsersList = new List<User>();
@@ -52,6 +55,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             return _dbContext.Users.Where(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active" 
                                           && ug.users_user_id != ug.Groups.owner_id && ug.users_user_id != userId)).ToList();
+        }
+
+        //Private methods
+        private void SetSessionData(string userType, int groupId)
+        {
+            HttpContext.Session.SetString(ConstVariables.GetKeyValue(1), userType);
+            HttpContext.Session.SetInt32(ConstVariables.GetKeyValue(3), groupId);
         }
 
         //On get and post methods
@@ -109,6 +119,53 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
 
             }
+            return new JsonResult("success");
+        }
+
+        private bool IsUserAnCreator(int? userId, int? groupId)
+        {
+            return _dbContext.Groups.Any(g => g.group_id == groupId && g.owner_id == userId);
+        }
+
+        public IActionResult OnPostDelete()
+        {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            List<string> validationErrors = new List<string>();
+            //Sprawdzić czy osoba usuwająca jest twórcą jezeli jest to usunąć
+            if (!IsUserAnCreator(userId, groupId))
+            {
+                validationErrors.Add("Użytkownik nie posiada uprawnień do usunięcia grupy");
+                return new JsonResult(validationErrors);
+            }
+
+            List<Models.Task> groupTasks = _dbContext.Tasks.Where(g => g.groups_group_id == groupId).ToList();
+            List<Message> groupMessages = _dbContext.Messages.Where(m => m.groups_group_id == groupId).ToList();
+            List<Message_User> groupMessagesUsers = _dbContext.Messages_Users.Where(mu => mu.Messages.groups_group_id == groupId).ToList();
+            List<User_Group> groupUsers = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupId).ToList();
+            Group group = _dbContext.Groups.Where(g => g.group_id == groupId).First();
+
+            _dbContext.Tasks.RemoveRange(groupTasks);
+            _dbContext.Messages_Users.RemoveRange(groupMessagesUsers);
+            _dbContext.Messages.RemoveRange(groupMessages);
+            _dbContext.Users_Groups.RemoveRange(groupUsers);
+            _dbContext.Groups.Remove(group);
+            _dbContext.SaveChanges();
+
+            //After removing old group log user to new group
+            if (_groupRepository.IsUserAnOwner((int)userId))
+            {
+                SetSessionData("Owner", _groupRepository.GetOwnerGroupId((int)userId));
+            }
+            else if (_groupRepository.IsUserActiveMemberOfGroup((int)userId))
+            {
+                SetSessionData("User", _groupRepository.GetUserGroupId((int)userId));
+            }
+            else
+            {
+                SetSessionData("User", 0);
+            }
+
             return new JsonResult("success");
         }
 

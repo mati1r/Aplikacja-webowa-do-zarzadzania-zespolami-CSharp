@@ -11,27 +11,27 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             _dbContext = dbContext;
         }
         //Login
-        public bool IsUserAnOwner(LoginUserDTO userData)
+        public bool IsUserAnOwner(int userId)
         {
-            return _dbContext.Users_Groups.Where(ugl => ugl.role == "owner").Any(ugl => ugl.users_user_id == userData.userId);
+            return _dbContext.Users_Groups.Where(ugl => ugl.role == "owner").Any(ugl => ugl.users_user_id == userId);
         }
 
-        public int GetOwnerGroupId(LoginUserDTO userData)
+        public int GetOwnerGroupId(int userId)
         {
             return _dbContext.Users_Groups
-                    .Where(ugl => ugl.users_user_id == userData.userId && ugl.role == "owner")
-                    .Select(ugl => ugl.users_user_id).First();
+                    .Where(ugl => ugl.users_user_id == userId && ugl.role == "owner")
+                    .Select(ugl => ugl.groups_group_id).First();
         }
 
-        public bool IsUserActiveMemberOfGroup(LoginUserDTO userData)
+        public bool IsUserActiveMemberOfGroup(int userId)
         {
-            return _dbContext.Users_Groups.Any(ugl => ugl.users_user_id == userData.userId && ugl.status == "active");
+            return _dbContext.Users_Groups.Any(ugl => ugl.users_user_id == userId && ugl.status == "active");
         }
 
-        public int GetUserGroupId(LoginUserDTO userData)
+        public int GetUserGroupId(int userId)
         {
             return _dbContext.Users_Groups
-                    .Where(ugl => ugl.users_user_id == userData.userId && ugl.status == "active" && ugl.role == "user")
+                    .Where(ugl => ugl.users_user_id == userId && ugl.status == "active" && ugl.role == "user")
                     .Select(ug => ug.groups_group_id)
                     .First();
         }

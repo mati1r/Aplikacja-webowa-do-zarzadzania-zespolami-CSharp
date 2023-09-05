@@ -13,7 +13,7 @@
                         <div class="container">
                             <h3>Dane grupy</h3>
                             <hr/>
-                            <form method="post" id="editForm" asp-page-handler="Edit">
+                            <form method="post" id="editGroupForm" asp-page-handler="Edit">
                                 <div class="mb-4 col-md-6">
                                     <label class="form-label" for="name">Nazwa</label><br />
                                     <input type="text" id="name" class="form-control form-control-lg text-light input-background" asp-for="name" />
@@ -25,13 +25,37 @@
                                     <span asp-validation-for="description" class="text-danger"></span>
                                 </div>
                                 <div class="d-flex justify-content-end mb-3">
-                                    <button class="btn btn-primary">Zatwierdź zmiany</button>
+                                    <button type="button" class="btn btn-danger px-3 me-2" id="deleteGroupDataBtn">Usuń grupe</button>
+                                    <button type="button" class="btn btn-primary px-3" id="editGroupDataBtn">Zatwierdź zmiany</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm delete group modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="confirm-delete-modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="deleteGroupForm" asp-page-handler="Delete">
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="mb-3 mt-3">
+                            <h4>Czy na pewno chcesz usunąć grupe?</h4>
+                        </div>
+                    </div>
+                    <hr />
+                    <span asp-validation-for="description" class="text-danger ms-3"></span>
+                    <div class="text-end mb-3">
+                        <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
+                        <button type="button" class="btn btn-danger px-5 me-2" id="confirmGroupDeleteBtn">Tak</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>

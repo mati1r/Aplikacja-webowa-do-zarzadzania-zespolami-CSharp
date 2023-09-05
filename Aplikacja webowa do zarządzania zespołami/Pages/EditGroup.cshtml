@@ -43,12 +43,12 @@
             <form method="post" id="acceptPendingForm" asp-page-handler="AcceptPendingUser">
                 <div class="modal-body">
                     <div class="container">
-                        <span asp-validation-for="pendingUserId" class="text-danger"></span>
                         <div class="mb-3 mt-3">
                             <h4>Czy na pewno chcesz przyjąć użytkownika do grupy</h4>
                         </div>
                     </div>
                     <hr/>
+                    <span asp-validation-for="pendingUserId" class="text-danger ms-3"></span>
                     <div class="text-end mb-3">
                         <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
                         <input type="hidden" asp-for="pendingUserId" id="pending-user-id" />
@@ -97,18 +97,19 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zamknij</button>
-                    <button type="button" class="btn btn-danger me-2" id="removeButton">Usuń z grupy</button>
+                    <button type="button" class="btn btn-danger me-2" id="removeBtn">Usuń z grupy</button>
                     <input type="hidden" asp-for="activeUserId" id="active-user-id" />
-                    <button type="button" class="btn btn-primary" id="editButton">Edytuj role</button>
+                    <button type="button" class="btn btn-primary" id="editBtn">Edytuj role</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+
 @section scripts{
     <script>
-        function handleFormSubmit(form, valmsgFor) {
+        function HandleFormSubmit(form, valmsgFor) {
             let actionUrl = form.attr("action");
 
             $.ajax({
@@ -123,13 +124,13 @@
                     } else {
                         $("#accept-pending-user-modal").modal("hide");
                         $("#manage-user-modal").modal("hide");
-                        invokeAjaxCallPendingUsers();
-                        invokeAjaxCallActiveUsers();
+                        InvokeAjaxCallPendingUsers();
+                        InvokeAjaxCallActiveUsers();
                     }
                 }
             });
         }
-        function handleFormSubmitEdit(form, valmsgFor) {
+        function HandleFormSubmitEdit(form, valmsgFor) {
             let actionUrl = form.attr("action");
 
             $.ajax({
@@ -154,13 +155,47 @@
                         let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
                         nameValidationError.text(data[0]);
                     } else {
-                        invokeAjaxCallEdit();
+                        InvokeAjaxCallEdit();
+                    }
+                }
+            });
+        }
+        function HandleFormSubmitDelete(form, valmsgFor) {
+            let actionUrl = form.attr("action");
+
+            $.ajax({
+                type: form.attr("method"),
+                url: actionUrl,
+                data: form.serialize(),
+                dataType: "json",
+                success: function (data) {
+                    if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                        let keys = Object.keys(data);
+
+                        for (let i = 0; i < keys.length; i++) {
+                            let key = keys[i];
+                            let errors = data[key];
+                            let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+
+                            if (errorSpan.length > 0) {
+                                errorSpan.text(errors[0]);
+                            }
+                        }
+                    } else if (Array.isArray(data) && data.length > 0) {
+                        let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
+                        nameValidationError.text(data[0]);
+                    } else {
+                        //Redirect user to new page
+                        let pageName = "ActiveGroup";
+                        let url = `/${pageName}`;
+
+                        window.location.href = url;
                     }
                 }
             });
         }
 
-        function invokeAjaxCallEdit() {
+        function InvokeAjaxCallEdit() {
             if ($("#groupEditGroupContainer").children().length > 0) {
                 $("#groupEditGroupContainer").empty();
             }
@@ -174,7 +209,7 @@
             });
         }
 
-        function invokeAjaxCallPendingUsers() {
+        function InvokeAjaxCallPendingUsers() {
             if ($("#groupPendingUsersContainer").children().length > 0) {
                 $("#groupPendingUsersContainer").empty();
             }
@@ -188,7 +223,7 @@
             });
         }
 
-        function invokeAjaxCallActiveUsers() {
+        function InvokeAjaxCallActiveUsers() {
             if ($("#groupActiveUsersContainer").children().length > 0) {
                 $("#groupActiveUsersContainer").empty();
             }
@@ -202,18 +237,44 @@
             });
         }
 
-        function clearValidationMessagesOnSubmit(){
-            //Clear valmgs on submit
+        function ClearValidationMessagesOnSubmit(){
             $("form").on('submit', function () {
                 $("span[data-valmsg-for]").text("");
             });
         }
 
-        function editPartial(){
-            //Form submit handler to show valmgs
-            $("#editForm").submit(function (event) {
+        function EditPartialSubmitHandler(){
+            $("#editGroupForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmitEdit($(this), "description");
+                HandleFormSubmitEdit($(this), "description");
+            });
+        }
+
+        function DeletePartialSubmitHandler() {
+            $("#deleteGroupForm").submit(function (event) {
+                event.preventDefault();
+                HandleFormSubmitDelete($(this), "description");
+            });
+        }
+
+        function EditGroupDataBtnAction()
+        {
+            //Submit on button click
+            $("#editGroupDataBtn").click(function () {
+                $("#editGroupForm").submit();
+            });
+        }
+
+        function DeleteGroupBtnAction()
+        {
+            $("#confirmGroupDeleteBtn").click(function () {
+                $("#deleteGroupForm").submit();
+            });
+
+            //Action for delete button in edit-modal
+            $("#deleteGroupDataBtn").click(function () {
+                $("span[data-valmsg-for]").text("");
+                $("#confirm-delete-modal").modal("show");
             });
         }
 
@@ -227,16 +288,19 @@
                 $("span[data-valmsg-for]").text("");
             });
 
-            clearValidationMessagesOnSubmit();
-            editPartial();
+            ClearValidationMessagesOnSubmit();
+            EditPartialSubmitHandler();
+            EditGroupDataBtnAction();
+            DeletePartialSubmitHandler();
+            DeleteGroupBtnAction();
 
             //Change action for submit
-            $("#removeButton").click(function () {
+            $("#removeBtn").click(function () {
                 $("#editActiveUserForm").attr("action", "/EditGroup?handler=RemoveUser");
                 $("#editActiveUserForm").submit();
             });
 
-            $("#editButton").click(function () {
+            $("#editBtn").click(function () {
                 $("#editActiveUserForm").attr("action", "/EditGroup?handler=EditUserRole");
                 $("#editActiveUserForm").submit();
             });
@@ -258,12 +322,12 @@
             //Form submit handling
             $("#acceptPendingForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmit($(this), "pendingUserId");
+                HandleFormSubmit($(this), "pendingUserId");
             });
 
             $("#editActiveUserForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmit($(this), "activeUserId");
+                HandleFormSubmit($(this), "activeUserId");
             });
         });
 
@@ -271,8 +335,13 @@
 
         $(document).ajaxSuccess(function (event, xhr, settings) {
             if (settings.url === '@Url.Page("EditGroup", "EditPartial")') {
-                clearValidationMessagesOnSubmit();
-                editPartial();
+                ClearValidationMessagesOnSubmit();
+
+                //Need to get those actions once again
+                EditPartialSubmitHandler();
+                EditGroupDataBtnAction();
+                DeletePartialSubmitHandler();
+                DeleteGroupBtnAction();
             }
         });
     </script>

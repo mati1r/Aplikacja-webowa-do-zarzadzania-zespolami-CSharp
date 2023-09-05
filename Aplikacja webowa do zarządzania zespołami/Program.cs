@@ -1,20 +1,22 @@
 using Aplikacja_webowa_do_zarz¹dzania_zespo³ami.Models;
 using Aplikacja_webowa_do_zarz¹dzania_zespo³ami.Repository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddTransient<IMessageRepository, MessageRepository>();
-builder.Services.AddTransient<IUserRepository, UserRepository>();
-builder.Services.AddTransient<IGroupRepository, GroupRepository>();
-builder.Services.AddTransient<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+string connectionString = builder.Configuration.GetConnectionString(("DefaultConnection"));
     builder.Services.AddDbContext<DatabaseContext>(options =>
-        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)), ServiceLifetime.Scoped);
+
 builder.Services.AddSession();
 builder.Services.AddDistributedMemoryCache();
 
