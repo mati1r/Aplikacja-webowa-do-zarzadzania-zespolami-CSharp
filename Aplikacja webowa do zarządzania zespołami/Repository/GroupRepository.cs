@@ -84,22 +84,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                 .First();
         }
 
-        public List<User> GetPendingUsersList(int groupId)
-        {
-            return _dbContext.Users
-                .Where(u => u.Users_Groups
-                .Any(ug => ug.groups_group_id == groupId && ug.status == "pending"))
-                .ToList();
-        }
-
-        public List<User> GetActiveUsersList(int groupId, int userId)
-        {
-            return _dbContext.Users
-                .Where(u => u.Users_Groups
-                .Any(ug => ug.groups_group_id == groupId && ug.status == "active" && ug.users_user_id != ug.Groups.owner_id && ug.users_user_id != userId))
-                .ToList();
-        }
-
         public bool IsUserAnCreator(int? userId, int? groupId)
         {
             return _dbContext.Groups.Any(g => g.group_id == groupId && g.owner_id == userId);

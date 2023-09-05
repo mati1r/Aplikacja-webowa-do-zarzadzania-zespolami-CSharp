@@ -10,13 +10,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class EditGroupModel : PageModel
     {
-        private readonly DatabaseContext _dbContext;
         private readonly IGroupRepository _groupRepository;
+        private readonly IUserRepository _userRepository;
 
-        public EditGroupModel(DatabaseContext dbContext, IGroupRepository groupRepository)
+        public EditGroupModel(IGroupRepository groupRepository, IUserRepository userRepository)
         {
-            _dbContext = dbContext;
             _groupRepository = groupRepository;
+            _userRepository = userRepository;
             group = new Group();
             pendingUsersList = new List<User>();
             activeUsersList = new List<User>();
@@ -59,8 +59,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             try
             {
                 group = _groupRepository.GetActiveGroup((int)groupId);
-                pendingUsersList = _groupRepository.GetPendingUsersList((int)groupId);
-                activeUsersList = _groupRepository.GetActiveUsersList((int)groupId, (int)userId);
+                pendingUsersList = _userRepository.GetPendingUsersList((int)groupId);
+                activeUsersList = _userRepository.GetActiveUsersList((int)groupId, (int)userId);
             }
             catch
             {
@@ -238,7 +238,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                pendingUsersList = _groupRepository.GetPendingUsersList((int)groupId);
+                pendingUsersList = _userRepository.GetPendingUsersList((int)groupId);
             }
             catch
             {
@@ -255,7 +255,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                activeUsersList = _groupRepository.GetActiveUsersList((int)groupId, (int)userId);
+                activeUsersList = _userRepository.GetActiveUsersList((int)groupId, (int)userId);
             }
             catch
             {

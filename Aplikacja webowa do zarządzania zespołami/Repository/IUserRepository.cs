@@ -29,5 +29,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
         //Login
         List<User> GetAllUsers();
         LoginUserDTO GetDataOfLogingUser(List<User> usersList, UserDTO userCredentials);
+
+        //EditGroup
+        List<User> GetPendingUsersList(int groupId);
+        List<User> GetActiveUsersList(int groupId, int userId);
     }
 }

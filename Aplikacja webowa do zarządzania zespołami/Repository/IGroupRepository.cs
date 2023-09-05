@@ -20,8 +20,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
 
         //Edit Group Page
         Group GetActiveGroup(int groupId);
-        List<User> GetPendingUsersList(int groupId);
-        List<User> GetActiveUsersList(int groupId, int userId);
         bool IsUserAnCreator(int? userId, int? groupId);
         bool IsGroupNameTaken(int? groupId, string name);
         void DeleteGroup(int groupId);
