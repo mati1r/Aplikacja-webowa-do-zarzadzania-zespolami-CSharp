@@ -201,7 +201,7 @@
 
 @section scripts{
     <script>
-        function handleFormSubmit(form, valmsgFor) {
+        function HandleFormSubmit(form, valmsgFor) {
             let actionUrl = form.attr("action");
 
             $.ajax({
@@ -227,14 +227,14 @@
                         nameValidationError.text(data[0]);
                     } else {
                         $("#create-modal").modal("hide");
-                        invokeAjaxCallJoin();
-                        invokeAjaxCallQuit();
+                        InvokeAjaxCallJoin();
+                        InvokeAjaxCallQuit();
                     }
                 }
             });
         }
 
-        function initializeDataTable() {
+        function InitializeDataTable() {
 
             $("#DataTable").DataTable({
                 "oLanguage": {
@@ -253,7 +253,7 @@
             });
         }
 
-        function invokeAjaxCallJoin(){
+        function InvokeAjaxCallJoin(){
             $('#join-modal').modal("hide");
 
             if ($("#groupsJoinContainer").children().length > 0) {
@@ -267,12 +267,12 @@
                     $("#groupsJoinContainer").append(partialResult);
 
                     //Once again initialize DT after loading new data
-                    initializeDataTable();
+                    InitializeDataTable();
                 }
             });
         }
 
-        function invokeAjaxCallQuit(){
+        function InvokeAjaxCallQuit(){
             $('#confirm-quit-modal').modal("hide");
 
             if ($("#groupsQuitContainer").children().length > 0) {
@@ -303,7 +303,7 @@
             });
 
             //DataTable
-            initializeDataTable();
+            InitializeDataTable();
 
             $("#groupsJoinContainer").on("click", ".dataTable tbody tr", function () {
                 $.getJSON(`/JoinGroup?handler=GroupJoinJson&id=${$(this).data('id')}`).done(function (group) {
@@ -364,17 +364,17 @@
 
             $("#joinForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmit($(this), "groupJoinId");
+                HandleFormSubmit($(this), "groupJoinId");
             });
 
             $("#quitForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmit($(this), "groupQuitId");
+                HandleFormSubmit($(this), "groupQuitId");
             });
 
             $("#createForm").submit(function (event) {
                 event.preventDefault();
-                handleFormSubmit($(this), "createGroup.description");
+                HandleFormSubmit($(this), "createGroup.description");
             });
         });
     </script>

@@ -78,7 +78,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostAdd()
         {
-            //Reset the value of the error and get session values
             error = "";
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
@@ -99,17 +98,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
             }
 
-            //Get list of actve users in the group
             usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
 
-            //Check if selected user is on the list of users in the group
             if (!IsSelectedUserIsOnTheList(usersList))
             {
-                //If there is no such a user in the group
                 validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
                 return new JsonResult(validationErrors);
             }
-            //Check if start date is lower than end date
             string isDateCorrect = IsEndDateHigherThanStartDate(createOrEditTask.start_date, createOrEditTask.end_date);
             if (isDateCorrect != "")
             {

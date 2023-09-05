@@ -41,22 +41,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         [BindProperty]
         public string activeUserRole { get; set; }
 
-        private Group GetActiveGroup(int groupId)
-        {
-            return _dbContext.Groups.Where(g => g.group_id == groupId).First();
-        }
-
-        private List<User> GetPendingUsersList(int groupId)
-        {
-            return _dbContext.Users.Where(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "pending")).ToList();
-        }
-
-        private List<User> GetActiveUsersList(int groupId, int userId)
-        {
-            return _dbContext.Users.Where(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active" 
-                                          && ug.users_user_id != ug.Groups.owner_id && ug.users_user_id != userId)).ToList();
-        }
-
         //Private methods
         private void SetSessionData(string userType, int groupId)
         {
@@ -74,9 +58,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                group = GetActiveGroup((int)groupId);
-                pendingUsersList = GetPendingUsersList((int)groupId);
-                activeUsersList = GetActiveUsersList((int)groupId, (int)userId);
+                group = _groupRepository.GetActiveGroup((int)groupId);
+                pendingUsersList = _groupRepository.GetPendingUsersList((int)groupId);
+                activeUsersList = _groupRepository.GetActiveUsersList((int)groupId, (int)userId);
             }
             catch
             {
@@ -99,32 +83,21 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(modelStateValidationErrors);
             }
 
-            if (_dbContext.Groups.Any(g => g.name == group.name && g.group_id != groupId))
+            if (_groupRepository.IsGroupNameTaken(groupId, group.name))
             {
                 validationErrors.Add("Jest już grupa o tej nazwie");
                 return new JsonResult(validationErrors);
             }
-
+            //Check if user didn't deleted session data
             try
             {
-                Group originalGroup = GetActiveGroup((int)groupId);
-                originalGroup.name = group.name;
-                originalGroup.description = group.description;
-                _dbContext.Update(originalGroup);
-                _dbContext.SaveChanges();
+                return _groupRepository.EditGroup((int)groupId, group);
             }
             catch
             {
                 validationErrors.Add("Wystąpił błąd");
                 return new JsonResult(validationErrors);
-
             }
-            return new JsonResult("success");
-        }
-
-        private bool IsUserAnCreator(int? userId, int? groupId)
-        {
-            return _dbContext.Groups.Any(g => g.group_id == groupId && g.owner_id == userId);
         }
 
         public IActionResult OnPostDelete()
@@ -133,31 +106,28 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Sprawdzić czy osoba usuwająca jest twórcą jezeli jest to usunąć
-            if (!IsUserAnCreator(userId, groupId))
+            if (!_groupRepository.IsUserAnCreator(userId, groupId))
             {
                 validationErrors.Add("Użytkownik nie posiada uprawnień do usunięcia grupy");
                 return new JsonResult(validationErrors);
             }
 
-            List<Models.Task> groupTasks = _dbContext.Tasks.Where(g => g.groups_group_id == groupId).ToList();
-            List<Message> groupMessages = _dbContext.Messages.Where(m => m.groups_group_id == groupId).ToList();
-            List<Message_User> groupMessagesUsers = _dbContext.Messages_Users.Where(mu => mu.Messages.groups_group_id == groupId).ToList();
-            List<User_Group> groupUsers = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupId).ToList();
-            Group group = _dbContext.Groups.Where(g => g.group_id == groupId).First();
+            try
+            {
+                _groupRepository.DeleteGroup((int)groupId);
+            }
+            catch
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
 
-            _dbContext.Tasks.RemoveRange(groupTasks);
-            _dbContext.Messages_Users.RemoveRange(groupMessagesUsers);
-            _dbContext.Messages.RemoveRange(groupMessages);
-            _dbContext.Users_Groups.RemoveRange(groupUsers);
-            _dbContext.Groups.Remove(group);
-            _dbContext.SaveChanges();
-
-            //After removing old group log user to new group
-            if (_groupRepository.IsUserAnOwner((int)userId))
+            //After removing old group log user to new group if he is part of any
+            if (_groupRepository.IsUserAnOwnerOfAnyGroup((int)userId))
             {
                 SetSessionData("Owner", _groupRepository.GetOwnerGroupId((int)userId));
             }
-            else if (_groupRepository.IsUserActiveMemberOfGroup((int)userId))
+            else if (_groupRepository.IsUserActiveMemberOfAnyGroup((int)userId))
             {
                 SetSessionData("User", _groupRepository.GetUserGroupId((int)userId));
             }
@@ -174,7 +144,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Check if user is in that group and his status is pending
-            if (!_dbContext.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id == pendingUserId && ug.status == "pending"))
+            if (!_groupRepository.IsUserPendingToJoinGroup(pendingUserId, groupId))
             {
                 validationErrors.Add("Wybrany użytkownik nie może być dołączony do grupy");
                 return new JsonResult(validationErrors);
@@ -182,20 +152,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                User_Group pendingUser = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == pendingUserId).First();
-
-                //We don't need to asigne him a role cause it was asigned during pending request
-                pendingUser.status = "active";
-                _dbContext.Update(pendingUser);
-                _dbContext.SaveChanges();
+                return _groupRepository.AcceptPendingUser((int)groupId, pendingUserId);
             }
             catch
             {
                 validationErrors.Add("Wystąpił błąd");
                 return new JsonResult(validationErrors);
             }
-
-            return new JsonResult("success");
         }
 
         public IActionResult OnPostRemoveUser()
@@ -205,19 +168,21 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
-            if (!_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active"
-                                          && ug.Groups.owner_id != activeUserId && userId != activeUserId && ug.users_user_id == activeUserId)))
+            if (!_groupRepository.IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(groupId, userId ,activeUserId))
             {
                 validationErrors.Add("Wybrany użytkownik nie może być usuniety z grupy");
                 return new JsonResult(validationErrors);
             }
 
-
-            User_Group removeUserGroup = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == activeUserId).First();
-            _dbContext.Remove(removeUserGroup);
-            _dbContext.SaveChanges();
-
-            return new JsonResult("success");
+            try
+            {
+                return _groupRepository.RemoveActiveUserFromGroup((int)groupId, activeUserId);
+            }
+            catch
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
         }
 
         public IActionResult OnPostEditUserRole()
@@ -227,8 +192,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
-            if (!_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active"
-                                          && ug.Groups.owner_id != activeUserId && userId != activeUserId && ug.users_user_id == activeUserId)))
+            if (!_groupRepository.IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(groupId, userId, activeUserId))
             {
                 validationErrors.Add("Wybrany użytkownik nie podlega zmianą");
                 return new JsonResult(validationErrors);
@@ -240,14 +204,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
             }
 
-            Console.WriteLine("ROLA = " + activeUserRole);
-
-            User_Group editRoleUserGroup = _dbContext.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == activeUserId).First();
-            editRoleUserGroup.role = activeUserRole;
-            _dbContext.Update(editRoleUserGroup);
-            _dbContext.SaveChanges();
-
-            return new JsonResult("success");
+            try
+            {
+                return _groupRepository.EditRoleOActivefUserInGroup((int)groupId, activeUserId, activeUserRole);
+            }
+            catch
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
         }
 
         //Partial methods
@@ -257,7 +222,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                group = GetActiveGroup((int)groupId);
+                group = _groupRepository.GetActiveGroup((int)groupId);
             }
             catch
             {
@@ -273,7 +238,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                pendingUsersList = GetPendingUsersList((int)groupId);
+                pendingUsersList = _groupRepository.GetPendingUsersList((int)groupId);
             }
             catch
             {
@@ -290,7 +255,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                activeUsersList = GetActiveUsersList((int)groupId, (int)userId);
+                activeUsersList = _groupRepository.GetActiveUsersList((int)groupId, (int)userId);
             }
             catch
             {
@@ -301,40 +266,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Async methods
-        public async Task<ActiveUserDTO> GetActiveUserAsync(int id)
+        public async Task<JsonResult> OnGetActiveUserJsonAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
-
-            //Check if user didn't changed id
-            //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
-            if (_dbContext.Users.Any(u => u.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.status == "active"
-                                          && ug.Groups.owner_id != id && userId != id && ug.users_user_id == id)))
-            {
-                return await _dbContext.Users.Where(u => u.user_id == id)
-                    .SelectMany(u => u.Users_Groups.Where(ug => ug.groups_group_id == groupId && ug.users_user_id == id), (u, ug) => new ActiveUserDTO
-                {
-                    user_id = u.user_id,
-                    username = u.username,
-                    e_mail = u.e_mail,
-                    role = ug.role
-                }).FirstAsync();
-            }
-            else
-            {
-                ActiveUserDTO emptyUser = new ActiveUserDTO();
-                emptyUser.user_id = 0;
-                emptyUser.username = "Błąd";
-                emptyUser.e_mail = "Błąd";
-                emptyUser.role = "user";
-
-                return emptyUser;
-            }
-        }
-
-        public async Task<JsonResult> OnGetActiveUserJsonAsync(int id)
-        {
-            return new JsonResult(await GetActiveUserAsync(id));
+            return new JsonResult(await _groupRepository.GetActiveUserAsync(id, userId, groupId));
         }
     }
 }

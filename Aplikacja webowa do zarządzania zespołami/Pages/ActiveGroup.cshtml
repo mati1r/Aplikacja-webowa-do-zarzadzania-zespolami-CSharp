@@ -23,9 +23,9 @@
                                 <table class="dataTable table table-borderless">
                                     <thead>
                                         <tr>
-                                            <th scope="col" class="col-1">Id</th>
                                             <th scope="col" class="col-3">Nazwa</th>
-                                            <th scope="col" class="col-7">Opis</th>
+                                            <th scope="col" class="col-2">Właściciel</th>
+                                            <th scope="col" class="col-6">Opis</th>
                                             <th scope="col" class="col-1" data-orderable="false">
                                                 <form method="post">
                                                     <input class="btn btn-primary details" type="submit" value="Ustaw jako aktywa" asp-page-handler="ChangeActiveGroup" />
@@ -38,8 +38,8 @@
                                         @foreach (var item in Model.groupList)
                                         {
                                             <tr>
-                                                <td>@item.group_id</td>
                                                 <td>@item.name</td>
+                                                <td>@item.owner_name</td>
                                                 <td>@item.description</td>
                                                 <td>
                                                     <input type="hidden" asp-for="changeGroupId" class="update" value="@item.group_id" />

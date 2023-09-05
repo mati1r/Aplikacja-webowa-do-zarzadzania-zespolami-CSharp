@@ -63,7 +63,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get the Id and name of user that is trying to login
             LoginUserDTO userData = _userRepository.GetDataOfLogingUser(usersList, userCredentials);
 
-            if (_groupRepository.IsUserAnOwner(userData.userId))
+            if (_groupRepository.IsUserAnOwnerOfAnyGroup(userData.userId))
             {
                 SetSessionData("Owner", userData.userId, _groupRepository.GetOwnerGroupId(userData.userId), userData.username);
                 return Redirect("/Zarzadzanie zadaniami");
@@ -71,7 +71,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
 
             //Check if user is a part of any group and if he have an active member status
-            if (_groupRepository.IsUserActiveMemberOfGroup(userData.userId))
+            if (_groupRepository.IsUserActiveMemberOfAnyGroup(userData.userId))
             {
                 SetSessionData("User", userData.userId, _groupRepository.GetUserGroupId(userData.userId), userData.username);
             }
