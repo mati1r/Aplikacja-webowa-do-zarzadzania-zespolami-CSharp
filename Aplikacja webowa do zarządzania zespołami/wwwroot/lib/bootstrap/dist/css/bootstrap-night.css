@@ -3926,22 +3926,16 @@ textarea.form-control-lg {
 
 .dropdown-menu-dark {
     color: #515151;
-    background-color: #cfcfcf;
+    background-color: #2d2d2d;
     border-color: rgba(250,250,250,.15)
 }
-
-    .dropdown-menu-dark .dropdown-item {
-        color: #515151
-    }
-
         .dropdown-menu-dark .dropdown-item:focus, .dropdown-menu-dark .dropdown-item:hover {
-            color: #111;
-            background-color: rgba(17,17,17,.15)
+            color: #375a7f;
+            background-color: #2d2d2d;
         }
 
         .dropdown-menu-dark .dropdown-item.active, .dropdown-menu-dark .dropdown-item:active {
-            color: #fafafa;
-            background-color: #375a7f
+            color: #375a7f;
         }
 
         .dropdown-menu-dark .dropdown-item.disabled, .dropdown-menu-dark .dropdown-item:disabled {

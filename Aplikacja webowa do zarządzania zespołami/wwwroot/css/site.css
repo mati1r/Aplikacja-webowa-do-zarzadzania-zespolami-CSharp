@@ -150,6 +150,12 @@ tbody tr:hover td {
     color: #375a7f;
 }
 
+#sidebar {
+    transition: width 0.5s ease-in-out;
+}
+
+
+
 
 
 
