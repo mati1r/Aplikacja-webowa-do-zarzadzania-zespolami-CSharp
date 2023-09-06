@@ -4,6 +4,7 @@ using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using System.Text.RegularExpressions;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
@@ -18,9 +19,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             _userRepository = userRepository;
             _groupRepository = groupRepository;
         }
-
-        public string error;
-
 
         [BindProperty]
         public UserDTO userCredentials { get; set; }
@@ -46,18 +44,21 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPost() 
         {
-            //Reset the value of the error
-            error = "";
+            List<string> validationErrors = new List<string>();
+
             if (!ModelState.IsValid)
             {
-                return Page();
+                var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
+                    ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                return new JsonResult(modelStateValidationErrors);
             }
 
             List<User> usersList = _userRepository.GetAllUsers();
             if (!AreCredentialsCorrect(usersList))
             {
-                error = "Podane dane są niepoprawne";
-                return Page();
+                validationErrors.Add("Podane dane są niepoprawne");
+                return new JsonResult(validationErrors);
             }
 
             //Get the Id and name of user that is trying to login
@@ -66,7 +67,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             if (_groupRepository.IsUserAnOwnerOfAnyGroup(userData.userId))
             {
                 SetSessionData("Owner", userData.userId, _groupRepository.GetOwnerGroupId(userData.userId), userData.username);
-                return Redirect("/Zarzadzanie zadaniami");
+                return new JsonResult("success");
             }
             //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
 
@@ -80,8 +81,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             {
                 SetSessionData("User", userData.userId, 0, userData.username);
             }
-            return Redirect("/Zadania");           
-            
+            return new JsonResult("success");
+
         }
     }
 }

@@ -50,7 +50,6 @@
                                 <input type="password" id="typePasswordX" class="form-control form-control-lg text-light input-background" asp-for="userData.password" />
                                 <label class="form-label" for="typePasswordX">Hasło</label></br>
                                 <span asp-validation-for="userData.password" class="text-danger"></span>
-                                <span class="text-danger">@Model.error</span>
                             </div>
 
                             <input class="btn btn-outline-primary btn-lg px-5" type="submit" value="Zarejestruj"/>
@@ -64,3 +63,52 @@
         </div>
     </div>
 </section>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+
+            //Clears old valmgs
+            $("form").on("submit", function () {
+                $("span[data-valmsg-for]").text("");
+            });
+
+            //Return errors on validation for specific span
+            $("form").submit(function (event) {
+                event.preventDefault();
+
+                let form = $(this);
+                let actionUrl = form.attr("action");
+
+                $.ajax({
+                    type: form.attr("method"),
+                    url: actionUrl,
+                    data: form.serialize(),
+                    dataType: "json",
+                    success: function (data) {
+                        if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                            let keys = Object.keys(data);
+
+                            for (let i = 0; i < keys.length; i++) {
+                                let key = keys[i];
+                                let errors = data[key];
+                                let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+                                errorSpan.text(errors[0]);
+
+                            }
+                        } else if (Array.isArray(data) && data.length > 0) {
+                            let ValidationError = $(`span[data-valmsg-for="userData.password"]`);
+                            ValidationError.text(data[0]);
+                        }
+                        else {
+
+                            let pageName = "";
+                            let url = `/${pageName}`;
+                            window.location.href = url;
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+}

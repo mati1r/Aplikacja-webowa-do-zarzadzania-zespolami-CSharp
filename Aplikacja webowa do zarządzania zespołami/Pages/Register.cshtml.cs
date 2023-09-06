@@ -18,7 +18,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         [BindProperty]
         public User userData { get; set; }
-        public string error;
 
         //OnGet and OnPost methods
         public void OnGet()
@@ -27,38 +26,42 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPost() 
         {
-            //Reset the value of the error
-            error = "";
+            List<string> validationErrors = new List<string>();
+
             if (!ModelState.IsValid)
             {
-                return Page();
+                var modelStateValidationErrors = ModelState.ToDictionary(ms => ms.Key,
+                    ms => ms.Value.Errors.Select(e => e.ErrorMessage).ToList());
+
+                return new JsonResult(modelStateValidationErrors);
             }
 
             //Check if there is already a user using this e-mail or this username
             if (_userRepository.IsAccountWithEmail(userData.e_mail))
             {
-                error = "Istnieje już użytkownik korzystający z tego adresu e-mail";
-                return Page();
+                validationErrors.Add("Istnieje już użytkownik korzystający z tego adresu e-mail");
+                return new JsonResult(validationErrors);
             }
 
             if (_userRepository.IsUsernameTaken(userData.username))
             {
-                error = "Podana nazwa użytkownika jest już zajęta";
-                return Page();
+                validationErrors.Add("Podana nazwa użytkownika jest już zajęta");
+                return new JsonResult(validationErrors);
             }
 
             //Validate data that user submited, don't chceck name and surname if it was not provided
-            error = UserValidation.IsUserRegisterValid(userData.e_mail, userData.username, userData.password, userData.name, 
+            string formatError = UserValidation.IsUserRegisterValid(userData.e_mail, userData.username, userData.password, userData.name, 
                                                         userData.surname, userData.name != null, userData.surname != null);
             //There is no user that uses those data now check if data are in right format
-            if (error != "")
+            if (formatError != "")
             {
-                return Page();
+                validationErrors.Add(formatError);
+                return new JsonResult(validationErrors);
             }
 
             //Add user to system
             _userRepository.CreateAccount(userData);
-            return Redirect("/");
+            return new JsonResult("success");
             
         }
     }
