@@ -188,7 +188,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
-            createMessagesPartial.usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
+            createMessagesPartial.usersList = _userRepository.GetActiveUsersInGroupBesidesYourself(userId, groupId);
 
             return Partial("Partials/_PartialCreateMessage", createMessagesPartial);
         }

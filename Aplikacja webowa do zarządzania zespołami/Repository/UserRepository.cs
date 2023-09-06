@@ -17,12 +17,21 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             _dbContext = dbContext;
         }
 
-        //Messages and OwnerTask
+        //OwnerTask
         public List<User> GetActiveUsersInGroup(int? userId, int? groupId)
         {
             return _dbContext.Users
                 .Where(g => g.Users_Groups
                 .Any(ug => ug.groups_group_id == groupId && ug.role != "owner" && ug.status == "active"))
+                .ToList();
+        }
+
+        //Messages
+        public List<User> GetActiveUsersInGroupBesidesYourself(int? userId, int? groupId)
+        {
+            return _dbContext.Users
+                .Where(g => g.Users_Groups
+                .Any(ug => ug.groups_group_id == groupId && ug.users_user_id != userId && ug.status == "active"))
                 .ToList();
         }
 

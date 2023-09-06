@@ -9,6 +9,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
     {
         //Messages Page
         List<int> GetIdOfActiveUsersInGroup(int? userId, int? groupId);
+        List<User> GetActiveUsersInGroupBesidesYourself(int? userId, int? groupId);
+
+        //OwnerTask
         List<User> GetActiveUsersInGroup(int? userId, int? groupId);
 
         //Password recovery

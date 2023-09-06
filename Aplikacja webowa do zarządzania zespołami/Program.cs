@@ -25,9 +25,17 @@ builder.Services.AddMvc().AddRazorPagesOptions(option =>
     option.Conventions.AddPageRoute("/OwnerTasks", "/Zarzadzanie zadaniami");
     option.Conventions.AddPageRoute("/UserTasks", "/Zadania");
     option.Conventions.AddPageRoute("/Groups", "/Aktywna grupa");
-    option.Conventions.AddPageRoute("/JoinGroup", "/Grupy");
+    option.Conventions.AddPageRoute("/JoinGroup", "/Twoje grupy");
+    option.Conventions.AddPageRoute("/ActiveGroup", "/Aktywna grupa");
+    option.Conventions.AddPageRoute("/EditGroup", "/Zarzadzanie grupa");
     option.Conventions.AddPageRoute("/Login", "/Logowanie");
     option.Conventions.AddPageRoute("/Register", "/Rejestracja");
+    option.Conventions.AddPageRoute("/UserProfile", "/Profil uzytkownika");
+    option.Conventions.AddPageRoute("/UserNotices", "/Og³oszenia");
+    option.Conventions.AddPageRoute("/OwnerNotices", "/Zarzadzanie og³oszeniami");
+    option.Conventions.AddPageRoute("/PasswordRecovery", "/Odzyskiwanie dostepu");
+    option.Conventions.AddPageRoute("/Messages", "/Wiadomosci");
+    option.Conventions.AddPageRoute("/Calendar", "/Kalendarz");
 
     //W PRZYSZ£OŒCI UZUPE£NIÆ RESZTE PAMIÊTAÆ ZE REDIRECTY MUSZ¥ BYC NA NOWE NAZWY
 });
