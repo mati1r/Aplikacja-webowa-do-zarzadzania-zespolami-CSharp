@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\js\Apache 2.0.txt" />
+    <None Include="wwwroot\js\LICENSE.txt" />
   </ItemGroup>
 
   <ItemGroup>
