@@ -15,6 +15,53 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
         }
 
         //Messages
+        public List<ReciveMessagePartial> GetRecivedSearchMessages(string condition, int userId, int groupId)
+        {
+            return _dbContext.Messages
+                .Include(m => m.Users) //Include Users table by FK
+                .Where(m => m.Messages_Users
+                    .Any(mu => mu.users_user_id == userId) 
+                    && m.groups_group_id == groupId 
+                    && m.notice == false 
+                    && (string.IsNullOrEmpty(condition) 
+                    || m.topic.Contains(condition) 
+                    || m.Users.username.Contains(condition))) //Get elements that met the requaierments
+                .OrderByDescending(m => m.send_date)
+                .Select(m => new ReciveMessagePartial
+                {
+                    message_id = m.message_id,
+                    topic = m.topic,
+                    content = m.content,
+                    send_date = m.send_date,
+                    sender_name = m.Users.username
+                })
+                .ToList();
+        }
+
+        public List<SendedMessagePartial> GetSendedSearchMessages(string condition, int userId, int groupId)
+        {
+            return _dbContext.Messages
+                .Where(m => m.sender_id == userId 
+                    && m.groups_group_id == groupId 
+                    && m.notice == false 
+                    && (string.IsNullOrEmpty(condition) 
+                    || m.topic.Contains(condition) 
+                    || m.Messages_Users.Any(mu => mu.Users.username.Contains(condition))))
+                .SelectMany(m => m.Messages_Users, (m, mu) => new SendedMessagePartial
+                {
+                    message_id = m.message_id,
+                    topic = m.topic,
+                    content = m.content,
+                    send_date = m.send_date,
+                    reciver_name = mu.Users.username
+                })
+                .GroupBy(g => g.message_id)
+                .Select(g => g.OrderByDescending(m => m.send_date).First())
+                .AsEnumerable()
+                .OrderByDescending(m => m.send_date)
+                .ToList();
+        }
+
         public JsonResult CreateMessage(Message message, List<int> reciversList, int userId, int groupId)
         {
             message.groups_group_id = groupId;

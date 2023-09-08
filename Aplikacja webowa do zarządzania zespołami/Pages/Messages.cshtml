@@ -19,9 +19,20 @@
                 <div class="col-12">
                     <div class="card bg-table">
                         <div class="p-3">
-                            <button class="btn btn-dark px-3 me-2" id="recive">Odebrane</button>
-                            <button class="btn btn-dark px-3 me-2" id="send">Wysłane</button>
-                            <button class="btn btn-primary px-3" id="create">Nowa wiadomość</button>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <button class="btn btn-dark px-3 me-2" id="recive">Odebrane</button>
+                                    <button class="btn btn-dark px-3 me-2" id="send">Wysłane</button>
+                                    <button class="btn btn-primary px-3" id="create">Nowa wiadomość</button>
+                                </div>
+                                <div class="col-md-2"></div>
+                                <div class="col-md-6 input-group">
+                                    <input type="text" placeholder="Szukaj" id="searchbar" class="form-control recived" />
+                                    <div class="input-group-text p-0">
+                                        <button class="btn" id="search"><i class="bi bi-search"></i></button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div id="messageContainer">
                             <partial name ="Partials/_PartialReciveMessagesView" model="Model.reciveMessagesList"/>
@@ -47,20 +58,70 @@
 
 @section scripts{
     <script>
+
+        function ChangeSearchbarAction(action){
+            let searchBar = $("#searchbar");
+
+            if(action == "sended"){
+                searchBar.removeClass("recived");
+                searchBar.addClass("sended");
+            }else if(action == "recived"){
+                searchBar.removeClass("sended");
+                searchBar.addClass("recived");
+            }
+        }
+
+        function ClearMessageContainer(){
+            if ($("#messageContainer").children().length > 0) {
+                $("#messageContainer").empty();
+            }
+        }
+
         $(document).ready(function () {
 
             //Set how many records need to loaded after clicking on button
             let howMany = 20;
 
+            $("#search").click(function(){
+
+                ClearMessageContainer();
+                let searchBar = $("#searchbar");
+                let condition = searchBar.val();
+
+                if(searchBar.hasClass("recived")){
+
+                $.ajax({
+                    type: 'get',
+                    url: '@Url.Page("Messages", "ReciveSearchMessagesPartial")',
+                    data: { condition: condition },
+                    success: function (partialResult) {
+                        $("#messageContainer").append(partialResult);
+                            $("#loadMoreRecived").hide();
+                    }
+                });
+
+                }else if(searchBar.hasClass("sended")){
+
+                    $.ajax({
+                        type: 'get',
+                        url: '@Url.Page("Messages", "SendedSearchMessagesPartial")',
+                        data: { condition: condition },
+                        success: function (partialResult) {
+                            $("#messageContainer").append(partialResult);
+                            $("#loadMoreSended").hide();
+                        }
+                    });
+                }
+            });
+
             //Button handlers
             $("#recive").click(function () {
+                ChangeSearchbarAction("recived");
 
                 //Since we are changin content of the page we need to restart value of howMany
                 howMany = 20;
 
-                if ($("#messageContainer").children().length > 0) {
-                    $("#messageContainer").empty();
-                }
+                ClearMessageContainer();
 
                 $.ajax({
                     type: 'get',
@@ -73,13 +134,12 @@
             });
 
             $("#send").click(function () {
+                ChangeSearchbarAction("sended");
 
                 //Since we are changin content of the page we need to restart value of howMany
                 howMany = 20;
 
-                if ($("#messageContainer").children().length > 0) {
-                    $("#messageContainer").empty();
-                }
+                ClearMessageContainer();
 
                 $.ajax({
                     type: 'get',
@@ -93,9 +153,7 @@
 
             $("#create").click(function () {
 
-                if ($("#messageContainer").children().length > 0) {
-                    $("#messageContainer").empty();
-                }
+                ClearMessageContainer();
 
                 $.ajax({
                     type: 'get',

@@ -133,6 +133,23 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialReciveMessagesView", reciveMessagesList);
         }
 
+        public PartialViewResult OnGetReciveSearchMessagesPartial(string condition)
+        {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+
+            try
+            {
+                reciveMessagesList = _messageRepository.GetRecivedSearchMessages(condition, (int)userId, (int)groupId);
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialReciveMessagesView", reciveMessagesList);
+        }
+
         public PartialViewResult OnGetReciveMessage(int id)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
@@ -168,6 +185,25 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialSendedMessagesView", sendedMessagesList);
         }
 
+        public PartialViewResult OnGetSendedSearchMessagesPartial(string condition)
+        {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+
+            //Get list of messages and nickname of one person that recived it (Group by and select statment)
+            try
+            {
+                sendedMessagesList = _messageRepository.GetSendedSearchMessages(condition, (int)userId, (int)groupId);
+            }
+            catch
+            {
+                Page();
+            }
+
+
+            return Partial("Partials/_PartialSendedMessagesView", sendedMessagesList);
+        }
+
         public PartialViewResult OnGetSendedMessage(int id)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
@@ -183,6 +219,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             return Partial("Partials/_PartialSendedMessage", sendedMessagesList);
         }
+
         public PartialViewResult OnGetCreateMessage()
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
