@@ -63,9 +63,12 @@
             let searchBar = $("#searchbar");
 
             if(action == "sended"){
+
                 searchBar.removeClass("recived");
                 searchBar.addClass("sended");
+
             }else if(action == "recived"){
+
                 searchBar.removeClass("sended");
                 searchBar.addClass("recived");
             }
@@ -168,9 +171,7 @@
             $("#messageContainer").on("click", "#loadMoreRecived", function () {
 
                 //Clear space for new data
-                if ($("#messageContainer").children().length > 0) {
-                    $("#messageContainer").empty();
-                }
+                ClearMessageContainer();
 
                 $.ajax({
                     type: 'get',
@@ -186,9 +187,7 @@
             $("#messageContainer").on("click", "#loadMoreSended", function () {
 
                 //Clear space for new data
-                if ($("#messageContainer").children().length > 0) {
-                    $("#messageContainer").empty();
-                }
+                ClearMessageContainer();
 
                 $.ajax({
                     type: 'get',

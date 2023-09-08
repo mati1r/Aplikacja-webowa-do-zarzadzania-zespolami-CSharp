@@ -185,6 +185,24 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return _taskRepository.EditTask(createOrEditTask);
         }
 
+        //Partials
+        public PartialViewResult OnGetTaskPartial()
+        {
+            Console.WriteLine("DO CHUJA PANA");
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+
+            try
+            {
+                tasksList = _taskRepository.GetAllTaskForGroup(groupId);
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialOwnerTask", tasksList);
+        }
+
 
         //Async methods
         public async Task<JsonResult> OnGetTaskJsonAsync(int id)

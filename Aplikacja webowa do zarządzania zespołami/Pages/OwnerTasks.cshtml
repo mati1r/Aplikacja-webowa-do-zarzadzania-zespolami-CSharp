@@ -20,30 +20,8 @@
                 <div class="col-12">
                     <div class="card bg-table">
                         <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="DataTable" class="dataTable table table-borderless">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Nazwa zadania</th>
-                                            <th scope="col">Data zadania</th>
-                                            <th scope="col">Data wykonania</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Stopień ważności</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var item in Model.tasksList)
-                                        {
-                                            <tr data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#edit-modal">
-                                                <td>@item.task_name</td>
-                                                <td>@item.start_date</td>
-                                                <td>@item.end_date</td>
-                                                <td>@item.status</td>
-                                                <td class="priority-table">@item.priority</td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
+                            <div class="table-responsive" id="dataContainer">
+                                <partial name="Partials/_PartialOwnerTask" model="Model.tasksList" />
                             </div>
                         </div>
                     </div>
@@ -60,7 +38,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="title"></h5>
             </div>
-            <form method="post">
+            <form method="post" id="editForm">
                 <div class="modal-body">
                     <div class="mt-md-4 pb-5">
 
@@ -148,7 +126,7 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="title">Stwórz zadanie</h5>
             </div>
-            <form method="post" asp-page-handler="Add">
+            <form method="post" asp-page-handler="Add" id="addForm">
                 <div class="modal-body">
                     <div class="mt-md-4 pb-5">
 
@@ -232,95 +210,57 @@
 
 @section scripts{
     <script>
-        $(document).ready(function () {
+        function HandleFormSubmit(form, valmsgFor) {
+            let actionUrl = form.attr("action");
 
-            $("#task-user").selectize({
-                sortField: "text",
+            $.ajax({
+                type: form.attr("method"),
+                url: actionUrl,
+                data: form.serialize(),
+                dataType: "json",
+                success: function (data) {
+                    if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                        let keys = Object.keys(data);
 
-                onChange: function (value) {
-                    //Set value for hidden input
-                    $("#task-user-hidden").val(value);
-                }
-            });
+                        for (let i = 0; i < keys.length; i++) {
+                            let key = keys[i];
+                            let errors = data[key];
+                            let errorSpan = $(`span[data-valmsg-for="${key}"]`);
 
-            $("#task-user2").selectize({
-                sortField: "text",
-
-                onChange: function (value) {
-                    //Set value for hidden input
-                    $("#task-user-hidden2").val(value);
-                }
-            });
-
-            //Get value of initialized item
-            let selectizeValue = $("#task-user2").selectize()[0].selectize.getValue();
-
-            //Set value for hidden input
-            $("#task-user-hidden2").val(selectizeValue);
-
-            //Change action for submit
-            $("#deleteBtn").click(function () {
-                $("form").attr("action", "/OwnerTasks?handler=Delete");
-                $("form").submit();
-            });
-
-            $("#submitBtn").click(function () {
-                $("form").submit();
-            });
-
-            $("#editBtn").click(function () {
-                $("form").attr("action", "/OwnerTasks?handler=Edit");
-                $("form").submit();
-            });
-
-            $("form").on("submit", function () {
-                $("span[data-valmsg-for]").text("");
-            });
-
-            //Cleaning function on modal call
-            $("#edit-modal").on("show.bs.modal", function () {
-                $("span[data-valmsg-for]").text("");
-            });
-
-            //Return errors on validation for specific span
-            $("form").submit(function (event) {
-                event.preventDefault();
-
-                let form = $(this);
-                let actionUrl = form.attr("action");
-
-                $.ajax({
-                    type: form.attr("method"),
-                    url: actionUrl,
-                    data: form.serialize(),
-                    dataType: "json",
-                    success: function (data) {
-                        if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
-                            let keys = Object.keys(data);
-
-                            for (let i = 0; i < keys.length; i++) {
-                                let key = keys[i];
-                                let errors = data[key];
-                                let errorSpan = $(`span[data-valmsg-for="${key}"]`);
-
-                                if (errorSpan.length > 0) {
-                                    errorSpan.text(errors[0]);
-                                }
+                            if (errorSpan.length > 0) {
+                                errorSpan.text(errors[0]);
                             }
-                        } else if (Array.isArray(data) && data.length > 0) {
-                            let nameValidationError = $(`span[data-valmsg-for="createOrEditTask.description"]`);
-                            nameValidationError.text(data[0]);
                         }
-                        else {
-                            $("#edit-modal").modal("hide");
-                            //Tymczasowe przeładowanie strony fajnie by było jakby szło przeładować tylko content do tabeli
-                            location.reload(true);
-                        }
+                    } else if (Array.isArray(data) && data.length > 0) {
+                        let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
+                        nameValidationError.text(data[0]);
+                    } else {
+                        InvokeAjaxCallTasks();
                     }
-                });
+                }
             });
+        }
 
-        //DataTable
+        function InvokeAjaxCallTasks() {
+            $("#edit-modal").modal("hide");
+            $("#create-modal").modal("hide");
+
+            if ($("#dataContainer").children().length > 0) {
+                $("#dataContainer").empty();
+            }
+
+            $.ajax({
+                type: 'get',
+                url: '@Url.Page("OwnerTasks", "TaskPartial")',
+                success: function (partialResult) {
+                    $("#dataContainer").append(partialResult);
+                    InitializeDataTable();
+                }
+            });
+        }
+
+        function InitializeDataTable() {
+
             $("#DataTable").DataTable({
                 "oLanguage": {
                     "oPaginate": {
@@ -344,7 +284,6 @@
                 }
             });
 
-        //DataTable coloring for priority
             $(".priority-table").each(function () {
                 if ($(this).html() == "niski") {
                     $(this).css("color", "green");
@@ -352,21 +291,9 @@
                     $(this).css("color", "red");
                 }
             });
-        //Change color inside a modal
-            $("#priority").on("change", function () {
-                var selectedPriority = $(this).val();
+        }
 
-                var priorityElement = $("#priority");
-                if (selectedPriority == "niski") {
-                    priorityElement.css("color", "green");
-                } else if (selectedPriority == "wysoki") {
-                    priorityElement.css("color", "red");
-                } else {
-                    priorityElement.css("color", "white");
-                }
-            });
-
-        //Modal text and coloring for priority
+        function OnDataTableClick() {
             $(".dataTable tbody tr").click(function () {
                 $.getJSON(`/OwnerTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
                     $("#title").text(task.task_name);
@@ -403,7 +330,90 @@
                     }
                 });
             });
+        }
+
+        $(document).ready(function () {
+
+            $("#task-user").selectize({
+                sortField: "text",
+
+                onChange: function (value) {
+                    //Set value for hidden input
+                    $("#task-user-hidden").val(value);
+                }
+            });
+
+            $("#task-user2").selectize({
+                sortField: "text",
+
+                onChange: function (value) {
+                    //Set value for hidden input
+                    $("#task-user-hidden2").val(value);
+                }
+            });
+
+            //Get value of initialized item
+            let selectizeValue = $("#task-user2").selectize()[0].selectize.getValue();
+
+            //Set value for hidden input
+            $("#task-user-hidden2").val(selectizeValue);
+
+            //Change action for submit
+            $("#deleteBtn").click(function () {
+                $("#editForm").attr("action", "/OwnerTasks?handler=Delete");
+                $("#editForm").submit();
+            });
+
+            $("#submitBtn").click(function () {
+                $("#addForm").submit();
+            });
+
+            $("#editBtn").click(function () {
+                $("#editForm").attr("action", "/OwnerTasks?handler=Edit");
+                $("#editForm").submit();
+            });
+
+            $("form").on("submit", function () {
+                $("span[data-valmsg-for]").text("");
+            });
+
+            //Cleaning function on modal call
+            $("#edit-modal").on("show.bs.modal", function () {
+                $("span[data-valmsg-for]").text("");
+            });
+
+            //Return errors on validation for specific span
+            $("form").submit(function (event) {
+                event.preventDefault();
+                HandleFormSubmit($(this), "createOrEditTask.description");             
+            });
+
+        //DataTable
+            InitializeDataTable();
+
+        //Change color inside a modal
+            $("#priority").on("change", function () {
+                var selectedPriority = $(this).val();
+
+                var priorityElement = $("#priority");
+                if (selectedPriority == "niski") {
+                    priorityElement.css("color", "green");
+                } else if (selectedPriority == "wysoki") {
+                    priorityElement.css("color", "red");
+                } else {
+                    priorityElement.css("color", "white");
+                }
+            });
+
+        //Modal text and coloring for priority
+        OnDataTableClick();
         })
+
+        $(document).ajaxSuccess(function (event, xhr, settings) {
+            if (settings.url === '@Url.Page("OwnerTasks", "TaskPartial")') {
+                OnDataTableClick();
+            }
+        });
 
     </script>
 }
