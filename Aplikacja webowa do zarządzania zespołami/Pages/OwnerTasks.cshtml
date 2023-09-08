@@ -313,14 +313,13 @@
                     //Set value for hidden input
                     $("#task-user-hidden").val(task.users_user_id);
 
-                    $("#priority").removeClass("green red normal");
                     //Coloring
                     if (task.priority == "niski") {
-                        $("#priority").addClass("green");
+                        $("#priority").css("color", "green");
                     } else if (task.priority == "wysoki") {
-                        $("#priority").addClass("red");
+                        $("#priority").css("color", "red");
                     } else {
-                        $("#priority").addClass("normal");
+                        $("#priority").css("color", "rgba(255,255,255,0.5)");
                     }
 
                     //Status
@@ -338,14 +337,12 @@
 
                 var priorityElement = $("#priority");
 
-                priorityElement.removeClass("green red normal");
-
                 if (selectedPriority == "niski") {
-                    priorityElement.addClass("green");
+                    priorityElement.css("color", "green");;
                 } else if (selectedPriority == "wysoki") {
-                    priorityElement.addClass("red");
+                    priorityElement.css("color", "red");
                 } else {
-                    priorityElement.addClass("normal");
+                    priorityElement.css("color", "rgba(255,255,255,0.5)");
                 }
             });
         }
@@ -400,6 +397,9 @@
                 $("span[data-valmsg-for]").text("");
             });
 
+            $("#create-modal").on("show.bs.modal", function () {
+                $("span[data-valmsg-for]").text("");
+            });
             //Return errors on validation for specific span
             $("form").submit(function (event) {
                 event.preventDefault();
@@ -415,11 +415,11 @@
                 priorityElement.removeClass("green red normal");
 
                 if (selectedPriority == "niski") {
-                    priorityElement.addClass("green");
+                    priorityElement.css("color", "green");;
                 } else if (selectedPriority == "wysoki") {
-                    priorityElement.addClass("red");
+                    priorityElement.css("color", "red");
                 } else {
-                    priorityElement.addClass("normal");
+                    priorityElement.css("color", "rgba(255,255,255,0.5)");
                 }
             });
 
