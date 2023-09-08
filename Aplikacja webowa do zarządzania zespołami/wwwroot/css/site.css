@@ -154,6 +154,18 @@ tbody tr:hover td {
     transition: width 0.5s ease-in-out;
 }
 
+.red {
+    color: red;
+}
+
+.normal{
+    color: white;
+}
+
+.green{
+    color: green;
+}
+
 
 
 

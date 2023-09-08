@@ -21,7 +21,7 @@
                 <div class="col-12">
                     <div class="card bg-table">
                         <div class="card-body">
-                            <div class="table-responsive">
+                            <div class="table-responsive" id="dataContainer">
                                 <table id="DataTable" class="dataTable table table-borderless">
                                     <thead>
                                         <tr>
@@ -61,7 +61,7 @@
                 <h5 class="modal-title" id="title"></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post">
+            <form method="post" id="completeForm" asp-page-handler="Complete">
                 <div class="modal-body">
                     <div class="mt-md-4 pb-5">
                         <div class="container">
@@ -100,6 +100,7 @@
                                 <label>Wiadomość zwrotna (opcjonalna)</label>
                                 <hr />
                                 <textarea id="feedback" asp-for="feedbackMessage" class="form-control bg-dark" rows="4"></textarea>
+                                <span asp-validation-for="feedbackMessage" class="text-danger"></span>
                             </div>
                         </div>
                     </div>
@@ -107,7 +108,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
                     <input type="hidden" asp-for="actionTaskId" id="update"/>
-                    <input class="btn btn-primary" id="action-btn" type="submit" value="Odznacz jako wykonane" asp-page-handler="Complete" />
+                    <button type="button" class="btn btn-primary" id="submitBtn">Odznacz jako wykonane</button>
                 </div>
             </form>
         </div>
@@ -117,25 +118,55 @@
 @section scripts{
     <script>
 
-        $(document).ready(function () {
+        function HandleFormSubmit(form, valmsgFor) {
+            let actionUrl = form.attr("action");
 
-            //DataTable
-            $("#DataTable").DataTable({
-                "oLanguage": {
-                    "oPaginate": {
-                        "sPrevious": "Poprzednie",
-                        "sNext": "Następne"
-                    },
+            $.ajax({
+                type: form.attr("method"),
+                url: actionUrl,
+                data: form.serialize(),
+                dataType: "json",
+                success: function (data) {
+                    if (Object.keys(data).length > 0 && !Array.isArray(data) && data != "success") {
+                        let keys = Object.keys(data);
 
-                    "sInfo": "Pozycje od _START_ do _END_ z _TOTAL_ ",
-                    "sLengthMenu": "Ilość pozycji _MENU_",
-                    "sSearch": "Szukaj:",
-                    "sInfoFiltered": "(wyszukane z _MAX_ pozycji)",
-                    "sZeroRecords": "Brak wyników",
-                    "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
+                        for (let i = 0; i < keys.length; i++) {
+                            let key = keys[i];
+                            let errors = data[key];
+                            let errorSpan = $(`span[data-valmsg-for="${key}"]`);
+
+                            if (errorSpan.length > 0) {
+                                errorSpan.text(errors[0]);
+                            }
+                        }
+                    } else if (Array.isArray(data) && data.length > 0) {
+                        let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
+                        nameValidationError.text(data[0]);
+                    } else {
+                        InvokeAjaxCallTasks();
+                    }
                 }
             });
+        }
 
+        function InvokeAjaxCallTasks() {
+            $("#details-modal").modal("hide");
+
+            if ($("#dataContainer").children().length > 0) {
+                $("#dataContainer").empty();
+            }
+
+            $.ajax({
+                type: 'get',
+                url: '@Url.Page("UserTasks", "TaskPartial")',
+                success: function (partialResult) {
+                    $("#dataContainer").append(partialResult);
+                    InitializeDataTable();
+                }
+            });
+        }
+
+        function OnDataTableClick() {
             //Modal text and coloring for priority
             $(".dataTable tbody tr").click(function () {
                 $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
@@ -146,7 +177,7 @@
                     $("#start-date").text(task.start_date.replace("T", " "));
                     $("#end-date").text(task.end_date.replace("T", " "));
                     $("#update").val(task.task_id);
-                    $("#feedback").text(task.feedback);
+                    $("#feedback").val(task.feedback);
 
                     if (task.priority == "niski") {
                         $("#priority").css("color", "green");
@@ -165,15 +196,67 @@
                     }
                 });
             });
+        }
+
+        function InitializeDataTable()
+        {
+            $("#DataTable").DataTable({
+                "oLanguage": {
+                    "oPaginate": {
+                        "sPrevious": "Poprzednie",
+                        "sNext": "Następne"
+                    },
+
+                    "sInfo": "Pozycje od _START_ do _END_ z _TOTAL_ ",
+                    "sLengthMenu": "Ilość pozycji _MENU_",
+                    "sSearch": "Szukaj:",
+                    "sInfoFiltered": "(wyszukane z _MAX_ pozycji)",
+                    "sZeroRecords": "Brak wyników",
+                    "sInfoEmpty": "Pozycje od 0 do 0 z 0 "
+                }
+            });
 
             //DataTable coloring for priority
             $(".priority-table").each(function () {
                 if ($(this).html() == "niski") {
                     $(this).css("color", "green");
-                }else if ($(this).html() == "wysoki") {
+                } else if ($(this).html() == "wysoki") {
                     $(this).css("color", "red");
                 }
             });
+        }
+
+        $(document).ready(function () {
+
+            InitializeDataTable();
+
+            OnDataTableClick();
+
+            $("#submitBtn").click(function () {
+                $("#completeForm").submit();
+            });
+
+            $("form").on("submit", function () {
+                $("span[data-valmsg-for]").text("");
+            });
+
+            //Cleaning on modal call
+            $("#details-modal").on("show.bs.modal", function () {
+                $("span[data-valmsg-for]").text("");
+                $("#feedback").val("");
+            });
+
+            $("form").submit(function (event) {
+                event.preventDefault();
+                HandleFormSubmit($(this), "feedbackMessage");
+            });
+            
+        });
+
+        $(document).ajaxSuccess(function (event, xhr, settings) {
+            if (settings.url === '@Url.Page("UserTasks", "TaskPartial")') {
+                OnDataTableClick();
+            }
         });
 </script>
 }

@@ -21,7 +21,7 @@
                     <div class="card bg-table">
                         <div class="card-body">
                             <div class="table-responsive" id="dataContainer">
-                                <partial name="Partials/_PartialOwnerTask" model="Model.tasksList" />
+                                <partial name="Partials/_PartialOwnerTasks" model="Model.tasksList" />
                             </div>
                         </div>
                     </div>
@@ -163,9 +163,9 @@
                                 </div>
 
                                 <div class="col-md-6 mb-4">
-                                    <label class="form-label" for="priority">Stopień ważności</label>
+                                    <label class="form-label" for="priority2">Stopień ważności</label>
                                     <hr />
-                                    <select id="priority" class="form-control bg-dark" asp-for="createOrEditTask.priority">
+                                    <select id="priority2" class="form-control bg-dark" asp-for="createOrEditTask.priority">
                                         <option value="niski" style="color:green;">Niski</option>
                                         <option selected="selected" value="normalny" style="color:white;">Normalny</option>
                                         <option value="wysoki" style="color:red;">Wysoki</option>
@@ -313,13 +313,14 @@
                     //Set value for hidden input
                     $("#task-user-hidden").val(task.users_user_id);
 
+                    $("#priority").removeClass("green red normal");
                     //Coloring
                     if (task.priority == "niski") {
-                        $("#priority").css("color", "green");
+                        $("#priority").addClass("green");
                     } else if (task.priority == "wysoki") {
-                        $("#priority").css("color", "red");
+                        $("#priority").addClass("red");
                     } else {
-                        $("#priority").addClass("text-white-50");
+                        $("#priority").addClass("normal");
                     }
 
                     //Status
@@ -329,6 +330,23 @@
                         $(".status-input").prop("disabled", false);
                     }
                 });
+            });
+
+            //Change color inside a modal
+            $("#priority").on("change", function () {
+                var selectedPriority = $(this).val();
+
+                var priorityElement = $("#priority");
+
+                priorityElement.removeClass("green red normal");
+
+                if (selectedPriority == "niski") {
+                    priorityElement.addClass("green");
+                } else if (selectedPriority == "wysoki") {
+                    priorityElement.addClass("red");
+                } else {
+                    priorityElement.addClass("normal");
+                }
             });
         }
 
@@ -388,25 +406,28 @@
                 HandleFormSubmit($(this), "createOrEditTask.description");             
             });
 
-        //DataTable
-            InitializeDataTable();
-
-        //Change color inside a modal
-            $("#priority").on("change", function () {
+            //Change color inside a create modal
+            $("#priority2").on("change", function () {
                 var selectedPriority = $(this).val();
 
-                var priorityElement = $("#priority");
+                var priorityElement = $("#priority2");
+
+                priorityElement.removeClass("green red normal");
+
                 if (selectedPriority == "niski") {
-                    priorityElement.css("color", "green");
+                    priorityElement.addClass("green");
                 } else if (selectedPriority == "wysoki") {
-                    priorityElement.css("color", "red");
+                    priorityElement.addClass("red");
                 } else {
-                    priorityElement.css("color", "white");
+                    priorityElement.addClass("normal");
                 }
             });
 
+        //DataTable
+            InitializeDataTable();
+
         //Modal text and coloring for priority
-        OnDataTableClick();
+            OnDataTableClick();
         })
 
         $(document).ajaxSuccess(function (event, xhr, settings) {

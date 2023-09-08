@@ -188,7 +188,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         //Partials
         public PartialViewResult OnGetTaskPartial()
         {
-            Console.WriteLine("DO CHUJA PANA");
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
@@ -200,7 +199,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 Page();
             }
 
-            return Partial("Partials/_PartialOwnerTask", tasksList);
+            return Partial("Partials/_PartialOwnerTasks", tasksList);
         }
 
 

@@ -44,14 +44,35 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            List<string> validationErrors = new List<string>();
 
             ////Check if user didn't changed id to an id out of his scope
             ///if there is a task get it and change its status        
-            if (_taskRepository.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
+            if (!_taskRepository.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
             {
-                _taskRepository.CompleteTask(actionTaskId, feedbackMessage);
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
             }
-            return Redirect("/UserTasks");
+            _taskRepository.CompleteTask(actionTaskId, feedbackMessage);
+            return new JsonResult("success");
+        }
+
+        //Partials
+        public PartialViewResult OnGetTaskPartial()
+        {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+
+            try
+            {
+                tasksList = _taskRepository.GetTasksForUser(userId, groupId);
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialUserTasks", tasksList);
         }
 
 
