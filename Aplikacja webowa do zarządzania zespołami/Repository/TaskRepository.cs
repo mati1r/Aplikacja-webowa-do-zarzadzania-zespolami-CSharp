@@ -20,6 +20,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                 .Where(t => t.groups_group_id == groupId && t.users_user_id == userId)
                 .Select(t => new CalendarEventsDTO
                 {
+                    taskId = t.task_id,
                     title = t.task_name,
                     start = t.start_date.ToString("yyyy-MM-dd"),
                     end = t.end_date.ToString("yyyy-MM-dd")

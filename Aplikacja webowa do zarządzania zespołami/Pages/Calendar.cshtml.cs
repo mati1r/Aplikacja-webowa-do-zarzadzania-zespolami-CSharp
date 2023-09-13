@@ -45,5 +45,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             return new JsonResult(events);
         }
+
+        public async Task<JsonResult> OnGetTaskJsonAsync(int id)
+        {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            return new JsonResult(await _taskRepository.GetTaskAsync(id, userId, groupId));
+        }
     }
 }

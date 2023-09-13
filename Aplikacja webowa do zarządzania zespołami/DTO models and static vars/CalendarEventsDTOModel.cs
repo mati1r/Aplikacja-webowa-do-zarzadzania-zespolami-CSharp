@@ -2,6 +2,7 @@
 {
     public class CalendarEventsDTO
     {
+        public int taskId { get; set; }
         public string title { get; set; }
         public string start { get; set; }
         public string end { get; set; }

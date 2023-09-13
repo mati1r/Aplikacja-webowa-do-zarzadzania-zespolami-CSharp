@@ -7,6 +7,58 @@
     <div class="p-5" id="calendar"></div>
 </div>
 
+
+<!-- Modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="details-modal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="title"></h5>
+            </div>
+            <div class="modal-body">
+                <div class="mt-md-4 pb-5">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label>Status</label>
+                                <hr />
+                                <p class="text-white-50" id="status"></p>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label>Stopień ważność</label>
+                                <hr />
+                                <p class="" id="priority"></p>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label>Data zadania</label>
+                                <hr />
+                                <p class="text-white-50" id="start-date"></p>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label>Data wykonania</label>
+                                <hr />
+                                <p class="text-white-50" id="end-date"></p>
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label>Opis zadania</label>
+                            <p class="text-white-50 mb-5 mt-2" id="description"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts{
     <script>
         $(document).ready(function () {
@@ -40,6 +92,31 @@
                     });
                 }
             });
+
+            calendar.setOption("eventClick", function (element) {
+                let id = element.event.extendedProps.taskId;
+
+                $.getJSON(`/Calendar?handler=TaskJson&id=${id}`).done(function (task) {
+
+                    $("#title").text(task.task_name);
+                    $("#description").text(task.description);
+                    $("#status").text(task.status);
+                    $("#priority").text(task.priority);
+                    $("#start-date").text(task.start_date.replace("T", " "));
+                    $("#end-date").text(task.end_date.replace("T", " "));
+
+                    if (task.priority == "niski") {
+                        $("#priority").css("color", "green");
+                    } else if (task.priority == "wysoki") {
+                        $("#priority").css("color", "red");
+                    } else {
+                        $("#priority").css("color", "rgba(255,255,255,0.5)");
+                    }
+
+                    $("#details-modal").modal("show");
+                });
+            });
+
             calendar.render();
         });
     </script>
