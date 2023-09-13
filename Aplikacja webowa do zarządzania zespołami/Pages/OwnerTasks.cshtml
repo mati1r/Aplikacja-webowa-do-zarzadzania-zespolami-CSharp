@@ -100,12 +100,26 @@
                                 </div>
                             </div>
 
+                            <div class="mb-4" id="feedbackDiv">
+                                <div class="row">
+                                    <div class="col-md-4 mb-4">
+                                        <label>Data ukończenia zadania</label>
+                                        <hr />
+                                        <input type="datetime-local" id="finish-date" class="status-input form-control text-light bg-dark" />
+                                    </div>
+                                </div>
+                                <label>Wiadomość zwrotna</label>
+                                <hr />
+                                <textarea id="feedback" class="status-input form-control bg-dark" rows="4"></textarea>
+                            </div>
+
                             <div class="mb-4">
                                 <label class="form-label" for="description">Opis zadania</label>
                                 <br />
                                 <textarea class="status-input form-control bg-dark" id="description" rows="4" asp-for="createOrEditTask.description"></textarea>
                                 <span asp-validation-for="createOrEditTask.description" class="text-danger"></span>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -325,8 +339,15 @@
                     //Status
                     if (task.status == "ukończone") {
                         $(".status-input").prop("disabled", true);
+                        $("#feedback").val(task.feedback);
+                        $("#finish-date").val(task.finish_date);
+                        $("#feedbackDiv").show();
+
                     } else {
                         $(".status-input").prop("disabled", false);
+                        $("#feedback").val("");
+                        $("#finish-date").val("");
+                        $("#feedbackDiv").hide();
                     }
                 });
             });
