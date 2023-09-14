@@ -74,6 +74,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Models
                 .HasOne(pk => pk.Users)
                 .WithMany(k => k.Groups)
                 .HasForeignKey(pk => pk.owner_id);
+
+            modelBuilder.Entity<User>()
+                .HasKey(pk => new { pk.user_id });
         }
     }
 }
