@@ -17,36 +17,38 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
+                    <h3 class="title">Dołącz do grupy</h3>
                     <div class="card bg-table">
                         <div class="card-body">
-                            <div class="d-flex flex-column align-items-start mb-5 mt-2">
-                                <div class="container">
-                                    <h3>Chciałbyś poprowadzić swój własny zespół</h3>
-                                    <div class="d-flex align-items-center">
-                                        <span class="p-1 me-1">Nie czekaj, zrób to już teraz</span>
-                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#create-modal">Zalóż grupe</button>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="container">
-                                <h3>Dołącz do grupy</h3>
-                                <hr />
-                                    <div class="table-responsive mt-3 mb-5" id="groupsJoinContainer">
+                                    <div class="table-responsive mt-4 mb-5" id="groupsJoinContainer">
                                         <partial name="Partials/_PartialGroupsJoin" model="Model.groupJoinList" />
                                     </div>
                                 <hr />
                             </div>
                         </div>
                     </div>
+                    <h3 class="title">Grupy do których należysz</h3>
                     <div class="card bg-table">
                         <div class="card-body">
                             <div class="container">
-                                <h3>Grupy do których należysz</h3>
-                                <hr/>
-                                <div class="table-responsive overflow-auto mt-3" style="max-height: 400px;" id="groupsQuitContainer">
+                                <div class="table-responsive overflow-auto mt-4 mb-5" style="max-height: 400px;" id="groupsQuitContainer">
                                     <partial name="Partials/_PartialGroupsQuit" model="Model.groupQuitList" />
                                 </div>
                                 <hr />
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="title">Chciałbyś poprowadzić swój własny zespół</h3>
+                    <div class="card bg-table">
+                        <div class="card-body">
+                            <div class="d-flex flex-column align-items-start mb-3 mt-3">
+                                <div class="container">
+                                    <div class="d-flex align-items-center">
+                                        <h5 class="p-1 me-1">Nie czekaj, zrób to już teraz! - </h5>
+                                        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#create-modal">Zalóż grupe</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

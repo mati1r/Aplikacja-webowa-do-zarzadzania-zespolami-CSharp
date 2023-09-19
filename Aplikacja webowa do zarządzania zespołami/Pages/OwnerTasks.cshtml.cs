@@ -13,10 +13,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     {
         private readonly ITaskRepository _taskRepository;
         private readonly IUserRepository _userRepository;
-        public OwnerTasksModel(ITaskRepository taskRepository, IUserRepository userRepository)
+        private readonly IGroupRepository _groupRepository;
+        public OwnerTasksModel(ITaskRepository taskRepository, IUserRepository userRepository, IGroupRepository groupRepository)
         {
             _taskRepository = taskRepository;
             _userRepository = userRepository;
+            _groupRepository = groupRepository;
             tasksList = new List<Models.Task>();
             usersList = new List<User>();
         }
@@ -28,6 +30,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public int? userId;
         public int? groupId;
         public string? username;
+        public string activeGroup;
 
         [BindProperty(SupportsGet = true)]
         public Models.Task createOrEditTask { get; set; }
@@ -55,8 +58,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
-            tasksList = _taskRepository.GetAllTaskForGroup(groupId);
+            try
+            {
+                activeGroup = _groupRepository.GetGroupName((int)groupId);
+            }
+            catch
+            {
+                Page();
+            }
 
+            tasksList = _taskRepository.GetAllTaskForGroup(groupId);
             //Find all users that are active and belong to that group beside owners
             usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
         }

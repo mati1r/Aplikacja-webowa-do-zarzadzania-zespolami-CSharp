@@ -10,7 +10,7 @@
 
 <div class="w-100 h-100 d-inline-block overflow-auto bg-main">
     <div class="p-4">
-        <h1 class="text-center display-6 fw-bold">Aktywna grupa @Model.activeGroup</h1>
+        <h1 class="text-center display-6 fw-bold">Aktywna grupa - @Model.activeGroup</h1>
     </div>
 
     <div class="p-3">
@@ -18,37 +18,35 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card bg-table">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="dataTable table table-borderless">
-                                    <thead>
+                        <div class="table-responsive">
+                            <table class="active-group-table table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="col-3">Nazwa</th>
+                                        <th scope="col" class="col-2">Właściciel</th>
+                                        <th scope="col" class="col-6">Opis</th>
+                                        <th scope="col" class="col-1" data-orderable="false">
+                                            <form method="post">
+                                                <input class="btn btn-primary details" type="submit" value="Ustaw jako aktywa" asp-page-handler="ChangeActiveGroup" />
+                                                <input type="hidden" asp-for="changeGroupId" id="change" value="@Model.groupId" />
+                                            </form>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.groupList)
+                                    {
                                         <tr>
-                                            <th scope="col" class="col-3">Nazwa</th>
-                                            <th scope="col" class="col-2">Właściciel</th>
-                                            <th scope="col" class="col-6">Opis</th>
-                                            <th scope="col" class="col-1" data-orderable="false">
-                                                <form method="post">
-                                                    <input class="btn btn-primary details" type="submit" value="Ustaw jako aktywa" asp-page-handler="ChangeActiveGroup" />
-                                                    <input type="hidden" asp-for="changeGroupId" id="change" value="@Model.groupId" />
-                                                </form>
-                                            </th>
+                                            <td>@item.name</td>
+                                            <td>@item.owner_name</td>
+                                            <td>@item.description</td>
+                                            <td>
+                                                <input type="hidden" asp-for="changeGroupId" class="update" value="@item.group_id" />
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var item in Model.groupList)
-                                        {
-                                            <tr>
-                                                <td>@item.name</td>
-                                                <td>@item.owner_name</td>
-                                                <td>@item.description</td>
-                                                <td>
-                                                    <input type="hidden" asp-for="changeGroupId" class="update" value="@item.group_id" />
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
+                                    }
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -63,7 +61,7 @@
 
             let loadedGroupId = $("#change").val();
 
-            $(".dataTable tbody tr").each(function () {
+            $(".table tbody tr").each(function () {
 
                 let rowValue = $(this).find(".update").val()
                 if(rowValue == loadedGroupId ){
@@ -74,14 +72,14 @@
             });
 
             //Update value of hidden input in form and change style of selected item
-            $(".dataTable tbody tr").click(function () {
+            $(".table tbody tr").click(function () {
                 let groupId = $(this).find(".update").val();
                 $("#change").val(groupId);
                 let $row = $(this).find("td");
 
                 $row.addClass("selected-td");
 
-                $(".dataTable tbody tr").not(this).find("td").removeClass("selected-td");
+                $(".table tbody tr").not(this).find("td").removeClass("selected-td");
             });
         });
     </script>
