@@ -10,13 +10,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class CalendarModel : PageModel
     {
-
-        private readonly DatabaseContext _dbContext;
         private readonly ITaskRepository _taskRepository;
 
-        public CalendarModel(DatabaseContext dbContext, ITaskRepository taskRepository)
+        public CalendarModel(ITaskRepository taskRepository)
         {
-            _dbContext = dbContext;
             _taskRepository = taskRepository;
             tasksList = new List<Models.Task>();
         }

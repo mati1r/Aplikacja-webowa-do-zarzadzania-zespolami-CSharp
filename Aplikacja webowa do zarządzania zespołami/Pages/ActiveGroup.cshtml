@@ -25,19 +25,14 @@
                                         <th scope="col" class="col-3">Nazwa</th>
                                         <th scope="col" class="col-2">Właściciel</th>
                                         <th scope="col" class="col-6">Opis</th>
-                                        <th scope="col" class="col-1" data-orderable="false">
-                                            <form method="post">
-                                                <input class="btn btn-primary details" type="submit" value="Ustaw jako aktywa" asp-page-handler="ChangeActiveGroup" />
-                                                <input type="hidden" asp-for="changeGroupId" id="change" value="@Model.groupId" />
-                                            </form>
-                                        </th>
+                                        <th scope="col" class="col-1" data-orderable="false"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var item in Model.groupList)
                                     {
                                         <tr>
-                                            <td>@item.name</td>
+                                            <td class="groupName">@item.name</td>
                                             <td>@item.owner_name</td>
                                             <td>@item.description</td>
                                             <td>
@@ -55,32 +50,64 @@
     </div>
 </div>
 
+
+<!-- Change active group modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="confirm-change-modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="container">
+                    <div class="mb-3 mt-3">
+                        <h4>Czy na pewno chcesz zmienić aktywną grupę?</h4>
+                        <br/>
+                        <h5 class="text-primary">Nową aktywną grupą będzie - 
+                            <span id="groupName"></span>
+                        </h5>
+                    </div>
+                </div>
+                <hr />
+                <div class="text-end mb-3">
+                    <form method="post" id="activeGroupChangeForm">
+                        <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
+                        <input type="hidden" asp-for="changeGroupId" id="change" value="@Model.groupId" />
+                        <button type="button" class="btn btn-primary details px-5 me-2" id="confirmActiveGroupChange">Tak</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts{
     <script>
         $(document).ready(function () {
 
             let loadedGroupId = $("#change").val();
 
+            //Find active group and assing class
             $(".table tbody tr").each(function () {
-
                 let rowValue = $(this).find(".update").val()
-                if(rowValue == loadedGroupId ){
+
+                if(rowValue == loadedGroupId){
                     let $row = $(this).find("td");
                     $row.addClass("selected-td");
                 }
-
             });
 
             //Update value of hidden input in form and change style of selected item
             $(".table tbody tr").click(function () {
                 let groupId = $(this).find(".update").val();
+                let groupName = $(this).find(".groupName").text();
+
                 $("#change").val(groupId);
-                let $row = $(this).find("td");
-
-                $row.addClass("selected-td");
-
-                $(".table tbody tr").not(this).find("td").removeClass("selected-td");
+                $("#groupName").text(groupName);
+                $("#confirm-change-modal").modal("show");
             });
+
+            $("#confirmActiveGroupChange").click(function () {
+                $("#activeGroupChangeForm").attr("action", "/ActiveGroup?handler=ChangeActiveGroup");
+                $("#activeGroupChangeForm").submit();
+            })
         });
     </script>
 }

@@ -60,7 +60,7 @@
                     <div class="text-end mb-3">
                         <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
                         <input type="hidden" asp-for="pendingUserId" id="pendingUserId" />
-                        <input class="btn btn-primary px-5 me-2" type="submit" value="Tak" />
+                        <button type="button" class="btn btn-primary px-5 me-2" id="confirmPendingUser">Tak</button>
                     </div>
                 </div>
             </form>
@@ -333,6 +333,11 @@
                 $("#manage-user-modal").modal("hide");
                 $("#confirm-remove-modal").modal("show");
             });
+
+            $("#confirmPendingUser").click(function(){
+                $("#acceptPendingForm").attr("action", "/EditGroup?handler=AcceptPendingUser");
+                $("#acceptPendingForm").submit();
+            })
 
             $("#confirmRemoveBtn").click(function (){
                 $("#removeActiveUserForm").attr("action", "/EditGroup?handler=RemoveUser");
