@@ -13,9 +13,11 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
+
 string connectionString = builder.Configuration.GetConnectionString(("DefaultConnection"));
-    builder.Services.AddDbContext<DatabaseContext>(options =>
-        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)), ServiceLifetime.Scoped);
+
+builder.Services.AddDbContext<DatabaseContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)), ServiceLifetime.Scoped);
 
 builder.Services.AddSession();
 builder.Services.AddDistributedMemoryCache();
@@ -36,8 +38,6 @@ builder.Services.AddMvc().AddRazorPagesOptions(option =>
     option.Conventions.AddPageRoute("/PasswordRecovery", "/Odzyskiwanie dostepu");
     option.Conventions.AddPageRoute("/Messages", "/Wiadomosci");
     option.Conventions.AddPageRoute("/Calendar", "/Kalendarz");
-
-    //W PRZYSZ£OŒCI UZUPE£NIÆ RESZTE PAMIÊTAÆ ZE REDIRECTY MUSZ¥ BYC NA NOWE NAZWY
 });
 
 var app = builder.Build();

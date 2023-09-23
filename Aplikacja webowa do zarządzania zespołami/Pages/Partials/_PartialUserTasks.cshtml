@@ -13,7 +13,7 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr class="dataTable-hover-tr" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#details-modal">
+            <tr class="dataTable-hover-tr" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#complete-modal">
                 <td>@item.task_name</td>
                 <td>@item.start_date</td>
                 <td>@item.end_date</td>

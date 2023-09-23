@@ -31,7 +31,7 @@
     </div>
 </div>
 
-<!--Modal do edycji oraz usuwania-->
+<!--Edit and delete modal-->
 <div class="modal fade" tabindex="-1" role="dialog" id="edit-modal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -133,7 +133,30 @@
         </div>
     </div>
 </div>
-<!--Modal do tworzenia-->
+<!-- Confirm delete modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="confirm-delete-modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="deleteForm">
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="mb-3 mt-3">
+                            <h4>Czy na pewno chcesz usunąć zadanie?</h4>
+                        </div>
+                    </div>
+                    <hr />
+                    <span asp-validation-for="createOrEditTask.description" class="text-danger text-start ms-3"></span>
+                    <div class="text-end mb-3">
+                        <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
+                        <input type="hidden" asp-for="createOrEditTask.task_id" id="delete" />
+                        <button type="button" class="btn btn-danger px-5 me-2" id="confirmDeleteBtn">Tak</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!--Create modal-->
 <div class="modal fade" tabindex="-1" role="dialog" id="create-modal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -257,6 +280,7 @@
 
         function InvokeAjaxCallTasks() {
             $("#edit-modal").modal("hide");
+            $("#confirm-delete-modal").modal("hide");
             $("#create-modal").modal("hide");
 
             if ($("#dataContainer").children().length > 0) {
@@ -342,12 +366,14 @@
                         $("#feedback").val(task.feedback);
                         $("#finish-date").val(task.finish_date);
                         $("#feedbackDiv").show();
+                        $('#task-user')[0].selectize.disable();
 
                     } else {
                         $(".status-input").prop("disabled", false);
                         $("#feedback").val("");
                         $("#finish-date").val("");
                         $("#feedbackDiv").hide();
+                        $('#task-user')[0].selectize.enable();
                     }
                 });
             });
@@ -396,9 +422,15 @@
 
             //Change action for submit
             $("#deleteBtn").click(function () {
-                $("#editForm").attr("action", "/OwnerTasks?handler=Delete");
-                $("#editForm").submit();
+                $("span[data-valmsg-for]").text("");
+                $("#edit-modal").modal("hide");
+                $("#confirm-delete-modal").modal("show");
             });
+
+            $("#confirmDeleteBtn").click(function() {
+                $("#deleteForm").attr("action", "/OwnerTasks?handler=Delete");
+                $("#deleteForm").submit();
+            })
 
             $("#submitBtn").click(function () {
                 $("#addForm").submit();

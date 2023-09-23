@@ -29,6 +29,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             HttpContext.Session.SetInt32(ConstVariables.GetKeyValue(2), userId);
             HttpContext.Session.SetInt32(ConstVariables.GetKeyValue(3), groupId);
             HttpContext.Session.SetString(ConstVariables.GetKeyValue(4), userName);
+
         }
 
         //OnGet and OnPost methods

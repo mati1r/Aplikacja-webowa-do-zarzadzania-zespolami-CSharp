@@ -59,7 +59,7 @@
                     <span asp-validation-for="pendingUserId" class="text-danger ms-3"></span>
                     <div class="text-end mb-3">
                         <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
-                        <input type="hidden" asp-for="pendingUserId" id="pending-user-id" />
+                        <input type="hidden" asp-for="pendingUserId" id="pendingUserId" />
                         <input class="btn btn-primary px-5 me-2" type="submit" value="Tak" />
                     </div>
                 </div>
@@ -68,7 +68,7 @@
     </div>
 </div>
 
-<!-- Menage user in group modal -->
+<!-- Manage user in group modal -->
 <div class="modal fade" id="manage-user-modal">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -106,8 +106,32 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Zamknij</button>
                     <button type="button" class="btn btn-danger me-2" id="removeBtn">Usuń z grupy</button>
-                    <input type="hidden" asp-for="activeUserId" id="active-user-id" />
+                    <input type="hidden" asp-for="activeUserId" id="activeUserId" />
                     <button type="button" class="btn btn-primary" id="editBtn">Edytuj role</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm remove user from group modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="confirm-remove-modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="removeActiveUserForm">
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="mb-3 mt-3">
+                            <h4>Czy na pewno chcesz usunąć użytkownika z grupy?</h4>
+                        </div>
+                    </div>
+                    <hr />
+                    <span asp-validation-for="activeUserId" class="text-danger text-start ms-3"></span>
+                    <div class="text-end mb-3">
+                        <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
+                        <input type="hidden" asp-for="activeUserId" id="deleteActiveUserId" />
+                        <button type="button" class="btn btn-danger px-5 me-2" id="confirmRemoveBtn">Tak</button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -132,6 +156,7 @@
                     } else {
                         $("#accept-pending-user-modal").modal("hide");
                         $("#manage-user-modal").modal("hide");
+                        $("#confirm-remove-modal").modal("hide");
                         InvokeAjaxCallPendingUsers();
                         InvokeAjaxCallActiveUsers();
                     }
@@ -304,9 +329,15 @@
 
             //Change action for submit
             $("#removeBtn").click(function () {
-                $("#editActiveUserForm").attr("action", "/EditGroup?handler=RemoveUser");
-                $("#editActiveUserForm").submit();
+                $("span[data-valmsg-for]").text("");
+                $("#manage-user-modal").modal("hide");
+                $("#confirm-remove-modal").modal("show");
             });
+
+            $("#confirmRemoveBtn").click(function (){
+                $("#removeActiveUserForm").attr("action", "/EditGroup?handler=RemoveUser");
+                $("#removeActiveUserForm").submit();
+            })
 
             $("#editBtn").click(function () {
                 $("#editActiveUserForm").attr("action", "/EditGroup?handler=EditUserRole");
@@ -315,12 +346,13 @@
 
             //On table click
             $("#groupPendingUsersContainer").on("click", ".table tbody tr", function () {
-                $("#pending-user-id").val($(this).data("id"));
+                $("#pendingUserId").val($(this).data("id"));
             });
 
             $("#groupActiveUsersContainer").on("click", ".table tbody tr", function () {
                 $.getJSON(`/EditGroup?handler=ActiveUserJson&id=${$(this).data('id')}`).done(function (user) {
-                    $("#active-user-id").val(user.user_id);
+                    $("#activeUserId").val(user.user_id);
+                    $("#deleteActiveUserId").val(user.user_id);
                     $("#username").text(user.username);
                     $("#email").text(user.e_mail);
                     $("#role").val(user.role);
@@ -334,6 +366,11 @@
             });
 
             $("#editActiveUserForm").submit(function (event) {
+                event.preventDefault();
+                HandleFormSubmit($(this), "activeUserId");
+            });
+
+            $("#removeActiveUserForm").submit(function (event) {
                 event.preventDefault();
                 HandleFormSubmit($(this), "activeUserId");
             });

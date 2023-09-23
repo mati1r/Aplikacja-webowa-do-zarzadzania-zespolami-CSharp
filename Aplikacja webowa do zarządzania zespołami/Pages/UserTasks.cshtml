@@ -32,13 +32,14 @@
     </div>
 </div>
 
-<div class="modal fade" tabindex="-1" role="dialog" id="details-modal">
+<!-- Complete task modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="complete-modal">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="title"></h5>
             </div>
-            <form method="post" id="completeForm" asp-page-handler="Complete">
+            <form method="post" id="completeForm">
                 <div class="modal-body">
                     <div class="mt-md-4 pb-5">
                         <div class="container">
@@ -92,6 +93,27 @@
     </div>
 </div>
 
+<!-- Confirm complete task modal modal -->
+<div class="modal fade" tabindex="-1" role="dialog" id="confirm-complete-modal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="container">
+                    <div class="mb-3 mt-3">
+                        <h4>Czy na pewno chcesz odznaczyć zadanie jako ukończone?</h4>
+                    </div>
+                </div>
+                <hr />
+                <span asp-validation-for="feedbackMessage" class="text-danger ms-3"></span>
+                <div class="text-end mb-3">
+                    <button type="button" class="btn btn-secondary px-5 me-2" data-bs-dismiss="modal">Nie</button>
+                    <button type="button" class="btn btn-primary px-5 me-2" id="confirmCompleteBtn">Tak</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section scripts{
     <script>
 
@@ -127,7 +149,8 @@
         }
 
         function InvokeAjaxCallTasks() {
-            $("#details-modal").modal("hide");
+            $("#complete-modal").modal("hide");
+            $("#confirm-complete-modal").modal("hide");
 
             if ($("#dataContainer").children().length > 0) {
                 $("#dataContainer").empty();
@@ -210,15 +233,22 @@
             OnDataTableClick();
 
             $("#submitBtn").click(function () {
-                $("#completeForm").submit();
+                $("span[data-valmsg-for]").text("");
+                $("#complete-modal").modal("hide");
+                $("#confirm-complete-modal").modal("show");
             });
+
+            $("#confirmCompleteBtn").click(function(){
+                $("#completeForm").attr("action", "/UserTasks?handler=Complete");
+                $("#completeForm").submit();
+            })
 
             $("form").on("submit", function () {
                 $("span[data-valmsg-for]").text("");
             });
 
             //Cleaning on modal call
-            $("#details-modal").on("show.bs.modal", function () {
+            $("#complete-modal").on("show.bs.modal", function () {
                 $("span[data-valmsg-for]").text("");
                 $("#feedback").val("");
             });
