@@ -3,3 +3,22 @@
 .fc-toolbar {
     text-transform: capitalize;
 }
+
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: rgba(80,80,80,0.15);
+}
+
+.fc-h-event {
+    background-color: #375a7f;
+    border: 1px solid #375a7f;
+    display: block;
+    cursor: pointer;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+    border: 1px solid rgba(120,120,120,1);
+}
+
+.fc-theme-standard .fc-scrollgrid {
+    border: 1px solid rgba(120,120,120,1);
+}

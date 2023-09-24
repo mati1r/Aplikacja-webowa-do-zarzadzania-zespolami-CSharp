@@ -170,14 +170,14 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col-md-6 mb-4">
-                                    <label class="form-label" for="task-name">Nazwa zadania</label>
+                                    <label class="form-label" for="task-name2">Nazwa zadania</label>
                                     <br />
-                                    <input type="text" class="form-control bg-dark" id="task-name" asp-for="createOrEditTask.task_name">
+                                    <input type="text" class="form-control bg-dark" id="task-name2" asp-for="createOrEditTask.task_name">
                                     <span asp-validation-for="createOrEditTask.task_name" class="text-danger"></span>
                                 </div>
 
                                 <div class="col-md-6 mb-4">
-                                    <label class="form-label" for="task-user">Przypisz użytkownika</label>
+                                    <label class="form-label" for="task-user2">Przypisz użytkownika</label>
                                     <br />
                                     <select id="task-user2">
                                         @foreach (var item in Model.usersList)
@@ -191,9 +191,9 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-4">
-                                    <label class="form-label" for="status">Status</label>
+                                    <label class="form-label" for="status2">Status</label>
                                     <hr />
-                                    <select id="status" class="form-control bg-dark" asp-for="createOrEditTask.status">
+                                    <select id="status2" class="form-control bg-dark" asp-for="createOrEditTask.status">
                                         <option value="ukończone">Ukończone</option>
                                         <option selected="selected" value="nieukończone">Nieukończone</option>
                                     </select>
@@ -212,24 +212,24 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-6 mb-4">
-                                    <label class="form-label" for="start-date">Data zadania</label>
+                                    <label class="form-label" for="start-date2">Data zadania</label>
                                     <hr />
-                                    <input type="datetime-local" value="2023-01-01T00:00" id="start-date" class="form-control text-light bg-dark" asp-for="createOrEditTask.start_date" />
+                                    <input type="datetime-local" id="start-date2" class="form-control text-light bg-dark" asp-for="createOrEditTask.start_date" />
                                     <span asp-validation-for="createOrEditTask.start_date" class="text-danger"></span>
                                 </div>
 
                                 <div class="col-md-6 mb-4">
-                                    <label class="form-label" for="end-date">Data planowanego wykonania</label>
+                                    <label class="form-label" for="end-date2">Data planowanego wykonania</label>
                                     <hr />
-                                    <input type="datetime-local" value="2023-01-01T00:00" id="end-date" class="form-control text-light bg-dark" asp-for="createOrEditTask.end_date" />
+                                    <input type="datetime-local" id="end-date2" class="form-control text-light bg-dark" asp-for="createOrEditTask.end_date" />
                                     <span asp-validation-for="createOrEditTask.end_date" class="text-danger"></span>
                                 </div>
                             </div>
 
                             <div class="mb-4">
-                                <label class="form-label" for="description">Opis zadania</label>
+                                <label class="form-label" for="description2">Opis zadania</label>
                                 <br />
-                                <textarea class="form-control bg-dark" id="description" rows="4" asp-for="createOrEditTask.description"></textarea>
+                                <textarea class="form-control bg-dark" id="description2" rows="4" asp-for="createOrEditTask.description"></textarea>
                                 <span asp-validation-for="createOrEditTask.description" class="text-danger"></span>
                             </div>
                         </div>
@@ -237,7 +237,6 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
-                    <input type="hidden" asp-for="createOrEditTask.task_id" id="update" />
                     <button type="button" class="btn btn-primary" id="submitBtn">Stwórz zadanie</button>
                 </div>
             </form>
@@ -394,7 +393,22 @@
             });
         }
 
+        function SetCurrentDate(elementId){
+
+            let dateInput = $(elementId);
+            let currentDate = new Date();
+
+            console.log(dateInput);
+
+            let formattedDate = currentDate.toISOString().slice(0, 16);
+
+            dateInput.val(formattedDate);
+        }
+
         $(document).ready(function () {
+
+            SetCurrentDate("#start-date2");
+            SetCurrentDate("#end-date2");
 
             $("#task-user").selectize({
                 sortField: "text",
