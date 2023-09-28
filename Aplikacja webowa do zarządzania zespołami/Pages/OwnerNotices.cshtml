@@ -24,15 +24,7 @@
                                 </button>
                             <div class="container mt-5">
                                 <div class="row" id="noticeContainer">
-                                    @if (!Model.noticesList.Any())
-                                    {
-                                        <div class="no-data">
-                                            <p class="no-data mb-5">Brak wyników</p>
-                                        </div>
-                                    }else
-                                    {
                                     <partial name="Partials/_PartialNoticesView" model="Model.noticesList" />
-                                    }
                                 </div>
                             </div>
                         </div>

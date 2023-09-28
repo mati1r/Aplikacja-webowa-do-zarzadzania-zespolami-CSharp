@@ -1,24 +1,32 @@
 ﻿@model List<PartialModels.NoticePartial>
 
-@foreach (var item in Model)
+@if (!Model.Any())
 {
-<div class="col-md-4 mb-5 item" id="@item.message_id">
-    <div class="card h-100 mb-4">
-        <div class="card-header">
-            <h2>@item.topic</h2>
-            <p>Od: @item.sender_name</p>
-            <p>Zamieszczono: @item.send_date</p>
-        </div>
-        <div class="card-body wrap-text">
-                @if (item.content.Length > 200)
-                {
-                    <div>@item.content.Substring(0, 200)<span>...</span></div>
-                }
-                else
-                {
-                    <div>@item.content</div>
-                }
+    <div class="no-data">
+        <p class="mb-5">Brak wyników</p>
+    </div>
+}else
+{
+    @foreach (var item in Model)
+    {
+    <div class="col-md-4 mb-5 item" id="@item.message_id">
+        <div class="card h-100 mb-4">
+            <div class="card-header">
+                <h2>@item.topic</h2>
+                <p>Od: @item.sender_name</p>
+                <p>Zamieszczono: @item.send_date</p>
+            </div>
+            <div class="card-body wrap-text">
+                    @if (item.content.Length > 200)
+                    {
+                        <div>@item.content.Substring(0, 200)<span>...</span></div>
+                    }
+                    else
+                    {
+                        <div>@item.content</div>
+                    }
+            </div>
         </div>
     </div>
-</div>
+    }
 }

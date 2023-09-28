@@ -1,25 +1,37 @@
 ﻿@model List<Models.Task>
 
-<table id="DataTable" class="dataTable table table-borderless">
-    <thead>
-        <tr>
-            <th scope="col">Nazwa zadania</th>
-            <th scope="col">Data zadania</th>
-            <th scope="col">Data wykonania</th>
-            <th scope="col">Status</th>
-            <th scope="col">Stopień ważności</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr class="dataTable-hover-tr" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#edit-modal">
-                <td>@item.task_name</td>
-                <td>@item.start_date</td>
-                <td>@item.end_date</td>
-                <td>@item.status</td>
-                <td class="priority-table">@item.priority</td>
+@if (!Model.Any())
+{
+    <div class="no-data-task-add-btn">
+        <button class='btn btn-primary ms-2' data-bs-toggle='modal' data-bs-target='#create-modal' id='addButton'>Dodaj zadanie</button>
+    </div>
+    <div class="no-data">
+        <p>Brak wyników</p>
+    </div>
+}
+else
+{
+    <table id="DataTable" class="dataTable table table-borderless">
+        <thead>
+            <tr>
+                <th scope="col">Nazwa zadania</th>
+                <th scope="col">Data zadania</th>
+                <th scope="col">Data wykonania</th>
+                <th scope="col">Status</th>
+                <th scope="col">Stopień ważności</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="dataTable-hover-tr" data-id="@item.task_id" data-bs-toggle="modal" data-bs-target="#edit-modal">
+                    <td>@item.task_name</td>
+                    <td>@item.start_date</td>
+                    <td>@item.end_date</td>
+                    <td>@item.status</td>
+                    <td class="priority-table">@item.priority</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -178,6 +178,11 @@ tbody tr:hover td {
     font-size: 1.5rem;
 }
 
+.no-data-task-add-btn{
+    display:flex;
+    justify-content:end;
+}
+
 
 
 

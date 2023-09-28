@@ -1,35 +1,43 @@
 ﻿@model List<Models.User>
 
-<table class="table table-borderless mt-2">
-    <thead>
-        <tr>
-            <th scope="col" class="col-md-3">Nazwa użytkownika</th>
-            <th scope="col" class="col-md-3">Adres e-mail</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr data-id="@item.user_id" data-bs-toggle="modal" data-bs-target="#accept-pending-user-modal">
-                <td>
-                    @item.username
-
-                    @if (item.name != null && item.surname != null)
-                    {
-                        @($"({item.name} {item.surname})")
-                    }
-                    else if (item.name != null)
-                    {
-                        @($"({item.name})")
-                    }
-                    else if (item.surname != null)
-                    {
-                        @($"({item.surname})")
-                    }
-                </td>
-                <td>@item.e_mail</td>
+@if (!Model.Any())
+{
+    <div class="no-data">
+        <p>Brak wyników</p>
+    </div>
+}
+else
+{
+    <table class="table table-borderless mt-2">
+        <thead>
+            <tr>
+                <th scope="col" class="col-md-3">Nazwa użytkownika</th>
+                <th scope="col" class="col-md-3">Adres e-mail</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr data-id="@item.user_id" data-bs-toggle="modal" data-bs-target="#accept-pending-user-modal">
+                    <td>
+                        @item.username
 
+                        @if (item.name != null && item.surname != null)
+                        {
+                            @($"({item.name} {item.surname})")
+                        }
+                        else if (item.name != null)
+                        {
+                            @($"({item.name})")
+                        }
+                        else if (item.surname != null)
+                        {
+                            @($"({item.surname})")
+                        }
+                    </td>
+                    <td>@item.e_mail</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

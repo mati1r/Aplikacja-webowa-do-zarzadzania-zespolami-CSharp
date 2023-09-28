@@ -29,28 +29,10 @@
                             <div class="container">
                                 <div class="row">
                                     <div class="col-md-6" id="groupPendingUsersContainer">
-                                    @if (!Model.pendingUsersList.Any())
-                                    {
-                                        <div class="no-data">
-                                            <p class="no-data">Brak wyników</p>
-                                        </div>
-                                    }
-                                    else
-                                    {
                                         <partial name="Partials/_PartialPendingUsers" model="Model.pendingUsersList" />
-                                    }
                                     </div>
                                     <div class="col-md-6" id="groupActiveUsersContainer">
-                                    @if (!Model.activeUsersList.Any())
-                                    {
-                                        <div class="no-data">
-                                            <p class="no-data">Brak wyników</p>
-                                        </div>
-                                    }
-                                    else
-                                    {
                                         <partial name="Partials/_PartialActiveUsers" model="Model.activeUsersList" />
-                                    }
                                     </div>
                                 </div>
                             </div>
