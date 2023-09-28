@@ -168,6 +168,16 @@ tbody tr:hover td {
     background: rgb(40,40,40);
 }
 
+.no-data{
+    display:flex;
+    justify-content: center;
+}
+
+.no-data p{
+    padding: 20px 10px;
+    font-size: 1.5rem;
+}
+
 
 
 

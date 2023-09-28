@@ -1,21 +1,32 @@
 ﻿@model List<PartialModels.ReciveMessagePartial>
-<hr/>
-@foreach(var item in Model){
-    <div class="recive-item card-body" id="@item.message_id">
-        <div class="contain">
-            <div class="row">
-                <div class="col-md-2">
-                    Od: @item.sender_name
-                </div>
-                <div class="col-md-7">
-                    Temat: @item.topic
-                </div>
-                <div class="col-md-3">
-                    Data wysłania: @item.send_date
+
+@if (!Model.Any())
+{
+    <div class="no-data">
+        <p class="no-data">Brak wyników</p>
+    </div>
+}
+else
+{
+    <hr />
+    @foreach (var item in Model)
+    {
+        <div class="recive-item card-body" id="@item.message_id">
+            <div class="contain">
+                <div class="row">
+                    <div class="col-md-2">
+                        Od: @item.sender_name
+                    </div>
+                    <div class="col-md-7">
+                        Temat: @item.topic
+                    </div>
+                    <div class="col-md-3">
+                        Data wysłania: @item.send_date
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <hr />
+        <hr />
+    }
+    <button class="btn btn-dark w-100" id="loadMoreRecived">Pokaż więcej</button>
 }
-<button class="btn btn-dark w-100" id="loadMoreRecived">Pokaż więcej</button>

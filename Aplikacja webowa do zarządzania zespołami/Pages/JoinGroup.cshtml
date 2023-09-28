@@ -33,7 +33,16 @@
                         <div class="card-body">
                             <div class="container">
                                 <div class="table-responsive overflow-auto mt-4 mb-5" style="max-height: 400px;" id="groupsQuitContainer">
+                                    @if (!Model.groupQuitList.Any())
+                                    {
+                                        <div class="no-data">
+                                            <p class="no-data">Brak wyników</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
                                     <partial name="Partials/_PartialGroupsQuit" model="Model.groupQuitList" />
+                                    }
                                 </div>
                                 <hr />
                             </div>

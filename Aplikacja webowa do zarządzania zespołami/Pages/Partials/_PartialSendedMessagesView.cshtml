@@ -1,22 +1,32 @@
 ﻿@model List<PartialModels.SendedMessagePartial>
-<hr />
-@foreach (var item in Model)
+
+@if (!Model.Any())
 {
-    <div class="sended-item card-body" id="@item.message_id">
-        <div class="contain">
-            <div class="row">
-                <div class="col-md-2">
-                    Do: @item.reciver_name
-                </div>
-                <div class="col-md-7">
-                    Temat: @item.topic
-                </div>
-                <div class="col-md-3">
-                    Data wysłania: @item.send_date
+    <div class="no-data">
+        <p class="no-data">Brak wyników</p>
+    </div>
+}
+else
+{
+    <hr />
+    @foreach (var item in Model)
+    {
+        <div class="sended-item card-body" id="@item.message_id">
+            <div class="contain">
+                <div class="row">
+                    <div class="col-md-2">
+                        Do: @item.reciver_name
+                    </div>
+                    <div class="col-md-7">
+                        Temat: @item.topic
+                    </div>
+                    <div class="col-md-3">
+                        Data wysłania: @item.send_date
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <hr />
+        <hr />
+    }
+    <button class="btn btn-dark w-100" id="loadMoreSended">Pokaż więcej</button>
 }
-<button class="btn btn-dark w-100" id="loadMoreSended">Pokaż więcej</button>
