@@ -19,7 +19,11 @@ string connectionString = builder.Configuration.GetConnectionString(("DefaultCon
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)), ServiceLifetime.Scoped);
 
-builder.Services.AddSession();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+});
+
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddMvc().AddRazorPagesOptions(option =>
