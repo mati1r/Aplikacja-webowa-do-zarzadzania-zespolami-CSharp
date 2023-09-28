@@ -29,7 +29,7 @@ main {
     overflow-y: hidden;
 }
 
-.bg-layout{
+.bg-layout {
     background-color: rgb(55,55,55);
 }
 
@@ -160,25 +160,25 @@ tbody tr:hover td {
     transition: width 0.5s ease-in-out;
 }
 
-.title{
+.title {
     color: rgba(255,255,255,0.6);
 }
 
-.active-group-table thead tr{
+.active-group-table thead tr {
     background: rgb(40,40,40);
 }
 
-.no-data{
+.no-data {
     display:flex;
     justify-content: center;
 }
 
-.no-data p{
+.no-data p {
     padding: 20px 10px;
     font-size: 1.5rem;
 }
 
-.no-data-task-add-btn{
+.no-data-task-add-btn {
     display:flex;
     justify-content:end;
 }
