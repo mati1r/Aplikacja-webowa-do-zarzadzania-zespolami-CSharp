@@ -1,0 +1,7 @@
+﻿namespace Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars
+{
+    public class OwnerTaskDTO : Models.Task
+    {
+        public string username { get; set; }
+    }
+}

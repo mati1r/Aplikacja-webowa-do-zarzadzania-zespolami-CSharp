@@ -168,7 +168,8 @@
 
         function OnDataTableClick() {
             //Modal text and coloring for priority
-            $(".dataTable tbody tr").click(function () {
+            let table = $("#DataTable");
+            table.on("click", "tbody tr", function () {
                 $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
                     $("#title").text(task.task_name);
                     $("#description").text(task.description);
@@ -179,6 +180,7 @@
                     $("#update").val(task.task_id);
                     $("#feedback").val(task.feedback);
 
+                    //Modal text and coloring for priority
                     if (task.priority == "niski") {
                         $("#priority").css("color", "green");
                     } else if (task.priority == "wysoki") {
@@ -188,10 +190,11 @@
                     }
 
                     if (task.status === "ukończone") {
-                        $("#action-btn").hide(); // Ukryj przycisk, jeśli status jest "ukonczone"
+                        console.log("co")
+                        $("#submitBtn").hide();
                         $("#feedback").prop("disabled", true);
                     } else {
-                        $("#action-btn").show(); // Pokaż przycisk w przeciwnym przypadku
+                        $("#submitBtn").show();
                         $("#feedback").prop("disabled", false);
                     }
                 });
@@ -226,9 +229,24 @@
             });
         }
 
+        //Color table on page change
+        function ColorTable() {
+            let table = $("#DataTable").DataTable();
+            table.on("draw", function () {
+                $(".priority-table").each(function () {
+                    if ($(this).html() == "niski") {
+                        $(this).css("color", "green");
+                    } else if ($(this).html() == "wysoki") {
+                        $(this).css("color", "red");
+                    }
+                });
+            });
+        }
+
         $(document).ready(function () {
 
             InitializeDataTable();
+            ColorTable();
 
             OnDataTableClick();
 

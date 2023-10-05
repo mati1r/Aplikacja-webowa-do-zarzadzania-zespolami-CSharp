@@ -1,4 +1,4 @@
-﻿@model List<Models.Task>
+﻿@model List<DTO_models_and_static_vars.OwnerTaskDTO>
 
 @if (!Model.Any())
 {
@@ -19,6 +19,7 @@ else
                 <th scope="col">Data wykonania</th>
                 <th scope="col">Status</th>
                 <th scope="col">Stopień ważności</th>
+                <th scope="col">Wykonawca</th>
             </tr>
         </thead>
         <tbody>
@@ -30,6 +31,7 @@ else
                     <td>@item.end_date</td>
                     <td>@item.status</td>
                     <td class="priority-table">@item.priority</td>
+                    <td>@item.username</td>
                 </tr>
             }
         </tbody>

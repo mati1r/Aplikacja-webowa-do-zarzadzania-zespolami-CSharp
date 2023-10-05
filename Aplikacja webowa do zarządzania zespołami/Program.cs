@@ -1,5 +1,5 @@
-using Aplikacja_webowa_do_zarzπdzania_zespo≥ami.Models;
-using Aplikacja_webowa_do_zarzπdzania_zespo≥ami.Repository;
+Ôªøusing Aplikacja_webowa_do_zarzƒÖdzania_zespo≈Çami.Models;
+using Aplikacja_webowa_do_zarzƒÖdzania_zespo≈Çami.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -37,8 +37,8 @@ builder.Services.AddMvc().AddRazorPagesOptions(option =>
     option.Conventions.AddPageRoute("/Login", "/Logowanie");
     option.Conventions.AddPageRoute("/Register", "/Rejestracja");
     option.Conventions.AddPageRoute("/UserProfile", "/Profil uzytkownika");
-    option.Conventions.AddPageRoute("/UserNotices", "/Og≥oszenia");
-    option.Conventions.AddPageRoute("/OwnerNotices", "/Zarzadzanie og≥oszeniami");
+    option.Conventions.AddPageRoute("/UserNotices", "/Og≈Çoszenia");
+    option.Conventions.AddPageRoute("/OwnerNotices", "/Zarzadzanie og≈Çoszeniami");
     option.Conventions.AddPageRoute("/PasswordRecovery", "/Odzyskiwanie dostepu");
     option.Conventions.AddPageRoute("/Messages", "/Wiadomosci");
     option.Conventions.AddPageRoute("/Calendar", "/Kalendarz");

@@ -19,11 +19,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             _taskRepository = taskRepository;
             _userRepository = userRepository;
             _groupRepository = groupRepository;
-            tasksList = new List<Models.Task>();
+            tasksList = new List<OwnerTaskDTO>();
             usersList = new List<User>();
         }
 
-        public List<Models.Task> tasksList;
+        public List<OwnerTaskDTO> tasksList;
         public List<User> usersList;
         private string error ="";
         public string data;

@@ -20,7 +20,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
         JsonResult EditTask(Models.Task task);
         bool IsTaskCompleted(Models.Task task);
         bool IsExistingTaskInGroup(Models.Task task, int? groupId);
-        List<Models.Task> GetAllTaskForGroup(int? groupId);
+        List<OwnerTaskDTO> GetAllTaskForGroup(int? groupId);
         Task<Models.Task> GetTaskAsync(int id, int? groupId);
 
     }

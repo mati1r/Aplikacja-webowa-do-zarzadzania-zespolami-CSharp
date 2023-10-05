@@ -125,9 +125,30 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Tasks.Any(t => t.task_id == task.task_id && t.groups_group_id == groupId);
         }
 
-        public List<Models.Task> GetAllTaskForGroup(int? groupId)
+        public List<OwnerTaskDTO> GetAllTaskForGroup(int? groupId)
         {
-            return _dbContext.Tasks.Where(t => t.groups_group_id == groupId).ToList();
+            return _dbContext.Tasks
+                .Where(t => t.groups_group_id == groupId)
+                .Select(t => new OwnerTaskDTO
+                {
+                    users_user_id = t.users_user_id,
+                    groups_group_id = t.groups_group_id,
+                    task_id = t.task_id,
+                    task_name = t.task_name,
+                    description = t.description,
+                    start_date = t.start_date,
+                    end_date = t.end_date,
+                    finish_date = t.finish_date,
+                    priority = t.priority,
+                    status = t.status,
+                    feedback = t.feedback,
+                    username = _dbContext.Users_Groups
+                        .Where(ug => ug.users_user_id == t.users_user_id && ug.groups_group_id == groupId)
+                        .Any()
+                        ? t.Users.username
+                        : "Brak"
+                })
+                .ToList();
         }
 
         public async Task<Models.Task> GetTaskAsync(int id, int? groupId)

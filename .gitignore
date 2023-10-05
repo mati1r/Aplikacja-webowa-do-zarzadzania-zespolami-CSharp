@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Aplikacja webowa do zarządzania zespołami/baza.sql
+/Aplikacja webowa do zarządzania zespołami/baza.sql.bak
+/Aplikacja webowa do zarządzania zespołami/docker-compose.yaml
+/Aplikacja webowa do zarządzania zespołami/docker-compose.yaml.bak
+/Aplikacja webowa do zarządzania zespołami/published
