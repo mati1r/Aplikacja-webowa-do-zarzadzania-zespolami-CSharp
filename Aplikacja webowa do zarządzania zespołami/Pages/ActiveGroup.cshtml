@@ -14,47 +14,34 @@
     </div>
 
     <div class="p-3">
-        <div class="container">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card bg-table">
-                        <div class="table-responsive">
-                            @if (!Model.groupList.Any())
-                            {
-                                <div class="no-data">
-                                    <p class="p-5">Brak danych do wyświetlenia</p>
-                                </div>
-                            }
-                            else
-                            {
-                            <table class="active-group-table table table-borderless">
-                                <thead>
-                                    <tr>
-                                        <th scope="col" class="col-3">Nazwa</th>
-                                        <th scope="col" class="col-2">Właściciel</th>
-                                        <th scope="col" class="col-6">Opis</th>
-                                        <th scope="col" class="col-1" data-orderable="false"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var item in Model.groupList)
-                                    {
-                                        <tr>
-                                            <td class="groupName">@item.name</td>
-                                            <td>@item.owner_name</td>
-                                            <td>@item.description</td>
-                                            <td>
-                                                <input type="hidden" asp-for="changeGroupId" class="update" value="@item.group_id" />
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                            }
+        <div id="groupsContainer">
+            @if (!Model.groupList.Any())
+            {
+                <div class="no-data">
+                    <p class="p-5">Brak danych do wyświetlenia</p>
+                </div>
+            }
+            else
+            {
+                @foreach (var item in Model.groupList)
+                {
+                    <div class="card">
+                        <div class="card-header pt-3">
+                            <p class="groupName">@item.name</p>
+                        </div>
+                        <div class="card-body">
+                            <span class="text-white-50">Właściciel</span>
+                            <br />
+                            <p>@item.owner_name</p>
+                            <span class="text-white-50">Opis</span>
+                            <br />
+                            <p>@item.description</p>
+                            <input type="hidden" asp-for="changeGroupId" class="update" value="@item.group_id" />
                         </div>
                     </div>
-                </div>
-            </div>
+                    <br />
+                }
+            }
         </div>
     </div>
 </div>
@@ -93,18 +80,18 @@
 
             let loadedGroupId = $("#change").val();
 
-            //Find active group and assing class
-            $(".table tbody tr").each(function () {
-                let rowValue = $(this).find(".update").val()
+            //Find active group and assign class
+            $("#groupsContainer .card").each(function () {
+                let value = $(this).find(".update").val()
 
-                if(rowValue == loadedGroupId){
-                    let $row = $(this).find("td");
-                    $row.addClass("selected-td");
+                if (value == loadedGroupId) {
+                    let card = $(this);
+                    card.addClass("selected-group-border");
                 }
             });
 
             //Update value of hidden input in form and change style of selected item
-            $(".table tbody tr").click(function () {
+            $("#groupsContainer .card").click(function () {
                 let groupId = $(this).find(".update").val();
                 let groupName = $(this).find(".groupName").text();
 

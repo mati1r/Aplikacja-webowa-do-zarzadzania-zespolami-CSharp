@@ -92,9 +92,8 @@ tbody tr:hover td {
     color: rgba(255,255,255, 1);
 }
 
-.selected-td {
-    font-weight: 500;
-    color: rgba(85,115,146, 1);
+.selected-group-border {
+    border: solid 2px #375a7f !important;
 }
 
 .wrap-text {
