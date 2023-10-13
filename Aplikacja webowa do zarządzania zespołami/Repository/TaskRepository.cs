@@ -33,7 +33,23 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             var task = _dbContext.Tasks.Where(t => t.task_id == taskId).First();
             task.status = "ukończone";
             task.feedback = feedbackMessage;
-            task.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second); ;
+            task.finish_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
+            _dbContext.Tasks.Update(task);
+            _dbContext.SaveChanges();
+        }
+        
+        public void CurrentTask(int taskId, string feedbackMessage)
+        {
+            var task = _dbContext.Tasks.Where(t => t.task_id == taskId).First();
+            task.status = "w trakcie";
+            _dbContext.Tasks.Update(task);
+            _dbContext.SaveChanges();
+        }
+
+        public void NotCompleteTask(int taskId, string feedbackMessage)
+        {
+            var task = _dbContext.Tasks.Where(t => t.task_id == taskId).First();
+            task.status = "nieukończone";
             _dbContext.Tasks.Update(task);
             _dbContext.SaveChanges();
         }
@@ -68,7 +84,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
 
         public bool IsTaskForUserNotComplete(int taskId, int? userId, int? groupId)
         {
-            return _dbContext.Tasks.Any(t => t.task_id == taskId && t.groups_group_id == groupId && t.users_user_id == userId && t.status == "nieukończone");
+            return _dbContext.Tasks.Any(t => t.task_id == taskId && t.groups_group_id == groupId && t.users_user_id == userId && (t.status == "nieukończone" || t.status == "w trakcie"));
         }
 
         public JsonResult CreateTask(Models.Task task, int groupId)

@@ -16,7 +16,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
         }
         public static bool IsStatusValid(string status)
         {
-            if (status == "nieukończone" || status == "ukończone") {
+            if (status == "nieukończone" || status == "w trakcie" || status == "ukończone") {
                 return true;
             }
             else
@@ -51,16 +51,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
         public static string IsTaskValid(string taskName, string status, string priority, string description)
         {
             if (!IsTaskNameValid(taskName))
-                return "Nazwa zadania nie spełnia założeń formatowych";
+                return "Nazwa zadania jest nie poprawna";
 
             if (!IsDescriptionValid(description))
-                return "Opis zadanie nie spełnia założeń formatowych";
+                return "Opis zadania jest nie poprawny";
 
             if (!IsPriorityValid(priority))
-                return "Stopień ważności został zmnieniony i nie spełnia założeń formatowych";
+                return "Stopień ważności jest nie poprawny";
 
             if (!IsStatusValid(status))
-                return "Status zadania został zmmieniony i nie spełnia założeń formatowych";
+                return "Status zadania jest nie poprawny";
 
             return "";
         }

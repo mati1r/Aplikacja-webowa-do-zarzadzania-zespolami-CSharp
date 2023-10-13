@@ -11,6 +11,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
         //User Task oraz Owner Task
         bool IsTaskForUserNotComplete(int taskId, int? userId, int? groupId);
         void CompleteTask(int taskId, string feedbackMessage);
+        void CurrentTask(int taskId, string feedbackMessage);
+        void NotCompleteTask(int taskId, string feedbackMessage);
         List<Models.Task> GetTasksForUser(int? userId, int? groupId);
         Task<Models.Task> GetTaskAsync(int id, int? userId, int? groupId);
 

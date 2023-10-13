@@ -86,6 +86,8 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
                     <input type="hidden" asp-for="actionTaskId" id="update"/>
+                    <button type="button" class="btn btn-primary" id="currentBtn">Odznacz jako w trakcie</button>
+                    <button type="button" class="btn btn-danger" id="notCompleteBtn">Odznacz jako niewykonane</button>
                     <button type="button" class="btn btn-primary" id="submitBtn">Odznacz jako wykonane</button>
                 </div>
             </form>
@@ -192,9 +194,18 @@
                     if (task.status === "ukończone") {
                         console.log("co")
                         $("#submitBtn").hide();
+                        $("#currentBtn").hide();
+                        $("#notCompleteBtn").hide();
                         $("#feedback").prop("disabled", true);
+                    } else if(task.status === "w trakcie") {
+                        $("#submitBtn").show();
+                        $("#currentBtn").hide();
+                        $("#notCompleteBtn").show();
+                        $("#feedback").prop("disabled", false);
                     } else {
                         $("#submitBtn").show();
+                        $("#currentBtn").show();
+                        $("#notCompleteBtn").hide();
                         $("#feedback").prop("disabled", false);
                     }
                 });
@@ -254,6 +265,20 @@
                 $("span[data-valmsg-for]").text("");
                 $("#complete-modal").modal("hide");
                 $("#confirm-complete-modal").modal("show");
+            });
+
+            $("#currentBtn").click(function () {
+                $("span[data-valmsg-for]").text("");
+                $("#complete-modal").modal("hide");
+                $("#completeForm").attr("action", "/UserTasks?handler=Current");
+                $("#completeForm").submit();
+            });
+
+            $("#notCompleteBtn").click(function () {
+                $("span[data-valmsg-for]").text("");
+                $("#complete-modal").modal("hide");
+                $("#completeForm").attr("action", "/UserTasks?handler=NotComplete");
+                $("#completeForm").submit();
             });
 
             $("#confirmCompleteBtn").click(function(){

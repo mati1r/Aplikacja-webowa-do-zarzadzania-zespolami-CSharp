@@ -57,6 +57,40 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return new JsonResult("success");
         }
 
+        public IActionResult OnPostCurrent()
+        {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            List<string> validationErrors = new List<string>();
+
+            ////Check if user didn't changed id to an id out of his scope
+            ///if there is a task get it and change its status        
+            if (!_taskRepository.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
+            _taskRepository.CurrentTask(actionTaskId, feedbackMessage);
+            return new JsonResult("success");
+        }
+
+        public IActionResult OnPostNotComplete()
+        {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            List<string> validationErrors = new List<string>();
+
+            ////Check if user didn't changed id to an id out of his scope
+            ///if there is a task get it and change its status        
+            if (!_taskRepository.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
+            _taskRepository.NotCompleteTask(actionTaskId, feedbackMessage);
+            return new JsonResult("success");
+        }
+
         //Partials
         public PartialViewResult OnGetTaskPartial()
         {
