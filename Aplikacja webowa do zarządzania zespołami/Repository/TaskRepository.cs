@@ -84,7 +84,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
 
         public bool IsTaskForUserNotComplete(int taskId, int? userId, int? groupId)
         {
-            return _dbContext.Tasks.Any(t => t.task_id == taskId && t.groups_group_id == groupId && t.users_user_id == userId && (t.status == "nieukończone" || t.status == "w trakcie"));
+            return _dbContext.Tasks.Any(t => t.task_id == taskId && t.groups_group_id == groupId && t.users_user_id == userId && t.status != "ukończone");
         }
 
         public JsonResult CreateTask(Models.Task task, int groupId)

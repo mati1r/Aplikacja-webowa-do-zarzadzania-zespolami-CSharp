@@ -8,6 +8,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
         private static int maxDescription = 1000;
         private static int minTaskName = 3;
         private static int maxTaskName = 100;
+        private static List<string> validStatuses = new List<string>()
+                    {
+                        "nieukończone",
+                        "w trakcie",
+                        "ukończone"
+                    };
 
 
         private static bool IsLengthValid(string value, int min, int max)
@@ -16,7 +22,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
         }
         public static bool IsStatusValid(string status)
         {
-            if (status == "nieukończone" || status == "w trakcie" || status == "ukończone") {
+            if (validStatuses.Any(x => x == status)) {
                 return true;
             }
             else
