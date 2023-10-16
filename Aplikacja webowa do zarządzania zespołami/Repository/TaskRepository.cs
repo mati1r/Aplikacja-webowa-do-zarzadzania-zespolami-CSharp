@@ -1,4 +1,5 @@
-﻿using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
+﻿using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
+using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,21 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             _dbContext = dbContext;
         }
 
+        private static string GetColor(string status)
+        {
+            if(status == "nieukończone")
+            {
+                return "#e74c3c";
+            }else if(status == "w trakcie")
+            {
+                return "#f39c12";
+            }
+            else
+            {
+                return "#375a7f";
+            }
+        }
+
         //Calendar
         public Task<List<CalendarEventsDTO>> GetCalendarEventsAsync(int? userId, int? groupId)
         {
@@ -23,7 +39,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                     taskId = t.task_id,
                     title = t.task_name,
                     start = t.start_date.ToString("yyyy-MM-dd"),
-                    end = t.end_date.ToString("yyyy-MM-dd")
+                    end = t.end_date.ToString("yyyy-MM-dd"),
+                    color = GetColor(t.status)
                 })
                 .ToListAsync();
         }
@@ -141,11 +158,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Tasks.Any(t => t.task_id == task.task_id && t.groups_group_id == groupId);
         }
 
-        public List<OwnerTaskDTO> GetAllTaskForGroup(int? groupId)
+        public List<OwnerTaskPartial> GetAllTaskForGroup(int? groupId)
         {
             return _dbContext.Tasks
                 .Where(t => t.groups_group_id == groupId)
-                .Select(t => new OwnerTaskDTO
+                .Select(t => new OwnerTaskPartial
                 {
                     users_user_id = t.users_user_id,
                     groups_group_id = t.groups_group_id,

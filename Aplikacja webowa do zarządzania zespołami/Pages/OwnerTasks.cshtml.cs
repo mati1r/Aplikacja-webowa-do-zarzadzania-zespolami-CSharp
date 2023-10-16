@@ -1,5 +1,6 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
 using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
+using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -19,11 +20,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             _taskRepository = taskRepository;
             _userRepository = userRepository;
             _groupRepository = groupRepository;
-            tasksList = new List<OwnerTaskDTO>();
+            tasksList = new List<OwnerTaskPartial>();
             usersList = new List<User>();
         }
 
-        public List<OwnerTaskDTO> tasksList;
+        public List<OwnerTaskPartial> tasksList;
         public List<User> usersList;
         private string error ="";
         public string data;

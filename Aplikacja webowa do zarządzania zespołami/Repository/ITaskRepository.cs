@@ -1,4 +1,5 @@
 ﻿using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
+using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
@@ -22,7 +23,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
         JsonResult EditTask(Models.Task task);
         bool IsTaskCompleted(Models.Task task);
         bool IsExistingTaskInGroup(Models.Task task, int? groupId);
-        List<OwnerTaskDTO> GetAllTaskForGroup(int? groupId);
+        List<OwnerTaskPartial> GetAllTaskForGroup(int? groupId);
         Task<Models.Task> GetTaskAsync(int id, int? groupId);
 
     }
