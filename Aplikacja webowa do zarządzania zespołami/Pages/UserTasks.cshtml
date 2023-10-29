@@ -29,6 +29,17 @@
                 </div>
             </div>
         </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card bg-table">
+                        <div class="card-body" id="timelineContainer">
+                            <partial name="Partials/_PartialTimelineView" model="Model.timelineTaskList" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -119,6 +130,64 @@
 @section scripts{
     <script>
 
+        function TimelineClick(){
+
+            function getNameOfTask() {
+                $(".timeline-task").on("click", function () {
+                    $.getJSON(`/UserTasks?handler=TaskJson&id=${$(this).data('id')}`).done(function (task) {
+                        $("#title").text(task.task_name);
+                        $("#description").text(task.description);
+                        $("#status").text(task.status);
+                        $("#priority").text(task.priority);
+                        $("#start-date").text(task.start_date.replace("T", " "));
+                        $("#end-date").text(task.end_date.replace("T", " "));
+                        $("#update").val(task.task_id);
+                        $("#feedback").val(task.feedback);
+
+                        //Modal text and coloring for priority
+                        if (task.priority == "niski") {
+                            $("#priority").css("color", "green");
+                        } else if (task.priority == "wysoki") {
+                            $("#priority").css("color", "red");
+                        } else {
+                            $("#priority").css("color", "rgba(255,255,255,0.5)");
+                        }
+
+                        if (task.status === "ukończone") {
+                            console.log("co")
+                            $("#submitBtn").hide();
+                            $("#currentBtn").hide();
+                            $("#notCompleteBtn").hide();
+                            $("#feedback").prop("disabled", true);
+                        } else if (task.status === "w trakcie") {
+                            $("#submitBtn").show();
+                            $("#currentBtn").hide();
+                            $("#notCompleteBtn").show();
+                            $("#feedback").prop("disabled", false);
+                        } else if (task.status === "nieukończone") {
+                            $("#submitBtn").show();
+                            $("#currentBtn").show();
+                            $("#notCompleteBtn").hide();
+                            $("#feedback").prop("disabled", false);
+                        }
+                    });
+                    $("#complete-modal").modal("show");
+                });
+            }
+
+            //Initialize after loading page
+            getNameOfTask();
+
+            //Initialzie after redrawing
+            $("#prevMonthButton").click(() => {
+                getNameOfTask();
+            });
+
+            $("#nextMonthButton").click(() => {
+                getNameOfTask();
+            });
+        }
+
         function HandleFormSubmit(form, valmsgFor) {
             let actionUrl = form.attr("action");
 
@@ -144,12 +213,15 @@
                         let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
                         nameValidationError.text(data[0]);
                     } else {
-                        InvokeAjaxCallTasks();
+                        //Reload dataTable and timeline elements on the page
+                        InvokeAjaxCallTasks()
+                        InvokeAjaxCallTimeline();
                     }
                 }
             });
         }
 
+        //For dataTable
         function InvokeAjaxCallTasks() {
             $("#complete-modal").modal("hide");
             $("#confirm-complete-modal").modal("hide");
@@ -164,6 +236,24 @@
                 success: function (partialResult) {
                     $("#dataContainer").append(partialResult);
                     InitializeDataTable();
+                }
+            });
+        }
+
+        //For timeline
+        function InvokeAjaxCallTimeline() {
+            $("#complete-modal").modal("hide");
+            $("#confirm-complete-modal").modal("hide");
+
+            if ($("#timelineContainer").children().length > 0) {
+                $("#timelineContainer").empty();
+            }
+
+            $.ajax({
+                type: 'get',
+                url: '@Url.Page("UserTasks", "TimelinePartial")',
+                success: function (partialResult) {
+                    $("#timelineContainer").append(partialResult);
                 }
             });
         }
@@ -202,7 +292,7 @@
                         $("#currentBtn").hide();
                         $("#notCompleteBtn").show();
                         $("#feedback").prop("disabled", false);
-                    } else {
+                    } else if(task.status === "nieukończone") {
                         $("#submitBtn").show();
                         $("#currentBtn").show();
                         $("#notCompleteBtn").hide();
@@ -256,6 +346,7 @@
 
         $(document).ready(function () {
 
+            TimelineClick();
             InitializeDataTable();
             ColorTable();
 
@@ -303,9 +394,15 @@
             
         });
 
+        //Reinitialize functions after ajax reload
         $(document).ajaxSuccess(function (event, xhr, settings) {
             if (settings.url === '@Url.Page("UserTasks", "TaskPartial")') {
                 OnDataTableClick();
+                ColorTable();
+            }
+
+            if (settings.url === '@Url.Page("UserTasks", "TimelinePartial")') {
+                TimelineClick();
             }
         });
 </script>

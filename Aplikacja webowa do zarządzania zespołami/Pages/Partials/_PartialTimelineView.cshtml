@@ -1,0 +1,256 @@
+﻿@model List<Models.Task>
+
+<div class="d-flex justify-content-end mb-3">
+    <button id="prevMonthButton" class="page-link">W tył</button>
+    <button id="nextMonthButton" class="page-link">W przód</button>
+</div>
+<div class="svg-container">
+    <svg height="400" class="svg mb-5" id="timeline-chart" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="info" class="timeline-info">
+        <p id="task-name"></p>
+        <p>Okres zadania:</p>
+        <div class="container">
+            <span id="task-date"></span>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var tasks = @Html.Raw(Json.Serialize(Model));
+
+        tasks.forEach(function (task) {
+            let originalStartDate = task.start_date;
+            let partsStart = originalStartDate.split("T")[0].split("-");
+            let reversedStartDate = partsStart[2] + "-" + partsStart[1] + "-" + partsStart[0];
+            task.start_date = reversedStartDate;
+
+            let originalEndDate = task.end_date;
+            let partsEnd = originalEndDate.split("T")[0].split("-");
+            let reversedEndDate = partsEnd[2] + "-" + partsEnd[1] + "-" + partsEnd[0];
+            task.end_date = reversedEndDate;
+        });
+
+        timeline(tasks);
+
+    function timeline(tasks) {
+        function calculateTaskPosition(task, startDate, endDate, chartWidth) {
+            let start_date = new Date(parseDate(task.start_date));
+            let end_date = new Date(parseDate(task.end_date));
+            let duration = end_date - start_date;
+
+            let taskStartOffset = (start_date - startDate) / (endDate - startDate) * chartWidth;
+            let taskWidth = (duration / (endDate - startDate)) * chartWidth;
+
+            return { start_date: taskStartOffset, width: taskWidth };
+        }
+
+        function parseDate(dateString) {
+            let parts = dateString.split('-');
+            let day = parseInt(parts[0]);
+            let month = parseInt(parts[1]) - 1; // Month in JavaScript Date is 0-based
+            let year = parseInt(parts[2]);
+
+            return new Date(year, month, day);
+        }
+
+        let startDate = new Date(Math.min.apply(null, tasks.map(function (task) {
+            return parseDate(task.start_date);
+        })));
+
+        let endDate = new Date();
+
+        let svg = document.getElementById("timeline-chart");
+        let standardTaskHeight = 30;
+        let taskMargin = 10;
+        let currentY = 50;
+
+        tasks.sort(function (a, b) {
+            return parseDate(a.start_date) - parseDate(b.start_date);
+        });
+
+        function drawTimeline() {
+            while (svg.firstChild) {
+                svg.removeChild(svg.firstChild);
+            }
+
+            //Set endDate to the same month as startDate and day to last
+            if (startDate.getFullYear() == endDate.getFullYear()) {
+                if (startDate.getMonth() != 11) {
+                    endDate.setMonth(startDate.getMonth() + 1, 1);
+                } else {
+                    endDate.setMonth(startDate.getMonth(), 31);
+                }
+            } else {
+                endDate.setFullYear(startDate.getFullYear());
+                endDate.setMonth(startDate.getMonth(), 31);
+            }
+
+            //Set startDate to first day of the month
+            startDate.setDate(1);
+
+            for (var i = 0; i < tasks.length; i++) {
+                let y = 0;
+                let task = tasks[i];
+                let position = calculateTaskPosition(task, startDate, endDate, svg.clientWidth);
+                let start_date = position.start_date;
+                let width = position.width;
+                let collision = false;
+
+                const taskStartDate = new Date(parseDate(task.start_date));
+                const taskEndDate = new Date(parseDate(task.end_date));
+
+                if(taskEndDate >= startDate && taskStartDate <= endDate)
+                {
+
+                    for (var j = i - 1; j >= 0; j--) {
+                        var otherTask = tasks[j];
+                        var otherTaskPosition = calculateTaskPosition(otherTask, startDate, endDate, svg.clientWidth);
+
+                        if (start_date + width >= otherTaskPosition.start_date &&
+                            start_date <= otherTaskPosition.start_date + otherTaskPosition.width) {
+                            currentY = y + taskHeight + taskMargin;
+                            y = currentY;
+                            collision = true;
+                        }
+                    }
+
+                    var taskHeight = standardTaskHeight;
+
+                    if (!collision) {
+                        currentY = 50;
+                    }
+
+                    if (svg.clientHeight < currentY + (taskHeight + taskMargin) * 8) {
+                        svg.setAttribute("height", currentY + (taskHeight + taskMargin) * 8);
+                    }
+
+
+
+                    var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    rect.setAttribute("x", start_date);
+                    rect.setAttribute("y", y);
+
+                    if (task.start_date !== task.end_date) 
+                    {
+                        rect.setAttribute("width", width);
+                    }
+                    else
+                    {
+                        rect.setAttribute("width", 30);
+                    }
+                    rect.setAttribute("height", taskHeight);
+                    rect.setAttribute("class", "timeline-task");
+
+                    //Add fill
+                    if (task.status == "w trakcie") {
+                        rect.classList.add("task-current");
+                    } 
+                    else if (task.status == "nieukończone") {
+                        rect.classList.add("task-unfinished");
+                    }
+
+                    //Add stroke
+                    if(task.priority == "niski"){
+                        rect.classList.add("task-priority-low");
+                    }
+                    else if(task.priority == "normalny")
+                    {
+                        rect.classList.add("task-priority-normal");
+                    }
+                    else if(task.priority == "wysoki")
+                    {
+                        rect.classList.add("task-priority-high");
+                    }
+
+                    rect.setAttribute("data-id", task.task_id);
+                    rect.setAttribute("data-name", task.task_name);
+                    rect.setAttribute("data-start", task.start_date);
+                    rect.setAttribute("data-end", task.end_date);
+
+                    svg.appendChild(rect);
+                }
+            }
+
+            if (!document.getElementById("timeline")) {
+                var timeline = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                timeline.setAttribute("x1", 0);
+                timeline.setAttribute("y1", svg.getAttribute("height") - 25);
+                timeline.setAttribute("x2", svg.clientWidth);
+                timeline.setAttribute("y2", svg.getAttribute("height") - 25);
+                timeline.setAttribute("id", "timeline");
+                svg.appendChild(timeline);
+            }
+
+            var numDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            var numTicks = numDays / 5;
+
+            for (var i = 0; i <= numTicks; i++) {
+                var tickX = (i / numTicks) * svg.clientWidth;
+                var tickDate = new Date(startDate.getTime() + (i * 5) * (1000 * 60 * 60 * 24));
+                var tickText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                tickText.setAttribute("x", tickX + 5);
+                tickText.setAttribute("y", svg.getAttribute("height") - 35);
+                tickText.setAttribute("class", "timeline-date");
+                tickText.textContent = (tickDate.getDate()) + "-" + (tickDate.getMonth() + 1) + "-" + tickDate.getFullYear();
+                svg.appendChild(tickText);
+
+                var verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                verticalLine.setAttribute("x1", tickX);
+                verticalLine.setAttribute("y1", svg.getAttribute("height") - 25);
+                verticalLine.setAttribute("x2", tickX);
+                verticalLine.setAttribute("y2", svg.getAttribute("height") - 60);
+                verticalLine.setAttribute("class", "vertical-line");
+                svg.appendChild(verticalLine);
+            }
+
+            let timelineTasks = document.getElementsByClassName("timeline-task");
+
+            let info = document.getElementById("info");
+            
+            for (var i = 0; i < timelineTasks.length; i++) {
+                timelineTasks[i].addEventListener("mouseenter", function () {
+                    info.style.visibility = "visible";
+                    let x = this.getAttribute("x");
+                    let y = this.getAttribute("y");
+                    let width = this.getAttribute("width");
+
+                    if (Number(x) + Number(width) + Number(20) < Number(svg.clientWidth)) {
+                        x = Number(x) + Number(width) + Number(20);
+                    }
+
+                    if (Number(x) + Number(250) > Number(svg.clientWidth)){
+                        console.log("t")
+                        x = Number(x) - Number(250)
+                    }
+                        
+                    info.style.top = y + "px";
+                    info.style.left = x + "px";
+                    document.getElementById("task-name").innerHTML = this.getAttribute("data-name");
+                    document.getElementById("task-date").innerHTML = this.getAttribute("data-start") + " - " + this.getAttribute("data-end");
+                });
+
+                timelineTasks[i].addEventListener("mouseleave", function () {
+                    info.style.visibility = "hidden";
+                    info.style.top = Number(-50) + "px";
+                    info.style.left = Number(-50) + "px";
+                });
+
+            }
+        }
+
+        document.getElementById("prevMonthButton").addEventListener("click", function () {
+            startDate.setMonth(startDate.getMonth() - 1);
+            endDate.setMonth(endDate.getMonth() - 1);
+            drawTimeline();
+        });
+
+        document.getElementById("nextMonthButton").addEventListener("click", function () {
+            startDate.setMonth(startDate.getMonth() + 1);
+            endDate.setMonth(endDate.getMonth() + 1);
+            drawTimeline();
+        });
+
+        drawTimeline();
+    };
+</script>

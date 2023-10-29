@@ -182,6 +182,69 @@ tbody tr:hover td {
     justify-content:end;
 }
 
+#timeline {
+    fill: none;
+    stroke: #375a7f;
+}
+
+.vertical-line {
+    stroke: #fff;
+}
+
+.svg {
+    width: 100%;
+    background-color: transparent;
+    padding: 10px;
+}
+
+.timeline-date {
+    fill: #fff;
+}
+
+.task-unfinished {
+    fill: #375a7f;
+    rx: 10px;
+}
+
+.task-current {
+    fill: #f39c12;
+    rx: 10px;
+}
+
+.task-text {
+    fill: #fff;
+}
+
+.task-priority-low {
+    stroke: green;
+    stroke-width: 2px;
+}
+
+.task-priority-normal {
+    stroke: rgba(255,255,255,0.5);
+    stroke-width: 2px;
+}
+
+.task-priority-high {
+    stroke: red;
+    stroke-width: 2px;
+}
+
+.timeline-info {
+    visibility: hidden;
+    position: absolute;
+    background: rgba(40,40,40,0.9);
+    border: 1px solid #375a7f;
+    padding: 20px;
+    pointer-events: none;
+    border-radius: 10px;
+}
+
+.timeline-task {
+    cursor: pointer;
+    pointer-events: all;
+}
+
 
 
 

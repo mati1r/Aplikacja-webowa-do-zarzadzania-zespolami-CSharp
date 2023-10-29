@@ -15,9 +15,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             _taskRepository = taskRepository;
             tasksList = new List<Models.Task>();
+            timelineTaskList = new List<Models.Task>();
         }
 
         public List<Models.Task> tasksList;
+        public List<Models.Task> timelineTaskList;
         public string data;
         public int? userId;
         public int? groupId;
@@ -38,6 +40,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
             tasksList = _taskRepository.GetTasksForUser(userId, groupId);
+            timelineTaskList = tasksList.Where(t => t.finish_date == null).ToList();
         }
 
         public IActionResult OnPostComplete()
@@ -107,6 +110,24 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             return Partial("Partials/_PartialUserTasks", tasksList);
+        }
+
+        public PartialViewResult OnGetTimelinePartial()
+        {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+            groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+
+            try
+            {
+                tasksList = _taskRepository.GetTasksForUser(userId, groupId);
+                timelineTaskList = tasksList.Where(t => t.finish_date == null).ToList();
+            }
+            catch
+            {
+                Page();
+            }
+
+            return Partial("Partials/_PartialTimelineView", timelineTaskList);
         }
 
 
