@@ -10,7 +10,7 @@
 }
 
 
-<div class="w-100 h-100 d-inline-block overflow-auto bg-main">
+<div class="w-100 h-100 d-inline-block overflow-auto bg-main" id="userTaskMainWidnow">
     <div class="p-4">
         <h1 class="text-center display-6 fw-bold">Zadania</h1>
     </div>
@@ -213,6 +213,9 @@
                         let nameValidationError = $(`span[data-valmsg-for="${valmsgFor}"]`);
                         nameValidationError.text(data[0]);
                     } else {
+                        //Save scroll position
+                        localStorage['scrollTop'] = $(userTaskMainWidnow).scrollTop();
+
                         //Reload dataTable and timeline elements on the page
                         InvokeAjaxCallTasks()
                         InvokeAjaxCallTimeline();
@@ -396,6 +399,7 @@
 
         //Reinitialize functions after ajax reload
         $(document).ajaxSuccess(function (event, xhr, settings) {
+
             if (settings.url === '@Url.Page("UserTasks", "TaskPartial")') {
                 OnDataTableClick();
                 ColorTable();
@@ -403,6 +407,7 @@
 
             if (settings.url === '@Url.Page("UserTasks", "TimelinePartial")') {
                 TimelineClick();
+                $(userTaskMainWidnow).scrollTop(localStorage['scrollTop']);
             }
         });
 </script>

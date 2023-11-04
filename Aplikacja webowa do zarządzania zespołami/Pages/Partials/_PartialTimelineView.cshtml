@@ -1,19 +1,28 @@
 ﻿@model List<Models.Task>
 
-<div class="d-flex justify-content-end mb-3">
-    <button id="prevMonthButton" class="page-link">W tył</button>
-    <button id="nextMonthButton" class="page-link">W przód</button>
-</div>
-<div class="svg-container">
-    <svg height="400" class="svg mb-5" id="timeline-chart" xmlns="http://www.w3.org/2000/svg"></svg>
-    <div id="info" class="timeline-info">
-        <p id="task-name"></p>
-        <p>Okres zadania:</p>
-        <div class="container">
-            <span id="task-date"></span>
+@if (!Model.Any())
+{
+    <div class="no-data">
+        <p>Brak wyników</p>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-end mb-3">
+        <button id="prevMonthButton" class="page-link">W tył</button>
+        <button id="nextMonthButton" class="page-link">W przód</button>
+    </div>
+    <div class="svg-container">
+        <svg height="400" class="svg mb-5" id="timeline-chart" xmlns="http://www.w3.org/2000/svg"></svg>
+        <div id="info" class="timeline-info">
+            <p id="task-name"></p>
+            <p>Okres zadania:</p>
+            <div class="container">
+                <span id="task-date"></span>
+            </div>
         </div>
     </div>
-</div>
+}
 
 
 <script>
@@ -220,7 +229,6 @@
                     }
 
                     if (Number(x) + Number(250) > Number(svg.clientWidth)){
-                        console.log("t")
                         x = Number(x) - Number(250)
                     }
                         
@@ -239,18 +247,20 @@
             }
         }
 
-        document.getElementById("prevMonthButton").addEventListener("click", function () {
-            startDate.setMonth(startDate.getMonth() - 1);
-            endDate.setMonth(endDate.getMonth() - 1);
-            drawTimeline();
-        });
+        if(tasks.length > 0){
+            document.getElementById("prevMonthButton").addEventListener("click", function () {
+                startDate.setMonth(startDate.getMonth() - 1);
+                endDate.setMonth(endDate.getMonth() - 1);
+                drawTimeline();
+            });
 
-        document.getElementById("nextMonthButton").addEventListener("click", function () {
-            startDate.setMonth(startDate.getMonth() + 1);
-            endDate.setMonth(endDate.getMonth() + 1);
-            drawTimeline();
-        });
+            document.getElementById("nextMonthButton").addEventListener("click", function () {
+                startDate.setMonth(startDate.getMonth() + 1);
+                endDate.setMonth(endDate.getMonth() + 1);
+                drawTimeline();
+            });
 
-        drawTimeline();
+            drawTimeline();
+        }
     };
 </script>
