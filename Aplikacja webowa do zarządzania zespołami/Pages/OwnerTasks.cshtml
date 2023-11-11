@@ -383,6 +383,7 @@
                         $("#finish-date").val(task.finish_date);
                         $("#feedbackDiv").show();
                         $('#task-user')[0].selectize.disable();
+                        $('#editBtn').hide();
 
                     } else {
                         $(".status-input").prop("disabled", false);
@@ -390,6 +391,7 @@
                         $("#finish-date").val("");
                         $("#feedbackDiv").hide();
                         $('#task-user')[0].selectize.enable();
+                        $('#editBtn').show();
                     }
                 });
             });
@@ -516,6 +518,7 @@
         $(document).ajaxSuccess(function (event, xhr, settings) {
             if (settings.url === '@Url.Page("OwnerTasks", "TaskPartial")') {
                 OnDataTableClick();
+                ColorTable();
             }
         });
 

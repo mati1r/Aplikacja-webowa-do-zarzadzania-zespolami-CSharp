@@ -18,14 +18,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
         {
             if(status == "nieukończone")
             {
-                return "#e74c3c";
+                return "#375a7f";
             }else if(status == "w trakcie")
             {
                 return "#f39c12";
             }
             else
             {
-                return "#375a7f";
+                return "#00bc8c";
             }
         }
 

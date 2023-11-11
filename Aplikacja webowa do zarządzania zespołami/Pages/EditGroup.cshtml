@@ -311,6 +311,31 @@
             });
         }
 
+        function ToogleGroupEditData(){
+            //On edit group data container click
+            $("#groupEditGroupContainer").on("click", "#editData", function (e) {
+
+                if ($(e.target).closest("#editGroupForm").length === 0) {
+                    $(this).find("*").toggle();
+                    $("#upperTitle").toggle();
+
+                    var h3 = $(this).find("h3");
+
+                    if (h3.length === 0) {
+                        $(this).css("cursor", "pointer");
+                        $(this).append("<h3 class='title'>Dane grupy</h3>");
+                    } else {
+                        $(this).css("cursor", "auto");
+                        h3.remove();
+                    }
+                }
+            });
+
+
+            //Trigger cilck after loading element
+            $("#groupEditGroupContainer #editData").click();
+        }
+
         $(document).ready(function () {
 
             //Delete valmsgs
@@ -326,6 +351,7 @@
             EditGroupDataBtnAction();
             DeletePartialSubmitHandler();
             DeleteGroupBtnAction();
+            ToogleGroupEditData();
 
             //Change action for submit
             $("#removeBtn").click(function () {

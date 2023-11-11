@@ -54,6 +54,7 @@ else
             return { start_date: taskStartOffset, width: taskWidth };
         }
 
+        //Parse date to be a valid (comperable) date in JS 
         function parseDate(dateString) {
             let parts = dateString.split('-');
             let day = parseInt(parts[0]);
@@ -63,11 +64,37 @@ else
             return new Date(year, month, day);
         }
 
+        //Format date to fit YYYY-MM-DD as in table and modal
+        function formatDateString(dateString) {
+            let parsedDate = parseDate(dateString);
+            let year = parsedDate.getFullYear();
+            let month = (parsedDate.getMonth() + 1).toString().padStart(2, '0');
+            let day = parsedDate.getDate().toString().padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        }
+
+        //Set startDate as min of month of a task
         let startDate = new Date(Math.min.apply(null, tasks.map(function (task) {
             return parseDate(task.start_date);
         })));
 
         let endDate = new Date();
+
+        //Set endDate to the same month as startDate and day to last
+        if (startDate.getFullYear() == endDate.getFullYear()) {
+            if (startDate.getMonth() != 11) {
+                endDate.setMonth(startDate.getMonth() + 1, 1);
+            } else {
+                endDate.setMonth(startDate.getMonth(), 31);
+            }
+        } else {
+            endDate.setFullYear(startDate.getFullYear());
+            endDate.setMonth(startDate.getMonth(), 31);
+        }
+
+        //Set startDate to first day of the month
+        startDate.setDate(1);
 
         let svg = document.getElementById("timeline-chart");
         let standardTaskHeight = 30;
@@ -82,21 +109,6 @@ else
             while (svg.firstChild) {
                 svg.removeChild(svg.firstChild);
             }
-
-            //Set endDate to the same month as startDate and day to last
-            if (startDate.getFullYear() == endDate.getFullYear()) {
-                if (startDate.getMonth() != 11) {
-                    endDate.setMonth(startDate.getMonth() + 1, 1);
-                } else {
-                    endDate.setMonth(startDate.getMonth(), 31);
-                }
-            } else {
-                endDate.setFullYear(startDate.getFullYear());
-                endDate.setMonth(startDate.getMonth(), 31);
-            }
-
-            //Set startDate to first day of the month
-            startDate.setDate(1);
 
             for (var i = 0; i < tasks.length; i++) {
                 let y = 0;
@@ -174,8 +186,8 @@ else
 
                     rect.setAttribute("data-id", task.task_id);
                     rect.setAttribute("data-name", task.task_name);
-                    rect.setAttribute("data-start", task.start_date);
-                    rect.setAttribute("data-end", task.end_date);
+                    rect.setAttribute("data-start", formatDateString(task.start_date));
+                    rect.setAttribute("data-end", formatDateString(task.end_date));
 
                     svg.appendChild(rect);
                 }
@@ -201,7 +213,7 @@ else
                 tickText.setAttribute("x", tickX + 5);
                 tickText.setAttribute("y", svg.getAttribute("height") - 35);
                 tickText.setAttribute("class", "timeline-date");
-                tickText.textContent = (tickDate.getDate()) + "-" + (tickDate.getMonth() + 1) + "-" + tickDate.getFullYear();
+                tickText.textContent = (tickDate.getFullYear() + "-" + (tickDate.getMonth() + 1) + "-" + tickDate.getDate());
                 svg.appendChild(tickText);
 
                 var verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
