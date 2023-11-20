@@ -4,18 +4,18 @@ using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class MessagesModel : PageModel
     {
-        private readonly IMessageRepository _messageRepository;
-        private readonly IUserRepository _userRepository;
-        public MessagesModel(IMessageRepository messageRepository, IUserRepository userRepository)
+        private readonly IMessageDAO _messageDAO;
+        private readonly IUserDAO _userDAO;
+        public MessagesModel(IMessageDAO messageDAO, IUserDAO userDAO)
         {
-            _messageRepository = messageRepository;
-            _userRepository = userRepository;
+            _messageDAO = messageDAO;
+            _userDAO = userDAO;
             reciveMessagesList = new List<ReciveMessagePartial>();
             sendedMessagesList = new List<SendedMessagePartial>();
             createMessagesPartial = new CreateMessagePartial();
@@ -45,7 +45,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Check if user didn't deleted session (it causes function to throw exeptions
             try
             {
-                reciveMessagesList = _messageRepository.GetRecivedMessages(10, (int)userId, (int)groupId);
+                reciveMessagesList = _messageDAO.GetRecivedMessages(10, (int)userId, (int)groupId);
             }
             catch
             {
@@ -91,7 +91,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 }
             }
 
-            List<int> usersIdList = _userRepository.GetIdOfActiveUsersInGroup(userId, groupId);
+            List<int> usersIdList = _userDAO.GetIdOfActiveUsersInGroup(userId, groupId);
 
             //Check if values on the list are valid users from that group
             foreach (int receiverId in reciversList)
@@ -112,7 +112,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //At this point everything is correct so we can create a message
-            return _messageRepository.CreateMessage(createMessagesPartial.message, reciversList, (int)userId, (int)groupId);
+            _messageDAO.CreateMessage(createMessagesPartial.message, reciversList, (int)userId, (int)groupId);
+            return new JsonResult("success");
         }
 
         //Partial methods
@@ -123,7 +124,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                reciveMessagesList = _messageRepository.GetRecivedMessages(howMany, (int)userId, (int)groupId);
+                reciveMessagesList = _messageDAO.GetRecivedMessages(howMany, (int)userId, (int)groupId);
             }
             catch
             {
@@ -140,7 +141,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                reciveMessagesList = _messageRepository.GetRecivedSearchMessages(condition, (int)userId, (int)groupId);
+                reciveMessagesList = _messageDAO.GetRecivedSearchMessages(condition, (int)userId, (int)groupId);
             }
             catch
             {
@@ -157,7 +158,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                message = _messageRepository.GetRecivedMessageContent(id, (int)userId, (int)groupId);
+                message = _messageDAO.GetRecivedMessageContent(id, (int)userId, (int)groupId);
             }
             catch
             {
@@ -174,7 +175,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get list of messages and nickname of one person that recived it (Group by and select statment)
             try
             {
-                sendedMessagesList = _messageRepository.GetSendedMessages(howMany, (int)userId, (int)groupId);
+                sendedMessagesList = _messageDAO.GetSendedMessages(howMany, (int)userId, (int)groupId);
             }
             catch
             {
@@ -193,7 +194,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get list of messages and nickname of one person that recived it (Group by and select statment)
             try
             {
-                sendedMessagesList = _messageRepository.GetSendedSearchMessages(condition, (int)userId, (int)groupId);
+                sendedMessagesList = _messageDAO.GetSendedSearchMessages(condition, (int)userId, (int)groupId);
             }
             catch
             {
@@ -210,7 +211,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             try
             {
-                sendedMessagesList = _messageRepository.GetSendedMessageContent(id, (int)userId, (int)groupId);
+                sendedMessagesList = _messageDAO.GetSendedMessageContent(id, (int)userId, (int)groupId);
             }
             catch
             {
@@ -225,7 +226,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
-            createMessagesPartial.usersList = _userRepository.GetActiveUsersInGroupBesidesYourself(userId, groupId);
+            createMessagesPartial.usersList = _userDAO.GetActiveUsersInGroupBesidesYourself(userId, groupId);
 
             return Partial("Partials/_PartialCreateMessage", createMessagesPartial);
         }

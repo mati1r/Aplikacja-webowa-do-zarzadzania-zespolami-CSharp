@@ -3,7 +3,7 @@ using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 using System.Text.RegularExpressions;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
@@ -11,13 +11,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     public class LoginModel : PageModel
     {
 
-        private readonly IUserRepository _userRepository;
-        private readonly IGroupRepository _groupRepository;
+        private readonly IUserDAO _userDAO;
+        private readonly IGroupDAO _groupDAO;
 
-        public LoginModel(IUserRepository userRepository, IGroupRepository groupRepository)
+        public LoginModel(IUserDAO userDAO, IGroupDAO groupDAO)
         {
-            _userRepository = userRepository;
-            _groupRepository = groupRepository;
+            _userDAO = userDAO;
+            _groupDAO = groupDAO;
         }
 
         [BindProperty]
@@ -55,7 +55,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(modelStateValidationErrors);
             }
 
-            List<User> usersList = _userRepository.GetAllUsers();
+            List<User> usersList = _userDAO.GetAllUsers();
             if (!AreCredentialsCorrect(usersList))
             {
                 validationErrors.Add("Podane dane są niepoprawne");
@@ -63,19 +63,19 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Get the Id and name of user that is trying to login
-            LoginUserDTO userData = _userRepository.GetDataOfLogingUser(usersList, userCredentials);
+            LoginUserDTO userData = _userDAO.GetDataOfLogingUser(usersList, userCredentials);
 
-            if (_groupRepository.IsUserAnOwnerOfAnyGroup(userData.userId))
+            if (_groupDAO.IsUserAnOwnerOfAnyGroup(userData.userId))
             {
-                SetSessionData("Owner", userData.userId, _groupRepository.GetOwnerGroupId(userData.userId), userData.username);
+                SetSessionData("Owner", userData.userId, _groupDAO.GetOwnerGroupId(userData.userId), userData.username);
                 return new JsonResult("success");
             }
             //If user is not an admin try to log him to group that he is a part of, if there is no such a group set session group as 0
 
             //Check if user is a part of any group and if he have an active member status
-            if (_groupRepository.IsUserActiveMemberOfAnyGroup(userData.userId))
+            if (_groupDAO.IsUserActiveMemberOfAnyGroup(userData.userId))
             {
-                SetSessionData("User", userData.userId, _groupRepository.GetUserGroupId(userData.userId), userData.username);
+                SetSessionData("User", userData.userId, _groupDAO.GetUserGroupId(userData.userId), userData.username);
             }
             //If user is not part of any group or he is not active in any set session group to 0
             else

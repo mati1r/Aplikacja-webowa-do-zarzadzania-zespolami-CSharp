@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
-namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
+namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
 {
-    public class MessageRepository : IMessageRepository
+    public class MessageDAO : IMessageDAO
     {
         private readonly DatabaseContext _dbContext;
-        public MessageRepository(DatabaseContext dbContext) 
+        public MessageDAO(DatabaseContext dbContext) 
         { 
             _dbContext = dbContext;
         }
@@ -62,7 +62,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                 .ToList();
         }
 
-        public JsonResult CreateMessage(Message message, List<int> reciversList, int userId, int groupId)
+        public void CreateMessage(Message message, List<int> reciversList, int userId, int groupId)
         {
             message.groups_group_id = groupId;
             message.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
@@ -80,7 +80,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                 _dbContext.Add(messageUser);
                 _dbContext.SaveChanges();
             }
-            return new JsonResult("success");
         }
 
         public Message GetRecivedMessageContent(int messageId, int userId, int groupId)
@@ -219,23 +218,19 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Messages.Any(m => m.message_id == id && m.groups_group_id == groupId && m.notice == true);
         }
 
-        public JsonResult DeleteNotice(Message notice, int? groupId)
+        public void DeleteNotice(Message notice, int? groupId)
         {
-            List<string> validationErrors = new List<string>();
-
             //Check if message exists, if its in the group and is a notice
             if (!IsNotice(notice.message_id, groupId))
             {
-                validationErrors.Add("Podane ogłoszenie nie isnieje w tej grupie");
-                return new JsonResult(validationErrors);
+                throw new InvalidOperationException("Podane ogłoszenie nie isnieje w tej grupie");
             }
 
             _dbContext.Remove(notice);
             _dbContext.SaveChanges();
-            return new JsonResult("success");
         }
 
-        public JsonResult CreateNotice(Message notice, int userId, int groupId)
+        public void CreateNotice(Message notice, int userId, int groupId)
         {
             notice.notice = true;
             notice.sender_id = userId;
@@ -243,11 +238,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             notice.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
             _dbContext.Add(notice);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
-        public JsonResult EditNotice(Message notice, int userId, int groupId)
+        public void EditNotice(Message notice, int userId, int groupId)
         {
             notice.groups_group_id = groupId;
             notice.send_date = DateTime.Now.AddSeconds(-DateTime.Now.Second);
@@ -255,8 +248,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             notice.notice = true;
             _dbContext.Update(notice);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
     }
 }

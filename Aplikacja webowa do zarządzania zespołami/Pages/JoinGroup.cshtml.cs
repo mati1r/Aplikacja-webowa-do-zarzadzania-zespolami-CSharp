@@ -4,7 +4,7 @@ using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 using System.Text.RegularExpressions;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
@@ -12,11 +12,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     public class JoinGroupModel : PageModel
     {
 
-        private readonly IGroupRepository _groupRepository;
+        private readonly IGroupDAO _groupDAO;
 
-        public JoinGroupModel(IGroupRepository groupRepository)
+        public JoinGroupModel(IGroupDAO groupDAO)
         {
-            _groupRepository = groupRepository;
+            _groupDAO = groupDAO;
             groupJoinList = new List<GroupJoinPartial>();
             groupQuitList = new List<GroupQuitPartial>();
         }
@@ -47,8 +47,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                groupJoinList = _groupRepository.GetGroupsToJoin((int)userId);
-                groupQuitList = _groupRepository.GetGroupsToQuit((int)userId);
+                groupJoinList = _groupDAO.GetGroupsToJoin((int)userId);
+                groupQuitList = _groupDAO.GetGroupsToQuit((int)userId);
             }
             catch
             {
@@ -62,13 +62,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if group exists
-            if(!_groupRepository.WhetherGroupExists(groupJoinId))
+            if(!_groupDAO.WhetherGroupExists(groupJoinId))
             {
                 validationErrors.Add("Podana grupa nie istnieje");
                 return new JsonResult(validationErrors);
             }
 
-            if(_groupRepository.IsUserPartOfGroup(userId,groupJoinId))
+            if(_groupDAO.IsUserPartOfGroup(userId,groupJoinId))
             {
                 validationErrors.Add("Użytkownik znajduje się już w tej grupie");
                 return new JsonResult(validationErrors);
@@ -76,7 +76,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                return _groupRepository.AddPendingUserToGroup((int)userId, groupJoinId);
+                _groupDAO.AddPendingUserToGroup((int)userId, groupJoinId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -92,14 +93,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if user is part of a group
-            if( !_groupRepository.IsUserPartOfGroup(userId, groupQuitId))
+            if( !_groupDAO.IsUserPartOfGroup(userId, groupQuitId))
             {
                 validationErrors.Add("Użytkownik nie znajduje sie w tej grupie");
                 return new JsonResult(validationErrors);
             }
 
             //Check if user is not a creator
-            if(_groupRepository.IsUserAnCreator(userId, groupQuitId))
+            if(_groupDAO.IsUserAnCreator(userId, groupQuitId))
             {
                 validationErrors.Add("Twórca grupy nie może z niej wyjść");
                 return new JsonResult(validationErrors);
@@ -107,7 +108,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                return _groupRepository.RemoveActiveUserFromGroup(groupQuitId, (int)userId);
+                _groupDAO.RemoveActiveUserFromGroup(groupQuitId, (int)userId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -129,7 +131,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(modelStateValidationErrors);
             }
 
-            if (_groupRepository.IsGroupNameTaken(createGroup.name))
+            if (_groupDAO.IsGroupNameTaken(createGroup.name))
             {
                 validationErrors.Add("Jest już grupa o tej nazwie");
                 return new JsonResult(validationErrors);
@@ -138,7 +140,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //if there is no such group
             try
             {
-                return _groupRepository.CreateGroup(createGroup, (int)userId);
+                _groupDAO.CreateGroup(createGroup, (int)userId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -154,7 +157,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                groupJoinList = _groupRepository.GetGroupsToJoin((int)userId);
+                groupJoinList = _groupDAO.GetGroupsToJoin((int)userId);
             }
             catch
             {
@@ -170,7 +173,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                groupQuitList = _groupRepository.GetGroupsToQuit((int)userId);
+                groupQuitList = _groupDAO.GetGroupsToQuit((int)userId);
             }
             catch
             {
@@ -184,13 +187,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public async Task<JsonResult> OnGetGroupJoinJsonAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
-            return new JsonResult(await _groupRepository.GetGroupJoinAsync(id, userId));
+            return new JsonResult(await _groupDAO.GetGroupJoinAsync(id, userId));
         }
 
         public async Task<JsonResult> OnGetGroupQuitJsonAsync(int id)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
-            return new JsonResult(await _groupRepository.GetGroupQuitAsync(id, userId));
+            return new JsonResult(await _groupDAO.GetGroupQuitAsync(id, userId));
         }
     }
 }

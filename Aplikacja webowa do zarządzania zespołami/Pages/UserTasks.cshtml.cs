@@ -3,17 +3,17 @@ using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class UserTasksModel : PageModel
     {
-        private readonly ITaskRepository _taskRepository;
+        private readonly ITaskDAO _taskDAO;
 
-        public UserTasksModel(ITaskRepository taskRepository)
+        public UserTasksModel(ITaskDAO taskDAO)
         {
-            _taskRepository = taskRepository;
+            _taskDAO = taskDAO;
             tasksList = new List<Models.Task>();
             timelineTaskList = new List<Models.Task>();
         }
@@ -39,7 +39,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
-            tasksList = _taskRepository.GetTasksForUser(userId, groupId);
+            tasksList = _taskDAO.GetTasksForUser(userId, groupId);
             timelineTaskList = tasksList.Where(t => t.finish_date == null).ToList();
         }
 
@@ -51,12 +51,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             ////Check if user didn't changed id to an id out of his scope
             ///if there is a task get it and change its status        
-            if (!_taskRepository.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
+            if (!_taskDAO.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
             {
                 validationErrors.Add("Wystąpił błąd");
                 return new JsonResult(validationErrors);
             }
-            _taskRepository.CompleteTask(actionTaskId, feedbackMessage);
+            _taskDAO.CompleteTask(actionTaskId, feedbackMessage);
             return new JsonResult("success");
         }
 
@@ -68,12 +68,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             ////Check if user didn't changed id to an id out of his scope
             ///if there is a task get it and change its status        
-            if (!_taskRepository.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
+            if (!_taskDAO.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
             {
                 validationErrors.Add("Wystąpił błąd");
                 return new JsonResult(validationErrors);
             }
-            _taskRepository.CurrentTask(actionTaskId, feedbackMessage);
+            _taskDAO.CurrentTask(actionTaskId, feedbackMessage);
             return new JsonResult("success");
         }
 
@@ -85,12 +85,12 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             ////Check if user didn't changed id to an id out of his scope
             ///if there is a task get it and change its status        
-            if (!_taskRepository.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
+            if (!_taskDAO.IsTaskForUserNotComplete(actionTaskId, userId, groupId))
             {
                 validationErrors.Add("Wystąpił błąd");
                 return new JsonResult(validationErrors);
             }
-            _taskRepository.NotCompleteTask(actionTaskId, feedbackMessage);
+            _taskDAO.NotCompleteTask(actionTaskId, feedbackMessage);
             return new JsonResult("success");
         }
 
@@ -102,7 +102,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                tasksList = _taskRepository.GetTasksForUser(userId, groupId);
+                tasksList = _taskDAO.GetTasksForUser(userId, groupId);
             }
             catch
             {
@@ -119,7 +119,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                tasksList = _taskRepository.GetTasksForUser(userId, groupId);
+                tasksList = _taskDAO.GetTasksForUser(userId, groupId);
                 timelineTaskList = tasksList.Where(t => t.finish_date == null).ToList();
             }
             catch
@@ -137,7 +137,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
-            return new JsonResult(await _taskRepository.GetTaskAsync(id, userId, groupId));
+            return new JsonResult(await _taskDAO.GetTaskAsync(id, userId, groupId));
         }
     }
 }

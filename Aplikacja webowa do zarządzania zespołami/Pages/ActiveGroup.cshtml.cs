@@ -4,17 +4,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class GroupsModel : PageModel
     {
-        private readonly IGroupRepository _groupRepository;
-        public GroupsModel(IGroupRepository groupRepository)
+        private readonly IGroupDAO _groupDAO;
+        public GroupsModel(IGroupDAO groupDAO)
         {
-            _groupRepository = groupRepository;
+            _groupDAO = groupDAO;
             groupList = new List<ActiveGroupDTO>();
         }
 
@@ -39,8 +39,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                groupList = _groupRepository.GetGroupsForActiveUser((int)userId);
-                activeGroup = _groupRepository.GetGroupName((int)groupId);
+                groupList = _groupDAO.GetGroupsForActiveUser((int)userId);
+                activeGroup = _groupDAO.GetGroupName((int)groupId);
             }
             catch
             {
@@ -54,10 +54,10 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
 
             //Check if someone doesn't replaced id with some other id that is not in groupList
-            if (_groupRepository.IsUserActiveMemberOfSelectedGroup(userId,changeGroupId))
+            if (_groupDAO.IsUserActiveMemberOfSelectedGroup(userId,changeGroupId))
             {
                 //Check if user is an owner
-                if(_groupRepository.IsUserAnOwnerOfSelectedGroup(userId,changeGroupId))
+                if(_groupDAO.IsUserAnOwnerOfSelectedGroup(userId,changeGroupId))
                 {
                     HttpContext.Session.SetString(ConstVariables.GetKeyValue(1), "Owner");
                 }

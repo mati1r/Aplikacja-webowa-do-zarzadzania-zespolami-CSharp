@@ -1,5 +1,5 @@
 ﻿using Aplikacja_webowa_do_zarządzania_zespołami.Models;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -8,10 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IGroupRepository, GroupRepository>();
-builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IMessageDAO, MessageDAO>();
+builder.Services.AddScoped<IUserDAO, UserDAO>();
+builder.Services.AddScoped<IGroupDAO, GroupDAO>();
+builder.Services.AddScoped<ITaskDAO, TaskDAO>();
 
 
 string connectionString = builder.Configuration.GetConnectionString(("DefaultConnection"));

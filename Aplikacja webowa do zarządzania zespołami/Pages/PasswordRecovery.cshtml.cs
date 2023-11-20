@@ -6,17 +6,17 @@ using System.Net;
 using System.Web;
 using System.Text;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class PasswordRecoveryModel : PageModel
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserDAO _userDAO;
 
-        public PasswordRecoveryModel(IUserRepository userRepository)
+        public PasswordRecoveryModel(IUserDAO userDAO)
         {
-            _userRepository = userRepository;
+            _userDAO = userDAO;
         }
 
         [BindProperty]
@@ -43,7 +43,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             List<string> validationErrors = new List<string>();
 
-            if(!_userRepository.IsAccountWithEmail(email))
+            if(!_userDAO.IsAccountWithEmail(email))
             {
                 validationErrors.Add("Nie istnieje konto powiązane z tym adresem e-mail");
                 return new JsonResult(validationErrors);
@@ -78,7 +78,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //If we are here that means that message was send
-            return _userRepository.SetNewPasswordEmail(email, newPassword);
+            _userDAO.SetNewPasswordEmail(email, newPassword);
+            return new JsonResult("success");
         }
 
     }

@@ -4,17 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class CalendarModel : PageModel
     {
-        private readonly ITaskRepository _taskRepository;
+        private readonly ITaskDAO _taskDAO;
 
-        public CalendarModel(ITaskRepository taskRepository)
+        public CalendarModel(ITaskDAO taskDAO)
         {
-            _taskRepository = taskRepository;
+            _taskDAO = taskDAO;
             tasksList = new List<Models.Task>();
         }
 
@@ -38,7 +38,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
-            List<CalendarEventsDTO> events = await _taskRepository.GetCalendarEventsAsync(userId, groupId);
+            List<CalendarEventsDTO> events = await _taskDAO.GetCalendarEventsAsync(userId, groupId);
 
             return new JsonResult(events);
         }
@@ -47,7 +47,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
-            return new JsonResult(await _taskRepository.GetTaskAsync(id, userId, groupId));
+            return new JsonResult(await _taskDAO.GetTaskAsync(id, userId, groupId));
         }
     }
 }

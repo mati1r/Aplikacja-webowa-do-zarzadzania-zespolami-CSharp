@@ -4,16 +4,17 @@ using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
+using System.Numerics;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class OwnerNoticesModel : PageModel
     {
-        private readonly IMessageRepository _messageRepository;
-        public OwnerNoticesModel(IMessageRepository messageRepository)
+        private readonly IMessageDAO _messageDAO;
+        public OwnerNoticesModel(IMessageDAO messageDAO)
         {
-            _messageRepository = messageRepository;
+            _messageDAO = messageDAO;
             noticesList = new List<NoticePartial>();
             notice = new Message();
         }
@@ -34,14 +35,30 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
-            noticesList = _messageRepository.GetNotice(groupId);
+            noticesList = _messageDAO.GetNotice(groupId);
         }
 
         public IActionResult OnPostDelete()
         {
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            List<string> validationErrors = new List<string>();
 
-            return _messageRepository.DeleteNotice(notice, groupId);
+            if (!_messageDAO.IsNotice(notice.message_id, groupId))
+            {
+                validationErrors.Add("Podane ogłoszenie nie isnieje w tej grupie");
+                return new JsonResult(validationErrors);
+            }
+
+            try
+            {
+                _messageDAO.DeleteNotice(notice, groupId);
+                return new JsonResult("success");
+            }
+            catch
+            {
+                validationErrors.Add("Wystąpił błąd");
+                return new JsonResult(validationErrors);
+            }
         }
         public IActionResult OnPostAdd()
         {
@@ -69,7 +86,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //If user deleted session (it is like that to do not let pass nulls to db)
             try
             {
-                return _messageRepository.CreateNotice(notice, (int)userId, (int)groupId);
+                _messageDAO.CreateNotice(notice, (int)userId, (int)groupId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -85,7 +103,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
 
-            if (!_messageRepository.IsNotice(notice.message_id, groupId))
+            if (!_messageDAO.IsNotice(notice.message_id, groupId))
             {
                 validationErrors.Add("Podane ogłoszenie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
@@ -108,7 +126,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                return _messageRepository.EditNotice(notice, (int)userId, (int)groupId);
+                _messageDAO.EditNotice(notice, (int)userId, (int)groupId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -124,7 +143,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                noticesList = _messageRepository.GetNotice(groupId);
+                noticesList = _messageDAO.GetNotice(groupId);
             }
             catch
             {
@@ -138,7 +157,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public async Task<JsonResult> OnGetNoticeJsonAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
-            return new JsonResult(await _messageRepository.GetNoticeAsync(id, groupId));
+            return new JsonResult(await _messageDAO.GetNoticeAsync(id, groupId));
         }
     }
 }

@@ -1,5 +1,5 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.Models;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,11 +9,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class RegisterModel : PageModel
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserDAO _userDAO;
 
-        public RegisterModel(IUserRepository userRepository)
+        public RegisterModel(IUserDAO userDAO)
         {
-            _userRepository = userRepository;
+            _userDAO = userDAO;
         }
 
         [BindProperty]
@@ -37,13 +37,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Check if there is already a user using this e-mail or this username
-            if (_userRepository.IsAccountWithEmail(userData.e_mail))
+            if (_userDAO.IsAccountWithEmail(userData.e_mail))
             {
                 validationErrors.Add("Istnieje już użytkownik korzystający z tego adresu e-mail");
                 return new JsonResult(validationErrors);
             }
 
-            if (_userRepository.IsUsernameTaken(userData.username))
+            if (_userDAO.IsUsernameTaken(userData.username))
             {
                 validationErrors.Add("Podana nazwa użytkownika jest już zajęta");
                 return new JsonResult(validationErrors);
@@ -60,7 +60,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Add user to system
-            _userRepository.CreateAccount(userData);
+            _userDAO.CreateAccount(userData);
             return new JsonResult("success");
             
         }

@@ -2,9 +2,9 @@
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
+namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
 {
-    public interface ITaskRepository
+    public interface ITaskDAO
     {
         //Calendar
         Task<List<CalendarEventsDTO>> GetCalendarEventsAsync(int? userId, int? groupId);
@@ -18,9 +18,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
         Task<Models.Task> GetTaskAsync(int id, int? userId, int? groupId);
 
         //Owner Task
-        JsonResult CreateTask(Models.Task task, int groupId);
-        JsonResult DeleteTask(Models.Task task);
-        JsonResult EditTask(Models.Task task);
+        void CreateTask(Models.Task task, int groupId);
+        void DeleteTask(Models.Task task);
+        void EditTask(Models.Task task);
         bool IsTaskCompleted(Models.Task task);
         bool IsExistingTaskInGroup(Models.Task task, int? groupId);
         List<OwnerTaskPartial> GetAllTaskForGroup(int? groupId);

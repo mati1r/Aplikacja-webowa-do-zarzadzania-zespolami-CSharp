@@ -3,16 +3,16 @@ using Aplikacja_webowa_do_zarządzania_zespołami.DTO_models_and_static_vars;
 using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class UserNoticesModel : PageModel
     {
-        private readonly IMessageRepository _messageRepository;
-        public UserNoticesModel(IMessageRepository messageRepository)
+        private readonly IMessageDAO _messageDAO;
+        public UserNoticesModel(IMessageDAO messageRepository)
         {
-            _messageRepository = messageRepository;
+            _messageDAO = messageRepository;
             noticesList = new List<NoticePartial>();
         }
 
@@ -28,7 +28,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             username = HttpContext.Session.GetString(ConstVariables.GetKeyValue(4));
 
-            noticesList = _messageRepository.GetNotice(groupId);  
+            noticesList = _messageDAO.GetNotice(groupId);  
         }
 
         //Async methods
@@ -36,7 +36,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public async Task<JsonResult> OnGetNoticeJsonAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
-            return new JsonResult(await _messageRepository.GetNoticeAsync(id, groupId));
+            return new JsonResult(await _messageDAO.GetNoticeAsync(id, groupId));
         }
     }
 }

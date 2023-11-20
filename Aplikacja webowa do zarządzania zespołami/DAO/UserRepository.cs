@@ -7,12 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
-namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
+namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
 {
-    public class UserRepository : IUserRepository
+    public class UserDAO: IUserDAO
     {
         private readonly DatabaseContext _dbContext;
-        public UserRepository(DatabaseContext dbContext)
+        public UserDAO(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -56,7 +56,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                 }).First();
         }
 
-        public JsonResult EditAccountData(UserAccountDataPartial userAccountData, int userId)
+        public void EditAccountData(UserAccountDataPartial userAccountData, int userId)
         {
             //Get the original and replace what changed
             User originalUserData = _dbContext.Users.Where(u => u.user_id == userId).First();
@@ -66,11 +66,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             originalUserData.password = Hash.HashPassword(userAccountData.newPassword, originalUserData.salt);
             _dbContext.Users.Update(originalUserData);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
-        public JsonResult EditPersonalData(UserPersonalDataPartial userPersonalData, int userId)
+        public void EditPersonalData(UserPersonalDataPartial userPersonalData, int userId)
         {
             //Get the original and replace what changed
             User originalUserData = _dbContext.Users.Where(u => u.user_id == userId).First();
@@ -79,8 +77,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             originalUserData.surname = userPersonalData.surname;
             _dbContext.Users.Update(originalUserData);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
         public User GetUserById(int id)
@@ -99,7 +95,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Users.Any(u => u.e_mail == email);
         }
 
-        public JsonResult SetNewPasswordEmail(string email, string newPassword)
+        public void SetNewPasswordEmail(string email, string newPassword)
         {
             User user = new User();
             user = _dbContext.Users.Where(u => u.e_mail == email).First();
@@ -108,8 +104,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
 
             _dbContext.Update(user);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
         //Register

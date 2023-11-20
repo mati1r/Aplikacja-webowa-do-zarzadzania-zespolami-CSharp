@@ -4,22 +4,20 @@ using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Aplikacja_webowa_do_zarządzania_zespołami.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class OwnerTasksModel : PageModel
     {
-        private readonly ITaskRepository _taskRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IGroupRepository _groupRepository;
-        public OwnerTasksModel(ITaskRepository taskRepository, IUserRepository userRepository, IGroupRepository groupRepository)
+        private readonly ITaskDAO _taskDAO;
+        private readonly IUserDAO _userDAO;
+        private readonly IGroupDAO _groupDAO;
+        public OwnerTasksModel(ITaskDAO taskDAO, IUserDAO userDAO, IGroupDAO groupDAO)
         {
-            _taskRepository = taskRepository;
-            _userRepository = userRepository;
-            _groupRepository = groupRepository;
+            _taskDAO= taskDAO;
+            _userDAO = userDAO;
+            _groupDAO = groupDAO;
             tasksList = new List<OwnerTaskPartial>();
             usersList = new List<User>();
         }
@@ -61,16 +59,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                activeGroup = _groupRepository.GetGroupName((int)groupId);
+                activeGroup = _groupDAO.GetGroupName((int)groupId);
             }
             catch
             {
                 Page();
             }
 
-            tasksList = _taskRepository.GetAllTaskForGroup(groupId);
+            tasksList = _taskDAO.GetAllTaskForGroup(groupId);
             //Find all users that are active and belong to that group beside owners
-            usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
+            usersList = _userDAO.GetActiveUsersInGroup(userId, groupId);
         }
 
         public IActionResult OnPostDelete()
@@ -79,13 +77,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if task exists in group
-            if (!_taskRepository.IsExistingTaskInGroup(createOrEditTask, groupId))
+            if (!_taskDAO.IsExistingTaskInGroup(createOrEditTask, groupId))
             {
                 validationErrors.Add("Podane zadanie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
             }
 
-            return _taskRepository.DeleteTask(createOrEditTask);
+            _taskDAO.DeleteTask(createOrEditTask);
+            return new JsonResult("success");
         }
 
         public IActionResult OnPostAdd()
@@ -110,13 +109,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
             }
 
-            usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
+            usersList = _userDAO.GetActiveUsersInGroup(userId, groupId);
 
             if (!IsSelectedUserIsOnTheList(usersList))
             {
                 validationErrors.Add("Nie istnieje w grupie użytkownik o podanych danych");
                 return new JsonResult(validationErrors);
             }
+
             string isDateCorrect = IsEndDateHigherThanStartDate(createOrEditTask.start_date, createOrEditTask.end_date);
             if (isDateCorrect != "")
             {
@@ -127,7 +127,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Check if user didn't deleted session data
             try
             {
-                return _taskRepository.CreateTask(createOrEditTask, (int)groupId);
+                _taskDAO.CreateTask(createOrEditTask, (int)groupId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -145,14 +146,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
 
             //Check if task exists in group
-            if (!_taskRepository.IsExistingTaskInGroup(createOrEditTask,groupId))
+            if (!_taskDAO.IsExistingTaskInGroup(createOrEditTask,groupId))
             {
                 validationErrors.Add("Podane zadanie nie isnieje w tej grupie");
                 return new JsonResult(validationErrors);
             }
 
             //Check if task is completed
-            if (_taskRepository.IsTaskCompleted(createOrEditTask))
+            if (_taskDAO.IsTaskCompleted(createOrEditTask))
             {
                 validationErrors.Add("Podane zadanie jest już ukończone i nie podlega modyfikacji");
                 return new JsonResult(validationErrors);
@@ -168,7 +169,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Get list of actve users in the group
-            usersList = _userRepository.GetActiveUsersInGroup(userId, groupId);
+            usersList = _userDAO.GetActiveUsersInGroup(userId, groupId);
 
             //If selected user is not on the list of users in the group
             if (!IsSelectedUserIsOnTheList(usersList))
@@ -194,7 +195,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //If nothing got returned to this point that means that it validated correctly
-            return _taskRepository.EditTask(createOrEditTask);
+            _taskDAO.EditTask(createOrEditTask);
+            return new JsonResult("success");
         }
 
         //Partials
@@ -204,8 +206,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                tasksList = _taskRepository.GetAllTaskForGroup(groupId);
-            }
+                tasksList = _taskDAO.GetAllTaskForGroup(groupId);
+            }   
             catch
             {
                 Page();
@@ -219,7 +221,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public async Task<JsonResult> OnGetTaskJsonAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
-            return new JsonResult(await _taskRepository.GetTaskAsync(id, groupId));
+            return new JsonResult(await _taskDAO.GetTaskAsync(id, groupId));
         }
 
     }

@@ -4,12 +4,12 @@ using Aplikacja_webowa_do_zarządzania_zespołami.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
+namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
 {
-    public class TaskRepository : ITaskRepository
+    public class TaskDAO : ITaskDAO
     {
         private readonly DatabaseContext _dbContext;
-        public TaskRepository(DatabaseContext dbContext)
+        public TaskDAO(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -104,7 +104,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Tasks.Any(t => t.task_id == taskId && t.groups_group_id == groupId && t.users_user_id == userId && t.status != "ukończone");
         }
 
-        public JsonResult CreateTask(Models.Task task, int groupId)
+        public void CreateTask(Models.Task task, int groupId)
         {
             //Check if task is set to complete if so set finish_date
             if (task.status == "ukończone")
@@ -116,17 +116,15 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             task.groups_group_id = groupId;
             _dbContext.Tasks.Add(task);
             _dbContext.SaveChanges();
-            return new JsonResult("success");
         }
 
-        public JsonResult DeleteTask(Models.Task task)
+        public void DeleteTask(Models.Task task)
         {
             _dbContext.Remove(task);
             _dbContext.SaveChanges();
-            return new JsonResult("success");
         }
 
-        public JsonResult EditTask(Models.Task task)
+        public void EditTask(Models.Task task)
         {
             //Now lets get original task and change values aside from task_id, group_id, user_id, and feedback
             //if status changed from nieukończone to ukończone then add finish_date
@@ -145,7 +143,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             originalTask.priority = task.priority;
             _dbContext.Update(originalTask);
             _dbContext.SaveChanges();
-            return new JsonResult("success");
         }
 
         public bool IsTaskCompleted(Models.Task task)

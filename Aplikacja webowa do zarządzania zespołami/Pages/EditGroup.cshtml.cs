@@ -4,19 +4,19 @@ using Aplikacja_webowa_do_zarządzania_zespołami.PartialModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class EditGroupModel : PageModel
     {
-        private readonly IGroupRepository _groupRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IGroupDAO _groupDAO;
+        private readonly IUserDAO _userDAO;
 
-        public EditGroupModel(IGroupRepository groupRepository, IUserRepository userRepository)
+        public EditGroupModel(IGroupDAO groupDAO, IUserDAO userDAO)
         {
-            _groupRepository = groupRepository;
-            _userRepository = userRepository;
+            _groupDAO = groupDAO;
+            _userDAO = userDAO;
             group = new Group();
             pendingUsersList = new List<User>();
             activeUsersList = new List<User>();
@@ -58,9 +58,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                group = _groupRepository.GetActiveGroup((int)groupId);
-                pendingUsersList = _userRepository.GetPendingUsersList((int)groupId);
-                activeUsersList = _userRepository.GetActiveUsersList((int)groupId, (int)userId);
+                group = _groupDAO.GetActiveGroup((int)groupId);
+                pendingUsersList = _userDAO.GetPendingUsersList((int)groupId);
+                activeUsersList = _userDAO.GetActiveUsersList((int)groupId, (int)userId);
             }
             catch
             {
@@ -83,7 +83,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(modelStateValidationErrors);
             }
 
-            if (_groupRepository.IsGroupNameTakenChange(groupId, group.name))
+            if (_groupDAO.IsGroupNameTakenChange(groupId, group.name))
             {
                 validationErrors.Add("Jest już grupa o tej nazwie");
                 return new JsonResult(validationErrors);
@@ -91,7 +91,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Check if user didn't deleted session data
             try
             {
-                return _groupRepository.EditGroup((int)groupId, group);
+                _groupDAO.EditGroup((int)groupId, group);
+                return new JsonResult("success");
             }
             catch
             {
@@ -106,7 +107,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Sprawdzić czy osoba usuwająca jest twórcą jezeli jest to usunąć
-            if (!_groupRepository.IsUserAnCreator(userId, groupId))
+            if (!_groupDAO.IsUserAnCreator(userId, groupId))
             {
                 validationErrors.Add("Użytkownik nie posiada uprawnień do usunięcia grupy");
                 return new JsonResult(validationErrors);
@@ -114,7 +115,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                _groupRepository.DeleteGroup((int)groupId);
+                _groupDAO.DeleteGroup((int)groupId);
             }
             catch
             {
@@ -123,13 +124,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //After removing old group log user to new group if he is part of any
-            if (_groupRepository.IsUserAnOwnerOfAnyGroup((int)userId))
+            if (_groupDAO.IsUserAnOwnerOfAnyGroup((int)userId))
             {
-                SetSessionData("Owner", _groupRepository.GetOwnerGroupId((int)userId));
+                SetSessionData("Owner", _groupDAO.GetOwnerGroupId((int)userId));
             }
-            else if (_groupRepository.IsUserActiveMemberOfAnyGroup((int)userId))
+            else if (_groupDAO.IsUserActiveMemberOfAnyGroup((int)userId))
             {
-                SetSessionData("User", _groupRepository.GetUserGroupId((int)userId));
+                SetSessionData("User", _groupDAO.GetUserGroupId((int)userId));
             }
             else
             {
@@ -144,7 +145,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
             //Check if user is in that group and his status is pending
-            if (!_groupRepository.IsUserPendingToJoinGroup(pendingUserId, groupId))
+            if (!_groupDAO.IsUserPendingToJoinGroup(pendingUserId, groupId))
             {
                 validationErrors.Add("Wybrany użytkownik nie może być dołączony do grupy");
                 return new JsonResult(validationErrors);
@@ -152,7 +153,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                return _groupRepository.AcceptPendingUser((int)groupId, pendingUserId);
+                _groupDAO.AcceptPendingUser((int)groupId, pendingUserId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -168,7 +170,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
-            if (!_groupRepository.IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(groupId, userId ,activeUserId))
+            if (!_groupDAO.IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(groupId, userId ,activeUserId))
             {
                 validationErrors.Add("Wybrany użytkownik nie może być usuniety z grupy");
                 return new JsonResult(validationErrors);
@@ -176,7 +178,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                return _groupRepository.RemoveActiveUserFromGroup((int)groupId, activeUserId);
+                _groupDAO.RemoveActiveUserFromGroup((int)groupId, activeUserId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -192,7 +195,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             List<string> validationErrors = new List<string>();
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
-            if (!_groupRepository.IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(groupId, userId, activeUserId))
+            if (!_groupDAO.IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(groupId, userId, activeUserId))
             {
                 validationErrors.Add("Wybrany użytkownik nie podlega zmianą");
                 return new JsonResult(validationErrors);
@@ -206,7 +209,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                return _groupRepository.EditRoleOActivefUserInGroup((int)groupId, activeUserId, activeUserRole);
+                _groupDAO.EditRoleOActivefUserInGroup((int)groupId, activeUserId, activeUserRole);
+                return new JsonResult("success");
             }
             catch
             {
@@ -222,7 +226,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                group = _groupRepository.GetActiveGroup((int)groupId);
+                group = _groupDAO.GetActiveGroup((int)groupId);
             }
             catch
             {
@@ -238,7 +242,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                pendingUsersList = _userRepository.GetPendingUsersList((int)groupId);
+                pendingUsersList = _userDAO.GetPendingUsersList((int)groupId);
             }
             catch
             {
@@ -255,7 +259,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                activeUsersList = _userRepository.GetActiveUsersList((int)groupId, (int)userId);
+                activeUsersList = _userDAO.GetActiveUsersList((int)groupId, (int)userId);
             }
             catch
             {
@@ -270,7 +274,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
-            return new JsonResult(await _groupRepository.GetActiveUserAsync(id, userId, groupId));
+            return new JsonResult(await _groupDAO.GetActiveUserAsync(id, userId, groupId));
         }
     }
 }

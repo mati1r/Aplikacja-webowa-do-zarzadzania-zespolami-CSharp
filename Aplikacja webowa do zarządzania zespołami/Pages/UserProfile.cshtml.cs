@@ -6,17 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using static Aplikacja_webowa_do_zarządzania_zespołami.Pages.LoginModel;
-using Aplikacja_webowa_do_zarządzania_zespołami.Repository;
+using Aplikacja_webowa_do_zarządzania_zespołami.DAO;
 using System.Runtime.InteropServices;
 
 namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 {
     public class UserProfileModel : PageModel
     {
-        private readonly IUserRepository _userRepository;
-        public UserProfileModel(IUserRepository userRepository)
+        private readonly IUserDAO _userDAO;
+        public UserProfileModel(IUserDAO userDAO)
         {
-            _userRepository = userRepository;
+            _userDAO = userDAO;
             userPersonalData = new UserPersonalDataPartial();
             userAccountData = new UserAccountDataPartial();
         }
@@ -41,7 +41,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                userPersonalData = _userRepository.GetUserPersonalData((int)userId);
+                userPersonalData = _userDAO.GetUserPersonalData((int)userId);
             }
             catch
             {
@@ -75,7 +75,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             }
 
             //Check if there is any other user with that username (exluding us)
-            if (_userRepository.IsUsernameTakenUserProfile(userPersonalData.username, userId))
+            if (_userDAO.IsUsernameTakenUserProfile(userPersonalData.username, userId))
             {
                 validationErrors.Add("Podana nazwa użytkownika jest już zajęta");
                 return new JsonResult(validationErrors);
@@ -84,7 +84,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Check if user didn't deleted session
             try
             {
-                return _userRepository.EditPersonalData(userPersonalData, (int)userId);
+                _userDAO.EditPersonalData(userPersonalData, (int)userId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -114,7 +115,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             User passwordCheck = new User();
             try
             {
-                passwordCheck = _userRepository.GetUserById((int)userId);
+                passwordCheck = _userDAO.GetUserById((int)userId);
             }
             catch
             {
@@ -137,7 +138,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                return _userRepository.EditAccountData(userAccountData, (int)userId);
+                _userDAO.EditAccountData(userAccountData, (int)userId);
+                return new JsonResult("success");
             }
             catch
             {
@@ -153,7 +155,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
             try
             {
-                userPersonalData = _userRepository.GetUserPersonalData((int)userId);
+                userPersonalData = _userDAO.GetUserPersonalData((int)userId);
             }
             catch
             {

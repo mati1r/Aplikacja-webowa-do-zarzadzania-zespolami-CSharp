@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 
-namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
+namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
 {
-    public class GroupRepository : IGroupRepository
+    public class GroupDAO : IGroupDAO
     {
         private readonly DatabaseContext _dbContext;
-        public GroupRepository(DatabaseContext dbContext)
+        public GroupDAO(DatabaseContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -112,15 +112,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             _dbContext.SaveChanges();
         }
 
-        public JsonResult EditGroup(int groupId, Models.Group group)
+        public void EditGroup(int groupId, Models.Group group)
         {
             Models.Group originalGroup = GetActiveGroup(groupId);
             originalGroup.name = group.name;
             originalGroup.description = group.description;
             _dbContext.Update(originalGroup);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
         public bool IsUserPendingToJoinGroup(int userId, int? groupId)
@@ -128,7 +126,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Users_Groups.Any(ug => ug.groups_group_id == groupId && ug.users_user_id == userId && ug.status == "pending");
         }
 
-        public JsonResult AcceptPendingUser(int groupId, int userId)
+        public void AcceptPendingUser(int groupId, int userId)
         {
             User_Group pendingUser = _dbContext.Users_Groups
                 .Where(ug => ug.groups_group_id == groupId && ug.users_user_id == userId)
@@ -138,8 +136,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             pendingUser.status = "active";
             _dbContext.Update(pendingUser);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
         public bool IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(int? groupId, int? userId, int activeUserId)
@@ -149,7 +145,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
                 .Any(ug => ug.groups_group_id == groupId && ug.status == "active" && ug.Groups.owner_id != activeUserId && userId != activeUserId && ug.users_user_id == activeUserId));
         }
 
-        public JsonResult RemoveActiveUserFromGroup(int groupId, int userId)
+        public void RemoveActiveUserFromGroup(int groupId, int userId)
         {
             User_Group removeUserGroup = _dbContext.Users_Groups
                 .Where(ug => ug.groups_group_id == groupId && ug.users_user_id == userId)
@@ -157,11 +153,9 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
 
             _dbContext.Remove(removeUserGroup);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
-        public JsonResult EditRoleOActivefUserInGroup(int groupId, int userId, string newUserRole)
+        public void EditRoleOActivefUserInGroup(int groupId, int userId, string newUserRole)
         {
             User_Group editRoleUserGroup = _dbContext.Users_Groups
                 .Where(ug => ug.groups_group_id == groupId && ug.users_user_id == userId)
@@ -170,8 +164,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             editRoleUserGroup.role = newUserRole;
             _dbContext.Update(editRoleUserGroup);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
         public async Task<ActiveUserDTO> GetActiveUserAsync(int id, int? userId, int? groupId)
@@ -240,7 +232,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Users_Groups.Any(ug => ug.users_user_id == userId && ug.groups_group_id == groupId);
         }
 
-        public JsonResult AddPendingUserToGroup(int userId, int groupId)
+        public void AddPendingUserToGroup(int userId, int groupId)
         {
             User_Group userGroup = new User_Group();
             userGroup.groups_group_id = groupId;
@@ -249,8 +241,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             userGroup.status = "pending";
             _dbContext.Add(userGroup);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
         public bool IsGroupNameTaken(string groupName)
@@ -258,7 +248,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             return _dbContext.Groups.Any(g => g.name == groupName);
         }
 
-        public JsonResult CreateGroup(Models.Group createGroup, int userId)
+        public void CreateGroup(Models.Group createGroup, int userId)
         {
             createGroup.owner_id = userId;
             _dbContext.Groups.Add(createGroup);
@@ -272,8 +262,6 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Repository
             userGroup.role = "owner";
             _dbContext.Users_Groups.Add(userGroup);
             _dbContext.SaveChanges();
-
-            return new JsonResult("success");
         }
 
         public async Task<GroupJoinPartial> GetGroupJoinAsync(int id, int? userId)
