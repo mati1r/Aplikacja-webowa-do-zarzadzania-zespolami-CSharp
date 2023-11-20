@@ -28,6 +28,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
 
                 //Salt the hash
                 byte[] combinedBytes = new byte[passwordBytes.Length + saltBytes.Length];
+
+                //Copy to combinedBytes
                 Array.Copy(passwordBytes, combinedBytes, passwordBytes.Length);
                 Array.Copy(saltBytes, 0, combinedBytes, passwordBytes.Length, saltBytes.Length);
 
@@ -37,6 +39,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Validation
                 //Changing bytes to hexadecimal
                 foreach (byte b in hashBytes)
                 {
+                    //x changes to hexa, 2 means that one byte is represented by 2 hexa
                     builder.Append(b.ToString("x2"));
                 }
                 return builder.ToString();
