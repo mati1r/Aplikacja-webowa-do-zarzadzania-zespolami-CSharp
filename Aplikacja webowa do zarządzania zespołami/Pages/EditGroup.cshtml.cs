@@ -70,8 +70,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostEdit()
         {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
 
             //Need to clear ModelState to validate only the userPersonalData model
             ModelState.Clear();
@@ -106,6 +114,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
             //Sprawdzić czy osoba usuwająca jest twórcą jezeli jest to usunąć
             if (!_groupDAO.IsUserAnCreator(userId, groupId))
             {
@@ -142,8 +151,17 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostAcceptPendingUser()
         {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
+
             //Check if user is in that group and his status is pending
             if (!_groupDAO.IsUserPendingToJoinGroup(pendingUserId, groupId))
             {
@@ -168,6 +186,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
+
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
             if (!_groupDAO.IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(groupId, userId ,activeUserId))
@@ -193,6 +219,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
+
             //Check if user didn't changed id
             //Check if user that we are tring to get is: part of a group, have active status, his id is not id of current editing user and he is not an group creator
             if (!_groupDAO.IsActiveUserPartOfGroupExcludeYourselfAndGroupCreator(groupId, userId, activeUserId))

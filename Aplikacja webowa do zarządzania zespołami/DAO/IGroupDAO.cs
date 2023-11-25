@@ -16,8 +16,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
         //Active Group Page
         List<ActiveGroupDTO> GetGroupsForActiveUser(int userId);
         string GetGroupName(int groupId);
-        bool IsUserActiveMemberOfSelectedGroup(int? userId, int selectedGroupId);
-        bool IsUserAnOwnerOfSelectedGroup(int? userId, int selectedGroupId);
+        bool IsUserActiveMemberOfSelectedGroup(int? userId, int? selectedGroupId);
+        bool IsUserAnOwnerOfSelectedGroup(int? userId, int? selectedGroupId);
 
         //Edit Group Page
         Group GetActiveGroup(int groupId);

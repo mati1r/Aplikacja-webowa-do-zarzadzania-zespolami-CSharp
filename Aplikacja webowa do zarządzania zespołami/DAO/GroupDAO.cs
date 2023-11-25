@@ -65,14 +65,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
                 .First();
         }
 
-        public bool IsUserActiveMemberOfSelectedGroup(int? userId, int selectedGroupId)
+        public bool IsUserActiveMemberOfSelectedGroup(int? userId, int? selectedGroupId)
         {
             return _dbContext.Users_Groups
                 .Where(ugl => ugl.users_user_id == userId && ugl.status == "active")
                 .Any(ugl => ugl.groups_group_id == selectedGroupId);
         }
 
-        public bool IsUserAnOwnerOfSelectedGroup(int? userId, int selectedGroupId)
+        public bool IsUserAnOwnerOfSelectedGroup(int? userId, int? selectedGroupId)
         {
             return _dbContext.Users_Groups
                 .Any(ugl => ugl.users_user_id == userId && ugl.groups_group_id == selectedGroupId && ugl.role == "owner");

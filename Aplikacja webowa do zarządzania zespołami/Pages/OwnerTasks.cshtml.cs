@@ -73,8 +73,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostDelete()
         {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
 
             //Check if task exists in group
             if (!_taskDAO.IsExistingTaskInGroup(createOrEditTask, groupId))
@@ -93,6 +101,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
 
             if (!ModelState.IsValid)
             {
@@ -144,6 +159,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
 
             //Check if task exists in group
             if (!_taskDAO.IsExistingTaskInGroup(createOrEditTask,groupId))
@@ -221,6 +243,22 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         public async Task<JsonResult> OnGetTaskJsonAsync(int id)
         {
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
+
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                Models.Task emptyTask = new Models.Task();
+                emptyTask.start_date = DateTime.Now;
+                emptyTask.end_date = DateTime.Now;
+                emptyTask.task_id = id;
+                emptyTask.task_name = "Błąd";
+                emptyTask.description = "Nie znaleziono w bazie określonego zadania";
+                emptyTask.status = "Błąd";
+                emptyTask.priority = "Błąd";
+
+                return new JsonResult(emptyTask);
+            }
+
             return new JsonResult(await _taskDAO.GetTaskAsync(id, groupId));
         }
 

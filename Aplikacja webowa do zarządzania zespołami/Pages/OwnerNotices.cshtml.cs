@@ -12,9 +12,11 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
     public class OwnerNoticesModel : PageModel
     {
         private readonly IMessageDAO _messageDAO;
-        public OwnerNoticesModel(IMessageDAO messageDAO)
+        private readonly IGroupDAO _groupDAO;
+        public OwnerNoticesModel(IMessageDAO messageDAO, IGroupDAO groupDAO)
         {
             _messageDAO = messageDAO;
+            _groupDAO = groupDAO;
             noticesList = new List<NoticePartial>();
             notice = new Message();
         }
@@ -40,8 +42,16 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
 
         public IActionResult OnPostDelete()
         {
+            userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
 
             if (!_messageDAO.IsNotice(notice.message_id, groupId))
             {
@@ -66,6 +76,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
 
             if (!ModelState.IsValid)
             {
@@ -102,6 +119,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
             List<string> validationErrors = new List<string>();
+
+            //Check if someone (not authorized) doesnt invoke methods in console
+            if (!_groupDAO.IsUserAnOwnerOfSelectedGroup(userId, groupId))
+            {
+                validationErrors.Add("Użytkonik nie posiada uprawnień do operacji");
+                return new JsonResult(validationErrors);
+            }
 
             if (!_messageDAO.IsNotice(notice.message_id, groupId))
             {
