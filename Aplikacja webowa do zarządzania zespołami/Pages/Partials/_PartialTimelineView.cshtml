@@ -8,9 +8,16 @@
 }
 else
 {
-    <div class="d-flex justify-content-end mb-3">
-        <button id="prevMonthButton" class="page-link">W tył</button>
-        <button id="nextMonthButton" class="page-link">W przód</button>
+    <div class="container mb-3">
+        <div class="row">
+            <div class="col-8 d-flex justify-content-start">
+                <h4 id="yearMonthText"></h4>
+            </div>
+            <div class="col-4 d-flex justify-content-end">
+                <button id="prevMonthButton" class="page-link">W tył</button>
+                <button id="nextMonthButton" class="page-link">W przód</button>
+            </div>
+        </div>
     </div>
     <div class="svg-container">
         <svg height="400" class="svg mb-5" id="timeline-chart" xmlns="http://www.w3.org/2000/svg"></svg>
@@ -101,6 +108,7 @@ else
         let taskMargin = 10;
         let currentY = 50;
 
+        //Sort tasks by date
         tasks.sort(function (a, b) {
             return parseDate(a.start_date) - parseDate(b.start_date);
         });
@@ -110,24 +118,27 @@ else
                 svg.removeChild(svg.firstChild);
             }
 
-            for (var i = 0; i < tasks.length; i++) {
+            for (let i = 0; i < tasks.length; i++) {
                 let y = 0;
                 let task = tasks[i];
                 let position = calculateTaskPosition(task, startDate, endDate, svg.clientWidth);
                 let start_date = position.start_date;
                 let width = position.width;
                 let collision = false;
+                let taskHeight = standardTaskHeight;
 
                 const taskStartDate = new Date(parseDate(task.start_date));
                 const taskEndDate = new Date(parseDate(task.end_date));
 
+                //Check if there is element in the past
                 if(taskEndDate >= startDate && taskStartDate <= endDate)
                 {
 
-                    for (var j = i - 1; j >= 0; j--) {
-                        var otherTask = tasks[j];
-                        var otherTaskPosition = calculateTaskPosition(otherTask, startDate, endDate, svg.clientWidth);
+                    for (let j = i - 1; j >= 0; j--) {
+                        let otherTask = tasks[j];
+                        let otherTaskPosition = calculateTaskPosition(otherTask, startDate, endDate, svg.clientWidth);
 
+                        //Check if element in the past colides with current element
                         if (start_date + width >= otherTaskPosition.start_date &&
                             start_date <= otherTaskPosition.start_date + otherTaskPosition.width) {
                             currentY = y + taskHeight + taskMargin;
@@ -136,7 +147,7 @@ else
                         }
                     }
 
-                    var taskHeight = standardTaskHeight;
+                    taskHeight = standardTaskHeight;
 
                     if (!collision) {
                         currentY = 50;
@@ -147,8 +158,8 @@ else
                     }
 
 
-
-                    var rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+                    //Create task rect
+                    let rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
                     rect.setAttribute("x", start_date);
                     rect.setAttribute("y", y);
 
@@ -193,8 +204,9 @@ else
                 }
             }
 
+            //Create horizontal line
             if (!document.getElementById("timeline")) {
-                var timeline = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                let timeline = document.createElementNS("http://www.w3.org/2000/svg", "line");
                 timeline.setAttribute("x1", 0);
                 timeline.setAttribute("y1", svg.getAttribute("height") - 25);
                 timeline.setAttribute("x2", svg.clientWidth);
@@ -203,20 +215,25 @@ else
                 svg.appendChild(timeline);
             }
 
-            var numDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
-            var numTicks = numDays / 5;
+            //Get number of days in month and divide by 5
+            let numDays = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24));
+            let numTicks = numDays / 5;
 
-            for (var i = 0; i <= numTicks; i++) {
-                var tickX = (i / numTicks) * svg.clientWidth;
-                var tickDate = new Date(startDate.getTime() + (i * 5) * (1000 * 60 * 60 * 24));
-                var tickText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            //Set year and month to h4 element
+            document.getElementById("yearMonthText").innerHTML = (startDate.getFullYear() + "-" + (startDate.getMonth() + 1))
+
+            //Create vertical lines and text (every five days)
+            for (let i = 0; i <= numTicks; i++) {
+                let tickX = (i / numTicks) * svg.clientWidth;
+                let tickDate = new Date(startDate.getTime() + (i * 5) * (1000 * 60 * 60 * 24));
+                let tickText = document.createElementNS("http://www.w3.org/2000/svg", "text");
                 tickText.setAttribute("x", tickX + 5);
                 tickText.setAttribute("y", svg.getAttribute("height") - 35);
                 tickText.setAttribute("class", "timeline-date");
-                tickText.textContent = (tickDate.getFullYear() + "-" + (tickDate.getMonth() + 1) + "-" + tickDate.getDate());
+                tickText.textContent = (tickDate.getDate());
                 svg.appendChild(tickText);
 
-                var verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                let verticalLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
                 verticalLine.setAttribute("x1", tickX);
                 verticalLine.setAttribute("y1", svg.getAttribute("height") - 25);
                 verticalLine.setAttribute("x2", tickX);
@@ -229,7 +246,8 @@ else
 
             let info = document.getElementById("info");
             
-            for (var i = 0; i < timelineTasks.length; i++) {
+            //iterate throught elements and set x and y for info element
+            for (let i = 0; i < timelineTasks.length; i++) {
                 timelineTasks[i].addEventListener("mouseenter", function () {
                     info.style.visibility = "visible";
                     let x = this.getAttribute("x");
