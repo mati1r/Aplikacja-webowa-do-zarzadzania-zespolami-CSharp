@@ -83,7 +83,7 @@
         $(document).ready(function () {
 
             //Set how many records need to loaded after clicking on button
-            let howMany = 20;
+            let howMany = 10;
 
             $("#search").click(function(){
 
@@ -122,7 +122,7 @@
                 ChangeSearchbarAction("recived");
 
                 //Since we are changin content of the page we need to restart value of howMany
-                howMany = 20;
+                howMany = 10;
 
                 ClearMessageContainer();
 
@@ -140,7 +140,7 @@
                 ChangeSearchbarAction("sended");
 
                 //Since we are changin content of the page we need to restart value of howMany
-                howMany = 20;
+                howMany = 10;
 
                 ClearMessageContainer();
 
@@ -170,14 +170,12 @@
             //loadMore handlers
             $("#messageContainer").on("click", "#loadMoreRecived", function () {
 
-                //Clear space for new data
-                ClearMessageContainer();
-
                 $.ajax({
                     type: 'get',
                     url: '@Url.Page("Messages", "ReciveMessagesPartial")',
-                    data: { howMany: howMany },
+                    data: { howMany: 10, fromRecord: howMany },
                     success: function (partialResult) {
+                        $("#loadMoreRecived").remove();
                         $("#messageContainer").append(partialResult);
                         howMany += 10;
                     }
@@ -186,14 +184,12 @@
 
             $("#messageContainer").on("click", "#loadMoreSended", function () {
 
-                //Clear space for new data
-                ClearMessageContainer();
-
                 $.ajax({
                     type: 'get',
                     url: '@Url.Page("Messages", "SendedMessagesPartial")',
-                    data: { howMany: howMany },
+                    data: { howMany: 10, fromRecord: howMany },
                     success: function (partialResult) {
+                        $("#loadMoreSended").remove();
                         $("#messageContainer").append(partialResult);
                         howMany += 10;
                     }

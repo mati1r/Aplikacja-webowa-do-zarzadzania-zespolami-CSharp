@@ -50,6 +50,7 @@ else
         timeline(tasks);
 
     function timeline(tasks) {
+
         function calculateTaskPosition(task, startDate, endDate, chartWidth) {
             let start_date = new Date(parseDate(task.start_date));
             let end_date = new Date(parseDate(task.end_date));
@@ -130,7 +131,7 @@ else
                 const taskStartDate = new Date(parseDate(task.start_date));
                 const taskEndDate = new Date(parseDate(task.end_date));
 
-                //Check if there is element in the past
+                //Check if task is in current interval
                 if(taskEndDate >= startDate && taskStartDate <= endDate)
                 {
 
@@ -146,8 +147,6 @@ else
                             collision = true;
                         }
                     }
-
-                    taskHeight = standardTaskHeight;
 
                     if (!collision) {
                         currentY = 50;

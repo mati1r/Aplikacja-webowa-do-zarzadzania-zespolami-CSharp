@@ -45,7 +45,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Check if user didn't deleted session (it causes function to throw exeptions
             try
             {
-                reciveMessagesList = _messageDAO.GetRecivedMessages(10, (int)userId, (int)groupId);
+                reciveMessagesList = _messageDAO.GetRecivedMessages(10, 0, (int)userId, (int)groupId);
             }
             catch
             {
@@ -117,14 +117,14 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
         }
 
         //Partial methods
-        public PartialViewResult OnGetReciveMessagesPartial(int howMany)
+        public PartialViewResult OnGetReciveMessagesPartial(int howMany, int fromRecord)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
 
             try
             {
-                reciveMessagesList = _messageDAO.GetRecivedMessages(howMany, (int)userId, (int)groupId);
+                reciveMessagesList = _messageDAO.GetRecivedMessages(howMany, fromRecord, (int)userId, (int)groupId);
             }
             catch
             {
@@ -167,7 +167,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             return Partial("Partials/_PartialReciveMessage", message);
         }
 
-        public PartialViewResult OnGetSendedMessagesPartial(int howMany)
+        public PartialViewResult OnGetSendedMessagesPartial(int howMany, int fromRecord)
         {
             userId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(2));
             groupId = HttpContext.Session.GetInt32(ConstVariables.GetKeyValue(3));
@@ -175,7 +175,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             //Get list of messages and nickname of one person that recived it (Group by and select statment)
             try
             {
-                sendedMessagesList = _messageDAO.GetSendedMessages(howMany, (int)userId, (int)groupId);
+                sendedMessagesList = _messageDAO.GetSendedMessages(howMany, fromRecord, (int)userId, (int)groupId);
             }
             catch
             {

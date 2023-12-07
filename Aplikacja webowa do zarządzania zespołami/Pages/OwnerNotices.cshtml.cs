@@ -70,6 +70,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
                 return new JsonResult(validationErrors);
             }
         }
+
         public IActionResult OnPostAdd()
         {
             string error = "";

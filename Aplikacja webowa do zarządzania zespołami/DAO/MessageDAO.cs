@@ -95,12 +95,13 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
             return falseMessage;
         }
 
-        public List<ReciveMessagePartial> GetRecivedMessages(int howManyRecords, int userId, int groupId)
+        public List<ReciveMessagePartial> GetRecivedMessages(int howManyRecords, int fromRecord, int userId, int groupId)
         {
             return _dbContext.Messages
                 .Include(m => m.Users) //Include Users table by FK
                 .Where(m => m.Messages_Users.Any(mu => mu.users_user_id == userId) && m.groups_group_id == groupId && m.notice == false) //Get elements that met the requaierments
                 .OrderByDescending(m => m.send_date)
+                .Skip(fromRecord)
                 .Take(howManyRecords)
                 .Select(m => new ReciveMessagePartial
                 {
@@ -146,7 +147,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
             return messagesList;
         }
 
-        public List<SendedMessagePartial> GetSendedMessages(int howManyRecords, int userId, int groupId)
+        public List<SendedMessagePartial> GetSendedMessages(int howManyRecords, int fromRecord, int userId, int groupId)
         {
             return _dbContext.Messages
                 .Where(m => m.sender_id == userId && m.groups_group_id == groupId && m.notice == false)
@@ -162,6 +163,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
                 .Select(g => g.OrderByDescending(m => m.send_date).First())
                 .AsEnumerable() //Changing execution mode to the application level
                 .OrderByDescending(m => m.send_date)
+                .Skip(fromRecord)
                 .Take(howManyRecords)
                 .ToList();
         }
