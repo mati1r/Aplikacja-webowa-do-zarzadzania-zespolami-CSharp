@@ -19,7 +19,8 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.DAO
             if(status == "nieukończone")
             {
                 return "#375a7f";
-            }else if(status == "w trakcie")
+            }
+            else if(status == "w trakcie")
             {
                 return "#f39c12";
             }

@@ -58,7 +58,7 @@ namespace Aplikacja_webowa_do_zarządzania_zespołami.Pages
             client.DeliveryMethod = SmtpDeliveryMethod.Network;
             client.UseDefaultCredentials = false;
             client.EnableSsl = true;
-            client.Credentials = new NetworkCredential("AWDZZmail@gmail.com", "puqonsvjixkcpmwp");
+            client.Credentials = new NetworkCredential("AWDZZmail@gmail.com", "asrtmkwbqrevtmaj");
 
             MailMessage message = new MailMessage(
                 from: new MailAddress("AWDZZmail@gmail.com", "AWDZZ"),
