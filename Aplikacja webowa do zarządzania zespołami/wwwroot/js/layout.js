@@ -2,7 +2,7 @@
 
     function toggleSidebarVisibility() {
         let sidebar = $("#sidebar");
-        // Wyłączanie animacji podczas odczytywania danych
+        // Turn off animation for initial loading
         sidebar.css("transition", "none");
         let isHidden = localStorage.getItem("sidebarHidden");
         if (isHidden === "true") {
@@ -10,13 +10,12 @@
         } else {
             sidebar.css("width", "280px");
         }
-        // Włączanie z powrotem animacji po odczytaniu danych
+        // Turn back animation (set more than time of animation to prevent it from randomly fireing)
         setTimeout(function () {
             sidebar.css("transition", "");
         }, 300);
     }
 
-    // Zapisywanie stanu sideBar'a do local storage po kliknięciu przycisku
     $("#sidebarBtn").click(function () {
         let sidebar = $("#sidebar");
         let isHidden = sidebar.css("width") === "280px";
@@ -26,7 +25,7 @@
 
     toggleSidebarVisibility();
 
-    //Zmiana klasy dla aktualnie wybranego elementu / strony
+    //Change class for selected page
     $('#navbar .nav-link').each(function () {
         if ($(this).attr('href').toLowerCase() === location.pathname.toLowerCase()) {
             $(this).addClass('active');
